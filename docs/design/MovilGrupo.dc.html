@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Celular · mi grupo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0}
+a{color:#1D4E89}a:hover{color:#123459}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DCE2E8; padding: 14px 16px 12px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; align-items: center; gap: 10px">
+<button type="button" style="display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #DCE2E8; background: #FFFFFF; color: #15212C; cursor: pointer">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px">2°B</span>
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+</button>
+<div style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+<span style="font-weight: 700">Matemáticas</span>
+<span style="font-size: 13px; color: #52606D; font-family: 'Atkinson Hyperlegible Mono', monospace">10:05 – 10:55</span>
+</div>
+<span style="font-size: 13px; color: #52606D">Laura R.</span>
+</div>
+<div style="height: 5px; background: #E6EBF0; border-radius: 3px; overflow: hidden" aria-hidden="true"><div style="width: 52%; height: 100%; background: {{accent}}"></div></div>
+</header>
+
+<div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 8px">
+<div style="background: #FFFFFF; border: 2px solid #15212C; border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 10px">
+<span style="font-size: 12px; font-weight: 700; color: #52606D; width: 44px">NIÑO</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 700">Luis Martínez #14</span><span style="font-size: 13px; color: #52606D">Baño hombres</span></span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 22px; font-weight: 600">06:12</span>
+<button type="button" aria-label="Marcar regreso de Luis" style="width: 44px; height: 44px; border-radius: 10px; border: none; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg></button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 700; color: #52606D">NIÑA</span>
+<span style="font-weight: 700; color: #146C43">Libre</span>
+<span style="font-size: 12px; color: #52606D">Baño M: 2 de 3</span>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 700; color: #52606D">ENFERMERÍA</span>
+<span style="font-weight: 700; color: #52606D">Nadie</span>
+<span style="font-size: 12px; color: #52606D">Sin fila</span>
+</div>
+</div>
+<label for="buscarMov" style="position: absolute; left: -9999px">Buscar alumno</label>
+<input id="buscarMov" type="search" placeholder="Buscar nombre o # de lista" style="min-height: 48px; box-sizing: border-box; border: 1px solid #C5CED8; border-radius: 12px; padding: 0 14px; font-size: 16px; background: #FFFFFF">
+</div>
+
+<div style="flex: 1; overflow: hidden; padding: 0 16px; display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{students}}" as="s" hint-placeholder-count="12">
+<button type="button" style="text-align: left; min-height: 52px; padding: 6px 12px; border-radius: 12px; border: {{s.border}}; background: {{s.bg}}; color: #15212C; display: flex; align-items: center; gap: 12px; cursor: pointer; flex-shrink: 0">
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 17px; font-weight: 600; width: 26px">{{s.n}}</span>
+<span style="flex: 1; min-width: 0; font-weight: 700">{{s.name}}</span>
+<sc-if value="{{s.hasTag}}" hint-placeholder-val="{{false}}"><span style="font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: {{s.tagBg}}; color: {{s.tagFg}}">{{s.tag}}</span></sc-if>
+<span style="font-size: 12px; font-weight: 700; color: #52606D; border: 1px solid #DCE2E8; border-radius: 4px; padding: 0 5px">{{s.sex}}</span>
+</button>
+</sc-for>
+</div>
+
+<nav aria-label="Secciones" style="background: #FFFFFF; border-top: 1px solid #DCE2E8; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+<sc-for list="{{nav}}" as="t" hint-placeholder-count="4">
+<a href="#" style="min-height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; font-size: 13px; font-weight: 700; color: {{t.fg}}; border-top: 3px solid {{t.bd}}">
+<span>{{t.label}}</span>
+<sc-if value="{{t.hasBadge}}" hint-placeholder-val="{{false}}"><span style="font-size: 11px; padding: 0 6px; border-radius: 999px; background: #A3221A; color: #FFFFFF">{{t.badge}}</span></sc-if>
+</a>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4E89","options":["#1D4E89","#0F6E6E","#6B2A5E","#8A3B12"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const raw = [[1,'Ana Torres','M'],[2,'Bruno Cázares','H'],[3,'Carla Domínguez','M'],[4,'Diego Esparza','H'],[5,'Elena Fuentes','M'],[6,'Fernando García','H'],[7,'Pedro Gómez','H'],[8,'Gabriela Hernández','M'],[9,'Hugo Ibarra','H'],[10,'Isabel Juárez','M'],[11,'Javier López','H'],[12,'Karla Medina','M'],[13,'Lucía Navarro','M'],[14,'Luis Martínez','H']];
+    const students = raw.map(([n, name, sex]) => n === 14
+      ? { n, name, sex, hasTag: true, tag: 'Fuera', tagBg: '#15212C', tagFg: '#FFFFFF', bg: '#FFFFFF', border: '2px solid #15212C' }
+      : { n, name, sex, hasTag: false, tag: '', tagBg: '', tagFg: '', bg: '#FFFFFF', border: '1px solid #DCE2E8' });
+    const nav = [
+      { label: 'Mi grupo', fg: '#15212C', bd: this.props.accent ?? '#1D4E89', hasBadge: false, badge: '' },
+      { label: 'Baños', fg: '#52606D', bd: 'transparent', hasBadge: false, badge: '' },
+      { label: 'Alertas', fg: '#52606D', bd: 'transparent', hasBadge: true, badge: '1' },
+      { label: 'Más', fg: '#52606D', bd: 'transparent', hasBadge: false, badge: '' }
+    ];
+    return { accent: this.props.accent ?? '#1D4E89', students, nav };
+  }
+}
+</script>
+</body>
+</html>

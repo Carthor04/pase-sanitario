@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Prefectura en vivo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0;background:#F3F5F7}
+a{color:#1D4E89}a:hover{color:#123459}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px">
+
+<header style="background: #15212C; color: #FFFFFF">
+<div style="max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 36px; height: 36px; border-radius: 9px; background: {{accent}}; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px; border: 1px solid #3A4A5A">P</div>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 24px">Prefectura</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 3px 10px; border-radius: 999px; background: #22313F; color: #9FE0BE"><span style="width: 8px; height: 8px; border-radius: 4px; background: #3BC47E"></span>En vivo</span>
+</div>
+<div style="display: flex; gap: 24px; flex-wrap: wrap; margin-left: auto; align-items: center">
+<span style="color: #C7D1DB">Fuera ahora <strong style="color: #FFFFFF; font-size: 20px">7</strong></span>
+<span style="color: #C7D1DB">En fila <strong style="color: #FFFFFF; font-size: 20px">3</strong></span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums">11:00</span>
+</div>
+</div>
+</header>
+
+<main style="max-width: 1240px; margin: 0 auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 18px">
+
+<section aria-label="Alertas activas" style="display: flex; flex-direction: column; gap: 10px">
+<div role="alert" style="background: #FDE9E7; border: 2px solid #C8372D; border-radius: 14px; padding: 14px 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 34px; font-weight: 600; color: #A3221A; font-variant-numeric: tabular-nums">12:40</span>
+<div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 20px; font-weight: 700">Natalia Quiroz · 2°B · Baño mujeres</span>
+<span style="font-size: 14px; color: #7A1B14">Sin atender · avisado a Prof. Soto, coordinación, dirección y WhatsApp</span>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<button type="button" style="min-height: 52px; padding: 0 16px; border-radius: 12px; border: 1px solid #C8372D; background: #FFFFFF; color: #7A1B14; font-size: 16px; font-weight: 700; cursor: pointer">Liberar lugar</button>
+<button type="button" style="min-height: 52px; padding: 0 22px; border-radius: 12px; border: none; background: #A3221A; color: #FFFFFF; font-size: 17px; font-weight: 700; cursor: pointer">Yo la atiendo</button>
+</div>
+</div>
+</section>
+
+<section aria-label="Baños y enfermería" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 16px; align-items: start">
+
+<sc-for list="{{columns}}" as="c" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column">
+<div style="padding: 14px 18px; border-bottom: 1px solid #E6EBF0; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">{{c.title}}</span>
+<span style="font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: {{c.capBg}}; color: {{c.capFg}}">{{c.cap}}</span>
+</div>
+<div style="padding: 12px; display: flex; flex-direction: column; gap: 8px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #52606D; padding: 0 6px">{{c.insideLabel}}</span>
+<sc-for list="{{c.inside}}" as="p" hint-placeholder-count="2">
+<button type="button" style="text-align: left; border-radius: 12px; border: {{p.border}}; background: {{p.bg}}; color: #15212C; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer">
+<span style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%">
+<span style="display: flex; flex-direction: column; min-width: 0">
+<span style="font-size: 17px; font-weight: 700">{{p.name}}</span>
+<span style="font-size: 13px; color: #52606D">{{p.meta}}</span>
+</span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums; color: {{p.timeColor}}">{{p.time}}</span>
+</span>
+<span style="height: 5px; width: 100%; background: #E6EBF0; border-radius: 3px; overflow: hidden" aria-hidden="true"><span style="display: block; height: 100%; width: {{p.pct}}; background: {{p.barColor}}"></span></span>
+</button>
+</sc-for>
+<sc-if value="{{c.hasQueue}}" hint-placeholder-val="{{true}}">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8A4B00; padding: 8px 6px 0">Fila</span>
+<sc-for list="{{c.queue}}" as="q" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 10px; background: #FFFAF0; border: 1px solid #F2D29A">
+<span style="width: 28px; height: 28px; border-radius: 14px; background: #FFF0D6; color: #8A4B00; font-weight: 700; display: flex; align-items: center; justify-content: center">{{q.pos}}</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 700">{{q.name}}</span><span style="font-size: 13px; color: #52606D">{{q.meta}}</span></span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 15px; color: #8A4B00">{{q.wait}}</span>
+</div>
+</sc-for>
+</sc-if>
+<sc-if value="{{c.noQueue}}" hint-placeholder-val="{{false}}">
+<span style="font-size: 14px; color: #146C43; font-weight: 700; padding: 8px 6px 2px">{{c.noQueueText}}</span>
+</sc-if>
+</div>
+</div>
+</sc-for>
+
+</section>
+
+<footer style="display: flex; flex-wrap: wrap; gap: 8px 24px; color: #52606D; font-size: 14px; padding: 4px 4px 12px">
+<span>Hoy: <strong style="color: #15212C">52</strong> salidas</span>
+<span><strong style="color: #15212C">2</strong> alertas</span>
+<span>Fila máxima hombres: <strong style="color: #15212C">4</strong></span>
+<span style="margin-left: auto">Toca a un alumno para marcar regreso o liberar su lugar</span>
+</footer>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4E89","options":["#1D4E89","#0F6E6E","#6B2A5E","#8A3B12"]},"$preview":{"width":1280,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const person = (name, meta, time, mins, kind) => {
+      const alert = mins >= 10;
+      const nurse = kind === 'nurse';
+      return {
+        name, meta, time,
+        pct: Math.min(100, mins * 10) + '%',
+        bg: alert ? '#FDE9E7' : '#FFFFFF',
+        border: alert ? '2px solid #C8372D' : nurse ? '1px solid #BFD0EE' : '1px solid #DCE2E8',
+        timeColor: alert ? '#A3221A' : '#15212C',
+        barColor: alert ? '#C8372D' : nurse ? '#5B86C9' : mins >= 7 ? '#E79B2E' : '#15212C'
+      };
+    };
+    const columns = [
+      {
+        title: 'Baño hombres', cap: '1 / 1 lleno', capBg: '#15212C', capFg: '#FFFFFF', insideLabel: 'Dentro',
+        inside: [person('Pedro Gómez', '2°B · salió 11:00', '00:40', 0.7)],
+        hasQueue: true, noQueue: false, noQueueText: '',
+        queue: [
+          { pos: 1, name: 'Raúl Herrera', meta: '3°A · Prof. Núñez', wait: 'espera 6:10' },
+          { pos: 2, name: 'Emiliano Cruz', meta: '1°C · Prof. Lara', wait: 'espera 2:05' }
+        ]
+      },
+      {
+        title: 'Baño mujeres', cap: '3 / 3 lleno', capBg: '#15212C', capFg: '#FFFFFF', insideLabel: 'Dentro · más tiempo primero',
+        inside: [
+          person('Natalia Quiroz', '2°B · salió 10:47', '12:40', 12.7),
+          person('Sofía Ramírez', '1°A · salió 10:57', '03:10', 3.2),
+          person('Paola Núñez', '2°C · salió 10:59', '01:22', 1.4)
+        ],
+        hasQueue: true, noQueue: false, noQueueText: '',
+        queue: [{ pos: 1, name: 'Daniela Ortiz', meta: '3°B · Prof. Vega', wait: 'espera 0:40' }]
+      },
+      {
+        title: 'Enfermería', cap: 'Sin límite', capBg: '#E6EEFB', capFg: '#1F4F9C', insideLabel: 'En enfermería y en camino',
+        inside: [
+          person('Mateo Pérez', '2°B · llegó 10:52 ✓', '08:00', 8, 'nurse'),
+          person('Iván Ruiz', '3°C · en camino', '01:30', 1.5, 'nurse')
+        ],
+        hasQueue: false, noQueue: true, noQueueText: 'No hace fila ni ocupa lugar del grupo', queue: []
+      }
+    ];
+    return { accent: this.props.accent ?? '#1D4E89', columns };
+  }
+}
+</script>
+</body>
+</html>

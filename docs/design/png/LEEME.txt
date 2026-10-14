@@ -1,0 +1,2 @@
+Exporta aquí las pantallas del lienzo de diseño como PNG (menú Compartir › Exportar), una por archivo,
+con el mismo nombre que su .dc.html (ej. Main.png, MovilGrupo.png).

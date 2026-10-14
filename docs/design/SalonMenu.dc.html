@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Salón 2°B · menú del alumno</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0;background:#F3F5F7}
+a{color:#1D4E89}a:hover{color:#123459}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; position: relative; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column">
+<div style="height: 70px; background: #FFFFFF; border-bottom: 1px solid #DCE2E8"></div>
+<div style="max-width: 1360px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div style="height: 190px; background: #FFFFFF; border-radius: 14px"></div>
+<div style="height: 190px; background: #FFFFFF; border-radius: 14px"></div>
+<div style="height: 190px; background: #FFFFFF; border-radius: 14px"></div>
+</div>
+<div style="max-width: 1360px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{ghost}}" as="g" hint-placeholder-count="24"><div style="height: 72px; background: #FFFFFF; border-radius: 12px"></div></sc-for>
+</div>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(21, 33, 44, 0.55)"></div>
+
+<div style="position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box">
+<div role="dialog" aria-labelledby="menuTitle" style="width: 100%; max-width: 520px; background: #FFFFFF; border-radius: 20px; padding: 28px; box-sizing: border-box; display: flex; flex-direction: column; gap: 18px; box-shadow: 0 24px 60px rgba(0,0,0,0.25)">
+
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #52606D">2°B · Niña</span>
+<h2 id="menuTitle" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 32px; font-weight: 700">Ana Torres <span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 22px; color: #52606D">#1</span></h2>
+</div>
+<button type="button" aria-label="Cerrar" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid #DCE2E8; background: #FFFFFF; color: #15212C; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+</div>
+
+<button type="button" style="text-align: left; min-height: 96px; border-radius: 16px; border: 2px solid {{accent}}; background: #FFFFFF; color: #15212C; padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer">
+<span style="width: 52px; height: 52px; border-radius: 14px; background: #EEF3FA; color: {{accent}}; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v18M17 3v18M3 8h18"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 4px; flex: 1">
+<span style="font-size: 22px; font-weight: 700">Baño</span>
+<span style="font-size: 15px; color: #146C43; font-weight: 700">Baño mujeres · entra directo (2 de 3)</span>
+</span>
+<span style="font-size: 24px; color: #9AA6B2" aria-hidden="true">›</span>
+</button>
+
+<button type="button" style="text-align: left; min-height: 96px; border-radius: 16px; border: 1px solid #C5CED8; background: #FFFFFF; color: #15212C; padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer">
+<span style="width: 52px; height: 52px; border-radius: 14px; background: #E6EEFB; color: #1F4F9C; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 4px; flex: 1">
+<span style="font-size: 22px; font-weight: 700">Enfermería</span>
+<span style="font-size: 15px; color: #52606D">No hace fila · avisa a la enfermera</span>
+</span>
+<span style="font-size: 24px; color: #9AA6B2" aria-hidden="true">›</span>
+</button>
+
+<span style="font-size: 13px; color: #52606D; text-align: center">Un toque abre el pase. Queda registrado a nombre de Prof. Laura Ramírez, quien desbloqueó a las 10:06.</span>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4E89","options":["#1D4E89","#0F6E6E","#6B2A5E","#8A3B12"]},"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1D4E89', ghost: Array.from({ length: 24 }, (_, i) => ({ i })) };
+  }
+}
+</script>
+</body>
+</html>

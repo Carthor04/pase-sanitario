@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Celular · menú del alumno</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; gap: 8px">
+<div style="height: 92px; background: #FFFFFF"></div>
+<div style="margin: 0 16px; height: 64px; background: #FFFFFF; border-radius: 14px"></div>
+<div style="margin: 0 16px; height: 64px; background: #FFFFFF; border-radius: 14px"></div>
+<sc-for list="{{ghost}}" as="g" hint-placeholder-count="8"><div style="margin: 0 16px; height: 52px; background: #FFFFFF; border-radius: 12px"></div></sc-for>
+</div>
+<div aria-hidden="true" style="position: absolute; inset: 0; background: rgba(21, 33, 44, 0.55)"></div>
+
+<div role="dialog" aria-labelledby="mTitle" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 22px 22px 0 0; padding: 12px 20px 28px; display: flex; flex-direction: column; gap: 14px">
+<span style="align-self: center; width: 40px; height: 5px; border-radius: 3px; background: #C5CED8" aria-hidden="true"></span>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #52606D">2°B · Niño</span>
+<h2 id="mTitle" style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 28px; font-weight: 700">Jorge Valdez <span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 20px; color: #52606D">#22</span></h2>
+</div>
+
+<button type="button" style="text-align: left; min-height: 84px; border-radius: 16px; border: 2px solid #F2B661; background: #FFFAF0; color: #15212C; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer">
+<span style="width: 46px; height: 46px; border-radius: 12px; background: #FFF0D6; color: #8A4B00; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v18M17 3v18M3 8h18"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+<span style="font-size: 20px; font-weight: 700">Baño</span>
+<span style="font-size: 14px; color: #8A4B00; font-weight: 700">Queda en espera: Luis (#14) sigue fuera. Sale en cuanto regrese.</span>
+</span>
+</button>
+
+<button type="button" style="text-align: left; min-height: 84px; border-radius: 16px; border: 1px solid #C5CED8; background: #FFFFFF; color: #15212C; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer">
+<span style="width: 46px; height: 46px; border-radius: 12px; background: #E6EEFB; color: #1F4F9C; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>
+<span style="display: flex; flex-direction: column; gap: 2px; flex: 1">
+<span style="font-size: 20px; font-weight: 700">Enfermería</span>
+<span style="font-size: 14px; color: #52606D">Sale ya · no hace fila</span>
+</span>
+</button>
+
+<button type="button" style="min-height: 52px; border-radius: 12px; border: 1px solid #C5CED8; background: #FFFFFF; color: #15212C; font-size: 16px; font-weight: 700; cursor: pointer">Cancelar</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return { ghost: Array.from({ length: 8 }, (_, i) => ({ i })) }; }
+}
+</script>
+</body>
+</html>

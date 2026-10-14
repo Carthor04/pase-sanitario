@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Celular · turno y alerta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DCE2E8; padding: 14px 16px; display: flex; align-items: center; gap: 10px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px">2°B</span>
+<div style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+<span style="font-weight: 700">Español · Prof. Soto</span>
+<span style="font-size: 13px; color: #52606D; font-family: 'Atkinson Hyperlegible Mono', monospace">10:55 – 11:45</span>
+</div>
+</header>
+
+<div role="alert" style="background: #FFF0D6; border-bottom: 3px solid #E79B2E; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700; color: #5C3200">Turno de Pedro #7</span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 26px; font-weight: 600; color: #5C3200">1:42</span>
+</div>
+<span style="font-size: 14px; color: #6B3B00">Baño hombres libre. Confirma o el turno pasa al siguiente grupo.</span>
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px">
+<button type="button" style="min-height: 50px; border-radius: 12px; border: 1px solid #C98A2E; background: #FFFFFF; color: #5C3200; font-size: 15px; font-weight: 700; cursor: pointer">Ceder</button>
+<button type="button" style="min-height: 50px; border-radius: 12px; border: none; background: #15212C; color: #FFFFFF; font-size: 16px; font-weight: 700; cursor: pointer">Confirmar salida</button>
+</div>
+</div>
+
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="background: #FDE9E7; border: 2px solid #C8372D; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 12px; font-weight: 700; color: #7A1B14">NIÑA · ALERTA 10 MIN</span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 26px; font-weight: 600; color: #A3221A">12:40</span>
+</div>
+<span style="font-size: 18px; font-weight: 700">Natalia Quiroz #17</span>
+<span style="font-size: 14px; color: #7A1B14">Salió 10:47 en Matemáticas · Prefecto Juan Pérez va en camino</span>
+<button type="button" style="min-height: 48px; border-radius: 12px; border: none; background: {{accent}}; color: #FFFFFF; font-size: 16px; font-weight: 700; cursor: pointer">Marcar regreso</button>
+</div>
+<div style="background: #FFFFFF; border: 2px solid #5B86C9; border-radius: 14px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px">
+<span style="display: flex; flex-direction: column"><span style="font-size: 12px; font-weight: 700; color: #1F4F9C">ENFERMERÍA · LLEGÓ</span><span style="font-weight: 700">Mateo Pérez #16</span></span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 20px; font-weight: 600">08:00</span>
+</div>
+</div>
+
+<div style="margin-top: auto; padding: 0 16px 16px">
+<div role="status" style="background: #15212C; color: #FFFFFF; border-radius: 12px; padding: 10px 10px 10px 14px; display: flex; align-items: center; gap: 10px">
+<span style="flex: 1; font-size: 14px">Regreso de Luis registrado · 6:48</span>
+<button type="button" style="min-height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid #5B6B7A; background: transparent; color: #FFFFFF; font-weight: 700; cursor: pointer">Deshacer</button>
+</div>
+</div>
+
+<nav aria-label="Secciones" style="background: #FFFFFF; border-top: 1px solid #DCE2E8; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr))">
+<a href="#" style="min-height: 62px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 700; color: #15212C; border-top: 3px solid {{accent}}">Mi grupo</a>
+<a href="#" style="min-height: 62px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 700; color: #52606D; border-top: 3px solid transparent">Baños</a>
+<a href="#" style="min-height: 62px; display: flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-size: 13px; font-weight: 700; color: #52606D; border-top: 3px solid transparent">Alertas <span style="font-size: 11px; padding: 0 6px; border-radius: 999px; background: #A3221A; color: #FFFFFF">1</span></a>
+<a href="#" style="min-height: 62px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; font-weight: 700; color: #52606D; border-top: 3px solid transparent">Más</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4E89","options":["#1D4E89","#0F6E6E","#6B2A5E","#8A3B12"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return { accent: this.props.accent ?? '#1D4E89' }; }
+}
+</script>
+</body>
+</html>

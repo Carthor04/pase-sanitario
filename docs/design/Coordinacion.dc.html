@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reportes de coordinación</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0;background:#F3F5F7}
+a{color:#1D4E89}a:hover{color:#123459}
+button,select{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DCE2E8">
+<div style="max-width: 1360px; margin: 0 auto; padding: 12px 24px 0; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+<div style="width: 36px; height: 36px; border-radius: 9px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px">P</div>
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 24px">Pase · Coordinación</span>
+<span style="font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FFF0D6; color: #8A4B00">Datos de ejemplo</span>
+<span style="margin-left: auto; font-size: 14px; color: #52606D">Mtra. Claudia Herrera · Coordinación</span>
+</div>
+<nav aria-label="Secciones" style="display: flex; gap: 4px; flex-wrap: wrap">
+<a href="#" style="padding: 10px 14px; text-decoration: none; color: #52606D; font-weight: 700; border-bottom: 3px solid transparent">En vivo</a>
+<a href="#" style="padding: 10px 14px; text-decoration: none; color: #15212C; font-weight: 700; border-bottom: 3px solid {{accent}}">Reportes</a>
+<a href="#" style="padding: 10px 14px; text-decoration: none; color: #52606D; font-weight: 700; border-bottom: 3px solid transparent">Historial</a>
+<a href="#" style="padding: 10px 14px; text-decoration: none; color: #52606D; font-weight: 700; border-bottom: 3px solid transparent">Configuración</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+<h1 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 30px; font-weight: 700; text-wrap: balance">Semana del 12 al 16 de octubre</h1>
+<div style="margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap">
+<label for="rango" style="position: absolute; left: -9999px">Periodo</label>
+<select id="rango" style="min-height: 44px; border: 1px solid #C5CED8; border-radius: 10px; padding: 0 12px; font-size: 15px; background: #FFFFFF; color: #15212C">
+<option>Esta semana</option><option>Hoy</option><option>Este mes</option><option>Rango personalizado</option>
+</select>
+<button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 10px; border: none; background: #146C43; color: #FFFFFF; font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18M3 15h18M9 3v18"></path></svg>
+Exportar a Google Sheets</button>
+</div>
+</div>
+
+<section aria-label="Resumen" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #52606D">{{k.label}}</span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 36px; font-weight: 600; font-variant-numeric: tabular-nums; color: {{k.color}}">{{k.value}}</span>
+<span style="font-size: 14px; color: #52606D">{{k.note}}</span>
+</div>
+</sc-for>
+</section>
+
+<section aria-label="Saturación del baño de hombres" style="background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">Baño hombres · salidas por hora</h2>
+<span style="font-size: 14px; color: #52606D">Capacidad real: unas 12 por hora. Los bloques oscuros tuvieron fila.</span>
+<span style="margin-left: auto; display: inline-flex; gap: 6px" role="group" aria-label="Baño">
+<button type="button" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #15212C; background: #15212C; color: #FFFFFF; font-weight: 700">Hombres</button>
+<button type="button" style="min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #C5CED8; background: #FFFFFF; color: #15212C; font-weight: 700">Mujeres</button>
+</span>
+</div>
+<div style="overflow-x: auto">
+<div style="display: grid; grid-template-columns: 56px repeat(7, minmax(72px, 1fr)); gap: 4px; min-width: 620px">
+<span></span>
+<sc-for list="{{hours}}" as="h" hint-placeholder-count="7"><span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 13px; color: #52606D; text-align: center">{{h}}</span></sc-for>
+<sc-for list="{{heat}}" as="cell" hint-placeholder-count="40">
+<span style="height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 15px; font-weight: 600; background: {{cell.bg}}; color: {{cell.fg}}">{{cell.text}}</span>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #52606D">
+<span>0</span>
+<span style="width: 160px; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #EEF3FA, #1D4E89)" aria-hidden="true"></span>
+<span>12+ salidas</span>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+
+<section aria-label="Por grupo" style="flex: 999 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">Por grupo</h2>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 480px">
+<thead><tr style="text-align: left; color: #52606D; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em">
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Grupo</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Salidas</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8; width: 34%"></th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Prom. fuera</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Alertas</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="9">
+<tr>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; font-weight: 700">{{g.name}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; font-family: 'Atkinson Hyperlegible Mono', monospace; font-variant-numeric: tabular-nums">{{g.exits}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4"><span style="display: block; height: 8px; border-radius: 4px; background: {{accent}}; width: {{g.pct}}" aria-hidden="true"></span></td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; font-family: 'Atkinson Hyperlegible Mono', monospace; font-variant-numeric: tabular-nums">{{g.avg}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4"><span style="font-weight: 700; padding: 2px 10px; border-radius: 999px; background: {{g.alBg}}; color: {{g.alFg}}">{{g.alerts}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<section aria-label="Reincidentes" style="flex: 1 1 320px; min-width: 0; background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">A revisar</h2>
+<span style="font-size: 14px; color: #52606D">2 o más alertas, o más de 8 salidas en la semana</span>
+</div>
+<sc-for list="{{flagged}}" as="f" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #E6EBF0; border-radius: 12px">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-weight: 700">{{f.name}}</span><span style="font-size: 13px; color: #52606D">{{f.meta}}</span></div>
+<span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: {{f.bg}}; color: {{f.fg}}">{{f.badge}}</span>
+</div>
+</sc-for>
+</section>
+</div>
+
+<section aria-label="Movimientos recientes" style="background: #FFFFFF; border: 1px solid #DCE2E8; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">Movimientos recientes</h2>
+<label for="buscar" style="position: absolute; left: -9999px">Buscar alumno</label>
+<input id="buscar" type="search" placeholder="Buscar alumno, grupo o maestro" style="margin-left: auto; min-height: 44px; width: 300px; max-width: 100%; box-sizing: border-box; border: 1px solid #C5CED8; border-radius: 10px; padding: 0 12px; font-size: 15px">
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 15px; min-width: 760px">
+<thead><tr style="text-align: left; color: #52606D; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em">
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Hora</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Alumno</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Destino</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Fuera</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Autorizó</th>
+<th style="padding: 8px 6px; border-bottom: 1px solid #DCE2E8">Cierre</th>
+</tr></thead>
+<tbody>
+<sc-for list="{{log}}" as="r" hint-placeholder-count="6">
+<tr>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; font-family: 'Atkinson Hyperlegible Mono', monospace">{{r.t}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; font-weight: 700">{{r.who}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4">{{r.dest}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; font-family: 'Atkinson Hyperlegible Mono', monospace; color: {{r.durColor}}; font-weight: 600">{{r.dur}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; color: #52606D">{{r.by}}</td>
+<td style="padding: 9px 6px; border-bottom: 1px solid #EEF1F4; color: #52606D">{{r.close}}</td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4E89","options":["#1D4E89","#0F6E6E","#6B2A5E","#8A3B12"]},"$preview":{"width":1440,"height":1320}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const kpis = [
+      { label: 'Salidas', value: '248', note: '196 baño · 52 enfermería', color: '#15212C' },
+      { label: 'Tiempo promedio', value: '5.9 min', note: 'Hombres 6.4 · Mujeres 5.1', color: '#15212C' },
+      { label: 'Alertas 10 min', value: '11', note: '9 atendidas en menos de 3 min', color: '#A3221A' },
+      { label: 'Fila máxima', value: '5', note: 'Baño hombres · martes 10:00', color: '#8A4B00' }
+    ];
+    const hours = ['7:00','8:00','9:00','10:00','11:00','12:00','13:00'];
+    const days = ['Lun','Mar','Mié','Jue','Vie'];
+    const m = [
+      [3,6,7,11,9,7,5],
+      [4,7,8,13,10,8,4],
+      [2,5,7,12,9,6,5],
+      [3,6,9,12,11,7,6],
+      [2,5,6,10,8,6,3]
+    ];
+    const mix = (a, b, t) => '#' + [0,2,4].map((i) => {
+      const x = Math.round(parseInt(a.slice(1+i,3+i),16)*(1-t) + parseInt(b.slice(1+i,3+i),16)*t);
+      return x.toString(16).padStart(2,'0');
+    }).join('');
+    const heat = [];
+    days.forEach((d, r) => {
+      heat.push({ text: d, bg: 'transparent', fg: '#52606D' });
+      m[r].forEach((v) => {
+        const t = Math.min(1, v / 12);
+        heat.push({ text: String(v), bg: mix('#EEF3FA', '#1D4E89', t), fg: t > 0.55 ? '#FFFFFF' : '#15212C' });
+      });
+    });
+    const g = [['1°A',24,5.2,0],['1°B',29,5.8,1],['1°C',31,6.1,1],['2°A',22,4.9,0],['2°B',38,6.6,3],['2°C',27,5.5,1],['3°A',35,6.9,3],['3°B',19,4.7,0],['3°C',23,5.4,2]];
+    const max = 38;
+    const groups = g.map(([name, exits, avg, alerts]) => ({
+      name, exits, avg: avg.toFixed(1) + ' min', alerts,
+      pct: Math.round(exits / max * 100) + '%',
+      alBg: alerts >= 3 ? '#FDE9E7' : alerts > 0 ? '#FFF0D6' : '#E3F4EA',
+      alFg: alerts >= 3 ? '#A3221A' : alerts > 0 ? '#8A4B00' : '#146C43'
+    }));
+    const flagged = [
+      { name: 'Natalia Quiroz', meta: '2°B · 6 salidas · prom. 9.8 min', badge: '3 alertas', bg: '#FDE9E7', fg: '#A3221A' },
+      { name: 'Raúl Herrera', meta: '3°A · 11 salidas · casi siempre en Química', badge: '11 salidas', bg: '#FFF0D6', fg: '#8A4B00' },
+      { name: 'Luis Martínez', meta: '2°B · 9 salidas · prom. 7.1 min', badge: '2 alertas', bg: '#FDE9E7', fg: '#A3221A' },
+      { name: 'Iván Ruiz', meta: '3°C · 4 visitas a enfermería', badge: '4 enfermería', bg: '#E6EEFB', fg: '#1F4F9C' }
+    ];
+    const log = [
+      { t: '11:00', who: 'Pedro Gómez · 2°B', dest: 'Baño hombres', dur: 'en curso', durColor: '#52606D', by: 'Prof. Soto (PIN)', close: '—' },
+      { t: '10:59', who: 'Paola Núñez · 2°C', dest: 'Baño mujeres', dur: 'en curso', durColor: '#52606D', by: 'Prof. Vega (PIN)', close: '—' },
+      { t: '10:47', who: 'Natalia Quiroz · 2°B', dest: 'Baño mujeres', dur: '12:40', durColor: '#A3221A', by: 'Prof. Ramírez (PIN)', close: 'Alerta · prefectura' },
+      { t: '10:25', who: 'Luis Martínez · 2°B', dest: 'Baño hombres', dur: '06:48', durColor: '#15212C', by: 'Prof. Ramírez (PIN)', close: 'Maestro' },
+      { t: '10:24', who: 'Iván Ruiz · 3°C', dest: 'Enfermería', dur: 'en curso', durColor: '#52606D', by: 'Prof. Lara (PIN)', close: '—' },
+      { t: '10:12', who: 'Raúl Herrera · 3°A', dest: 'Baño hombres', dur: '09:10', durColor: '#8A4B00', by: 'Prof. Núñez (PIN)', close: 'Maestro' }
+    ];
+    return { accent: this.props.accent ?? '#1D4E89', kpis, hours, heat, groups, flagged, log };
+  }
+}
+</script>
+</body>
+</html>

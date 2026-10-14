@@ -1,0 +1,200 @@
+# Modelo de datos (Supabase / Postgres)
+
+Esquema de referencia. Claude Code puede ajustarlo si encuentra un problema, pero debe explicar el cambio.
+
+## Tablas
+
+```sql
+-- Personal
+create table staff (
+  id uuid primary key default gen_random_uuid(),
+  auth_user_id uuid unique references auth.users(id),
+  full_name text not null,
+  email text unique not null,          -- correo institucional
+  roles text[] not null,               -- teacher, prefect, nurse, coordinator, director, admin
+  pin_hash text,                       -- crypt(pin, gen_salt('bf')); solo maestros/prefectura
+  whatsapp text,                       -- opcional
+  active boolean default true
+);
+
+create table groups (
+  id uuid primary key default gen_random_uuid(),
+  name text unique not null,           -- '2°B'
+  room text,                           -- 'Salón 12'
+  sort int
+);
+
+create table students (
+  id uuid primary key default gen_random_uuid(),
+  group_id uuid not null references groups(id),
+  list_number int not null,
+  full_name text not null,
+  sex char(1) not null check (sex in ('H','M')),
+  rfid_tag text unique,                -- futuro
+  active boolean default true,
+  unique (group_id, list_number)
+);
+
+-- Horario
+create table periods (                 -- módulos del día
+  id uuid primary key default gen_random_uuid(),
+  weekday int not null check (weekday between 1 and 5),
+  starts time not null,
+  ends time not null
+);
+create table schedule_entries (
+  id uuid primary key default gen_random_uuid(),
+  group_id uuid not null references groups(id),
+  period_id uuid not null references periods(id),
+  subject text not null,
+  teacher_id uuid references staff(id),
+  unique (group_id, period_id)
+);
+
+-- Lugares
+create table destinations (
+  id text primary key,                 -- 'bath_h', 'bath_m', 'nurse'
+  label text not null,
+  kind text not null check (kind in ('bathroom','nurse')),
+  sex char(1),                         -- 'H' / 'M' / null
+  capacity int,                        -- null = sin límite
+  per_group_limit int,                 -- 1; null = sin límite
+  uses_group_slot boolean default true,-- false en enfermería
+  queue_enabled boolean default true
+);
+
+create table settings (                -- una sola fila
+  id int primary key default 1 check (id = 1),
+  alert_minutes int default 10,
+  escalate_minutes int default 5,
+  confirm_turn_minutes int default 2,
+  auto_lock_after_class_minutes int default 5,
+  undo_seconds int default 10,
+  review_alerts_threshold int default 2,
+  review_exits_threshold int default 8,
+  sheets_spreadsheet_id text,
+  sheets_daily_export_time time default '15:00'
+);
+
+-- Equipos de salón
+create table devices (
+  id uuid primary key default gen_random_uuid(),
+  group_id uuid not null references groups(id),
+  label text,
+  auth_user_id uuid unique references auth.users(id), -- usuario técnico del equipo
+  last_seen_at timestamptz
+);
+create table device_unlocks (
+  id uuid primary key default gen_random_uuid(),
+  device_id uuid not null references devices(id),
+  staff_id uuid not null references staff(id),
+  unlocked_at timestamptz default now(),
+  expires_at timestamptz not null,     -- fin de la clase + auto_lock_after_class_minutes
+  locked_at timestamptz,               -- bloqueo manual
+  lock_reason text                     -- 'manual' | 'auto' | 'pin_change'
+);
+
+-- Pases
+create type pass_status as enum
+  ('group_wait','queued','called','out','arrived','returned','released','cancelled');
+
+create table passes (
+  id uuid primary key default gen_random_uuid(),
+  student_id uuid not null references students(id),
+  group_id uuid not null references groups(id),
+  destination_id text not null references destinations(id),
+  status pass_status not null,
+  requested_at timestamptz default now(),
+  queue_ts timestamptz,                -- orden en la fila
+  called_at timestamptz,
+  started_at timestamptz,              -- salió del salón
+  arrived_at timestamptz,              -- enfermería
+  ended_at timestamptz,
+  opened_by uuid references staff(id),
+  closed_by uuid references staff(id),
+  device_id uuid references devices(id),
+  source text default 'manual',        -- 'manual' | 'rfid'
+  period_subject text,                 -- materia al salir (para "salió en Matemáticas")
+  release_reason text
+);
+create unique index one_active_pass_per_student on passes(student_id)
+  where status in ('group_wait','queued','called','out','arrived');
+
+create table pass_events (             -- bitácora inmutable
+  id bigserial primary key,
+  pass_id uuid not null references passes(id),
+  type text not null,                  -- requested, queued, called, confirmed, ceded, turn_expired,
+                                       -- returned, released, cancelled, arrived, undo, alert, escalated
+  actor_id uuid references staff(id),
+  device_id uuid references devices(id),
+  at timestamptz default now(),
+  payload jsonb
+);
+
+-- Alertas y notificaciones
+create table alerts (
+  id uuid primary key default gen_random_uuid(),
+  pass_id uuid not null references passes(id),
+  level int default 1,                 -- 1 = 10 min, 2 = escalada
+  created_at timestamptz default now(),
+  acknowledged_by uuid references staff(id),
+  acknowledged_at timestamptz,
+  resolved_at timestamptz
+);
+create table notification_rules (
+  role text not null,                  -- 'current_teacher','authorizing_teacher','prefect','coordinator','director'
+  channel text not null,               -- 'app','push','whatsapp'
+  enabled boolean default true,
+  primary key (role, channel)
+);
+create table notifications_outbox (
+  id bigserial primary key,
+  channel text not null,               -- 'push' | 'whatsapp'
+  recipient_staff_id uuid,             -- null para el grupo de WhatsApp
+  body text not null,
+  payload jsonb,
+  created_at timestamptz default now(),
+  sent_at timestamptz,
+  error text
+);
+create table push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  staff_id uuid references staff(id),
+  endpoint text unique, p256dh text, auth text,
+  created_at timestamptz default now()
+);
+```
+
+## Funciones RPC (todas `security definer`, validan rol y unlock vigente)
+
+| Función | Qué hace |
+|---|---|
+| `unlock_device(pin text)` | Llamada por el usuario del equipo. Verifica PIN contra `staff.pin_hash`, limita intentos, crea `device_unlocks` con `expires_at` = fin de la clase actual + minutos de autobloqueo. |
+| `lock_device()` | Cierra el unlock vigente (`locked_at`, `lock_reason='manual'`). |
+| `current_actor()` | Devuelve el `staff_id` que actúa: el maestro logueado (celular) o el del unlock vigente (equipo de salón). Error si el equipo está bloqueado. |
+| `request_pass(student_id uuid, kind text)` | `kind` = `'bathroom'` o `'nurse'`. Aplica las reglas de SPEC §4 con `select … for update` sobre la fila de `destinations`. Devuelve el pase con su estado final. |
+| `confirm_turn(pass_id)` | `called` → `out`. |
+| `cede_turn(pass_id)` | `called` → `queued` en segundo lugar; `advance`. |
+| `mark_returned(pass_id)` | `out`/`arrived` → `returned`; resuelve alerta; `advance`. |
+| `mark_arrived(pass_id)` | Enfermería: `out` → `arrived` (rol nurse). |
+| `release_pass(pass_id, reason text)` | Prefectura/coordinación: cierra como `released`; `advance`. |
+| `cancel_pass(pass_id)` | Antes de `out`. |
+| `undo_last(pass_id)` | Revierte la última transición si fue hace ≤ `undo_seconds`. |
+| `acknowledge_alert(alert_id)` | "Yo lo atiendo". |
+| `advance(destination_id)` | Interna. Promueve `group_wait` y llama al siguiente de la fila. |
+| `tick()` | La corre **pg_cron cada minuto**: vence turnos `called`, crea alertas de 10 min, escala alertas sin atender, autobloquea equipos, encola notificaciones. |
+
+## Vistas útiles
+- `v_live_board`: pases activos con alumno, grupo, destino, minutos fuera, materia de salida y maestro a cargo ahora.
+- `v_current_class(group_id)`: materia y maestro según hora actual de México.
+- `v_report_*`: agregados para reportes (por hora/día, por grupo, a revisar).
+
+## RLS (resumen)
+- Todo requiere usuario autenticado que exista en `staff` activo o en `devices`.
+- Escrituras en `passes`, `pass_events`, `alerts` **solo vía RPC** (sin políticas de insert/update directas).
+- `teacher`: lee alumnos y pases de todos los grupos (necesita ver baños y filas), escribe solo vía RPC.
+- `coordinator`/`director`/`admin`: lectura completa + escritura en catálogos y `settings`.
+- `devices`: lectura de su grupo, de `v_live_board` y de catálogos; acciones vía RPC con unlock vigente.
+
+## Realtime
+Publicar cambios de `passes` y `alerts`. El cliente refresca `v_live_board` con TanStack Query al recibir eventos. Cronómetros se calculan en el cliente desde `started_at` (no polling por segundo).

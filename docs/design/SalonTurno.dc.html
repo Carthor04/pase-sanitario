@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Salón 2°B · turno y alerta</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+body{margin:0;background:#F3F5F7}
+a{color:#1D4E89}a:hover{color:#123459}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="min-height: 100vh; position: relative; background: #F3F5F7; color: #15212C; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 16px">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #DCE2E8">
+<div style="max-width: 1360px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 40px; height: 40px; border-radius: 10px; background: {{accent}}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px">P</div>
+<div style="display: flex; flex-direction: column">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 26px; line-height: 1">2°B</span>
+<span style="font-size: 13px; color: #52606D">Salón 12 · Secundaria</span>
+</div>
+</div>
+<div style="flex: 1 1 360px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline">
+<span style="font-weight: 700; font-size: 18px">Español</span>
+<span style="color: #52606D">Prof. Miguel Ángel Soto</span>
+<span style="color: #52606D; font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 14px">10:55 – 11:45</span>
+</div>
+<div style="height: 6px; background: #E6EBF0; border-radius: 3px; overflow: hidden" aria-hidden="true"><div style="width: 10%; height: 100%; background: {{accent}}"></div></div>
+</div>
+<div style="display: flex; align-items: center; gap: 16px">
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #146C43"><span style="width: 8px; height: 8px; border-radius: 4px; background: #1E8A55"></span>En línea</span>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums">11:00</span>
+<button type="button" aria-label="Bloquear pantalla" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #C5CED8; background: #FFFFFF; color: #15212C; font-size: 15px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Bloquear</button>
+</div>
+</div>
+</header>
+
+<div role="alert" style="background: #FFF0D6; border-bottom: 3px solid #E79B2E">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8A4B00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+<div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-family: 'Bricolage Grotesque', sans-serif; font-size: 26px; font-weight: 700; color: #5C3200">Turno de Pedro Gómez <span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 20px">#7</span></span>
+<span style="color: #6B3B00">El baño de hombres se liberó. Confirma su salida antes de que el turno pase al siguiente grupo.</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center">
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 36px; font-weight: 600; color: #5C3200; font-variant-numeric: tabular-nums; line-height: 1">1:42</span>
+<span style="font-size: 12px; color: #6B3B00">para confirmar</span>
+</div>
+<div style="display: flex; gap: 10px; flex-wrap: wrap">
+<button type="button" style="min-height: 52px; padding: 0 18px; border-radius: 12px; border: 1px solid #C98A2E; background: #FFFFFF; color: #5C3200; font-size: 16px; font-weight: 700; cursor: pointer">Ceder turno</button>
+<button type="button" style="min-height: 52px; padding: 0 24px; border-radius: 12px; border: none; background: #15212C; color: #FFFFFF; font-size: 17px; font-weight: 700; cursor: pointer">Confirmar salida</button>
+</div>
+</div>
+</div>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+
+<section aria-label="Lugares del grupo" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px">
+
+<div style="background: #FFFFFF; border: 2px solid #E79B2E; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #52606D">Niño · Baño hombres</span>
+<span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #FFF0D6; color: #8A4B00">Su turno</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 22px; font-weight: 700">Pedro Gómez</span>
+<span style="color: #52606D">#7 · esperó 8 min en fila</span>
+</div>
+<span style="font-size: 14px; color: #52606D">Fila de hombres detrás de él: 3°A, 1°C</span>
+</div>
+
+<div style="background: #FDE9E7; border: 2px solid #C8372D; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #7A1B14">Niña · Baño mujeres</span>
+<span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #A3221A; color: #FFFFFF">Alerta 10 min</span>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<span style="font-size: 22px; font-weight: 700">Natalia Quiroz</span>
+<span style="color: #7A1B14">#17 · salió 10:47 en Matemáticas</span>
+</div>
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 40px; font-weight: 600; color: #A3221A; font-variant-numeric: tabular-nums; line-height: 1">12:40</span>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; font-size: 14px; color: #7A1B14; font-weight: 700">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+Prefecto Juan Pérez va en camino
+</div>
+<button type="button" style="min-height: 48px; border: none; border-radius: 10px; background: {{accent}}; color: #FFFFFF; font-size: 17px; font-weight: 700; cursor: pointer">Marcar regreso</button>
+</div>
+
+<div style="background: #FFFFFF; border: 2px solid #5B86C9; border-radius: 14px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #52606D">Enfermería</span>
+<span style="font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #E6EEFB; color: #1F4F9C">Llegó</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 22px; font-weight: 700">Mateo Pérez</span>
+<span style="color: #52606D">#16 · en enfermería desde 10:52</span>
+</div>
+<span style="font-size: 14px; color: #52606D">La enfermera avisará cuando regrese al salón.</span>
+</div>
+
+</section>
+
+<section aria-label="Lista del grupo" style="display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Bricolage Grotesque', sans-serif; font-size: 22px; font-weight: 700">Lista · 30 alumnos</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 10px">
+<sc-for list="{{students}}" as="s" hint-placeholder-count="30">
+<button type="button" style="text-align: left; min-height: 72px; padding: 10px 12px; border-radius: 12px; border: {{s.border}}; background: {{s.bg}}; color: #15212C; cursor: pointer; display: flex; flex-direction: column; gap: 4px">
+<span style="display: flex; justify-content: space-between; align-items: center; width: 100%">
+<span style="font-family: 'Atkinson Hyperlegible Mono', monospace; font-size: 20px; font-weight: 600">{{s.n}}</span>
+<span style="font-size: 12px; font-weight: 700; color: #52606D; border: 1px solid #DCE2E8; border-radius: 4px; padding: 0 5px">{{s.sex}}</span>
+</span>
+<span style="font-size: 15px; font-weight: 700; line-height: 1.2">{{s.name}}</span>
+<sc-if value="{{s.hasTag}}" hint-placeholder-val="{{false}}">
+<span style="font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; align-self: flex-start; background: {{s.tagBg}}; color: {{s.tagFg}}">{{s.tag}}</span>
+</sc-if>
+</button>
+</sc-for>
+</div>
+</section>
+</main>
+
+<div role="status" style="position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #15212C; color: #FFFFFF; border-radius: 12px; padding: 12px 14px 12px 18px; display: flex; align-items: center; gap: 16px; box-shadow: 0 12px 30px rgba(0,0,0,0.25); max-width: calc(100% - 32px); box-sizing: border-box">
+<span>Regreso de Luis Martínez registrado · 6 min 48 s</span>
+<button type="button" style="min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid #5B6B7A; background: transparent; color: #FFFFFF; font-weight: 700; cursor: pointer">Deshacer · 8</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#1D4E89","options":["#1D4E89","#0F6E6E","#6B2A5E","#8A3B12"]},"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const raw = [
+      [1,'Ana Torres','M'],[2,'Bruno Cázares','H'],[3,'Carla Domínguez','M'],[4,'Diego Esparza','H'],[5,'Elena Fuentes','M'],
+      [6,'Fernando García','H'],[7,'Pedro Gómez','H'],[8,'Gabriela Hernández','M'],[9,'Hugo Ibarra','H'],[10,'Isabel Juárez','M'],
+      [11,'Javier López','H'],[12,'Karla Medina','M'],[13,'Lucía Navarro','M'],[14,'Luis Martínez','H'],[15,'María Ochoa','M'],
+      [16,'Mateo Pérez','H'],[17,'Natalia Quiroz','M'],[18,'Óscar Ramos','H'],[19,'Paola Salinas','M'],[20,'Ricardo Tapia','H'],
+      [21,'Renata Uribe','M'],[22,'Jorge Valdez','H'],[23,'Sofía Villalobos','M'],[24,'Santiago Zamora','H'],[25,'Valeria Aguilar','M'],
+      [26,'Emilio Becerra','H'],[27,'Ximena Castro','M'],[28,'Andrés Delgado','H'],[29,'Regina Estrada','M'],[30,'Tomás Flores','H']
+    ];
+    const tags = {
+      7: { tag: 'Su turno · 1:42', tagBg: '#FFF0D6', tagFg: '#8A4B00', bg: '#FFFAF0', border: '2px solid #E79B2E' },
+      17: { tag: 'Alerta · 12:40', tagBg: '#A3221A', tagFg: '#FFFFFF', bg: '#FDE9E7', border: '2px solid #C8372D' },
+      16: { tag: 'Enfermería', tagBg: '#E6EEFB', tagFg: '#1F4F9C', bg: '#FFFFFF', border: '2px solid #5B86C9' }
+    };
+    const students = raw.map(([n, name, sex]) => {
+      const t = tags[n];
+      return t ? { n, name, sex, hasTag: true, ...t } : { n, name, sex, hasTag: false, tag: '', tagBg: '', tagFg: '', bg: '#FFFFFF', border: '1px solid #DCE2E8' };
+    });
+    return { accent: this.props.accent ?? '#1D4E89', students };
+  }
+}
+</script>
+</body>
+</html>
