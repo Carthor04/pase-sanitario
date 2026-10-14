@@ -1,13 +1,10 @@
 import { render, screen, within } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { AppShell } from './AppShell';
 
 function renderAt(url: string) {
   return render(
-    <MemoryRouter
-      initialEntries={[url]}
-      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-    >
+    <MemoryRouter initialEntries={[url]}>
       <Routes>
         <Route element={<AppShell />}>
           <Route path="*" element={<p>contenido</p>} />

@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router';
 import type { NavItem } from '@/lib/nav';
 
 type Props = { items: NavItem[]; badges?: Partial<Record<string, number>> };

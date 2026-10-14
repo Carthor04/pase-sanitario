@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import type { Role } from './nav';
 
 const ALL: Role[] = ['teacher', 'prefect', 'nurse', 'coordinator', 'director', 'admin'];

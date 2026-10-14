@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router';
 import { env } from '@/lib/env';
 import { navForRoles } from '@/lib/nav';
 import { useClock } from '@/lib/useClock';
