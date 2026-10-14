@@ -1,0 +1,57 @@
+@import '@fontsource/atkinson-hyperlegible/400.css';
+@import '@fontsource/atkinson-hyperlegible/700.css';
+@import '@fontsource/atkinson-hyperlegible-mono/400.css';
+@import '@fontsource/atkinson-hyperlegible-mono/600.css';
+@import '@fontsource/bricolage-grotesque/600.css';
+@import '@fontsource/bricolage-grotesque/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Tokens de docs/DESIGN.md (canales RGB para poder usar opacidad en Tailwind). */
+:root {
+  --ground: 243 245 247; /* #F3F5F7 */
+  --surface: 255 255 255; /* #FFFFFF */
+  --line: 220 226 232; /* #DCE2E8 */
+  --line-strong: 197 206 216; /* #C5CED8 */
+  --ink: 21 33 44; /* #15212C */
+  --muted: 82 96 109; /* #52606D */
+  --accent: 29 78 137; /* #1D4E89 · color del colegio (placeholder) */
+  --dark: 21 33 44; /* #15212C */
+
+  --free-fg: 20 108 67; /* #146C43 */
+  --free-bg: 227 244 234; /* #E3F4EA */
+  --wait-fg: 138 75 0; /* #8A4B00 */
+  --wait-bg: 255 240 214; /* #FFF0D6 */
+  --wait-bd: 231 155 46; /* #E79B2E */
+  --alert-fg: 163 34 26; /* #A3221A */
+  --alert-bg: 253 233 231; /* #FDE9E7 */
+  --alert-bd: 200 55 45; /* #C8372D */
+  --nurse-fg: 31 79 156; /* #1F4F9C */
+  --nurse-bg: 230 238 251; /* #E6EEFB */
+  --nurse-bd: 91 134 201; /* #5B86C9 */
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-ground font-sans text-base text-ink antialiased;
+  }
+  button {
+    font-family: inherit;
+  }
+}
+
+@layer utilities {
+  /* Espacio para la barra inferior fija en celular (62 px + margen + zona segura). */
+  .pb-bottom-nav {
+    padding-bottom: calc(62px + 16px + env(safe-area-inset-bottom));
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

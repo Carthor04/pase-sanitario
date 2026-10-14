@@ -1,0 +1,2 @@
+-- EJEMPLO: datos ficticios para desarrollo local. Se llena en la Fase 1
+-- (9 grupos x 30 alumnos, horario de lunes a viernes, personal de prueba).
