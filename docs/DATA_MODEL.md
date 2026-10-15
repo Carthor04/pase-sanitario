@@ -223,7 +223,7 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - **Permisos por rol:** abrir/confirmar/ceder/cancelar: teacher, coordinator, admin. Marcar regreso: además prefect, y nurse solo en enfermería. Llegó: nurse (y coordinator/admin). Liberar: prefect, coordinator, admin, con motivo obligatorio. Deshacer: solo quien hizo el cambio.
 - **Decisiones del 2026-10-15** (SPEC §4/§7): `group_wait` entra al final de la fila; ceder sin nadie más formado da error ("Nadie más en fila") y un turno vencido sin nadie más sigue llamado; deshacer "regresó" deshace solo el regreso aunque el baño quede arriba de su capacidad.
 - **Desbloqueo:** `unlock_device(pin)` devuelve `{ok:false, error:'wrong_pin'|'locked'}`. Cada `pin_max_attempts` fallos seguidos bloquean `pin_lockout_seconds`. El desbloqueo vence al terminar la clase actual + `auto_lock_after_class_minutes`, o en `unlock_without_class_minutes` (nuevo en `settings`, 15) si no hay clase. Un desbloqueo nuevo cierra el anterior (`lock_reason = 'replaced'`).
-- **`private.tick()`** con pg_cron (`pase-tick`, cada minuto): vence turnos `called` después de `confirm_turn_minutes` y registra autobloqueos. Las alertas de 10 min llegan en la Fase 4.
+- **`private.tick()`** con pg_cron (`pase-tick`, cada 30 s desde `20261015170000`): vence turnos `called` después de `confirm_turn_minutes` y registra autobloqueos. Las alertas de 10 min llegan en la Fase 4.
 - `passes` está en la publicación `supabase_realtime`. `pass_events` solo la lee el personal; los equipos no.
 
 ## Ajustes hechos en la Fase 3 (2026-10-15)
