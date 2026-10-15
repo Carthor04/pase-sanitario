@@ -225,3 +225,10 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - **Desbloqueo:** `unlock_device(pin)` devuelve `{ok:false, error:'wrong_pin'|'locked'}`. Cada `pin_max_attempts` fallos seguidos bloquean `pin_lockout_seconds`. El desbloqueo vence al terminar la clase actual + `auto_lock_after_class_minutes`, o en `unlock_without_class_minutes` (nuevo en `settings`, 15) si no hay clase. Un desbloqueo nuevo cierra el anterior (`lock_reason = 'replaced'`).
 - **`private.tick()`** con pg_cron (`pase-tick`, cada minuto): vence turnos `called` después de `confirm_turn_minutes` y registra autobloqueos. Las alertas de 10 min llegan en la Fase 4.
 - `passes` está en la publicación `supabase_realtime`. `pass_events` solo la lee el personal; los equipos no.
+
+## Ajustes hechos en la Fase 3 (2026-10-15)
+
+- En lugar de `v_live_board` hay dos RPC de lectura (`20261015140000_board.sql`):
+  - `group_board(group_id)`: pases activos del grupo con nombre, número, estado, posición en fila y a quién espera (`waiting_for`), más el estado de cada baño (ocupantes y fila **solo con el nombre del grupo**) y los valores de `settings` que usa la pantalla. La puede llamar el personal (cualquier grupo) o la computadora del salón (solo su grupo, aunque esté bloqueada). Así una compu nunca recibe nombres de alumnos de otros grupos.
+  - `device_session()`: si la compu está desbloqueada, por quién y hasta cuándo, y quién la bloqueó la última vez.
+- El cliente se suscribe con Realtime a `passes` y vuelve a pedir `group_board` en cada cambio (y cada 30 s como respaldo). Los cronómetros se calculan en el cliente con la hora del servidor (`now`) para corregir relojes desfasados.

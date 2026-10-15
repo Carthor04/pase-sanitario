@@ -1,6 +1,9 @@
 import { useId, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { GroupLive } from '@/components/pass/GroupLive';
 import { Card, Loading, Notice, PageTitle } from '@/components/ui/Page';
+import { useAudioUnlock } from '@/lib/device';
+import { useBoard, useLivePasses } from '@/lib/live';
 import { hhmm, useMyGroups, useStudents } from '@/lib/queries';
 
 const RANK_LABELS = ['Ahora', 'Mis grupos', 'Otros grupos'] as const;
@@ -13,7 +16,7 @@ const normalize = (s: string) =>
 
 /**
  * Mi grupo (celular): por defecto el grupo de la hora actual; se puede cambiar a cualquier
- * grupo para suplencias. Los pases se agregan en la Fase 3.
+ * grupo para suplencias. Desde aquí se abren y cierran los pases (MovilGrupo/MovilTurno).
  */
 export function MyGroup() {
   const selectId = useId();
@@ -25,6 +28,9 @@ export function MyGroup() {
   const list = groups.data ?? [];
   const selected = list.find((g) => g.group_id === params.get('g')) ?? list[0];
   const students = useStudents(selected?.group_id);
+  const board = useBoard(selected?.group_id);
+  const online = useLivePasses();
+  useAudioUnlock();
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
@@ -108,31 +114,21 @@ export function MyGroup() {
         />
       </div>
 
-      {students.isPending ? <Loading /> : null}
-      {students.isError ? <Notice tone="error">No se pudo cargar la lista.</Notice> : null}
+      {students.isError || board.isError ? (
+        <Notice tone="error">No se pudo cargar el grupo. Revisa tu conexión.</Notice>
+      ) : null}
       {students.data && !students.data.length ? (
         <Notice>Este grupo no tiene alumnos. Coordinación los importa en Ajustes → Alumnos.</Notice>
       ) : null}
+      {!online ? (
+        <Notice tone="warn">Sin conexión en vivo: los datos pueden estar atrasados.</Notice>
+      ) : null}
 
-      <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
-        {filtered.map((s) => (
-          <li
-            key={s.id}
-            className="flex min-h-[52px] items-center gap-3 rounded-btn-lg border border-line bg-surface px-3"
-          >
-            <span className="w-7 text-right font-mono text-[15px] font-semibold tabular-nums text-muted">
-              {s.list_number}
-            </span>
-            <span className="min-w-0 flex-1 truncate text-[17px]">{s.full_name}</span>
-            <span
-              className="rounded-chip border border-line px-2 text-[13px] font-bold text-muted"
-              aria-label={s.sex === 'H' ? 'Hombre' : 'Mujer'}
-            >
-              {s.sex}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {board.data && students.data ? (
+        <GroupLive board={board.data} groupName={selected.name} students={filtered} />
+      ) : (
+        <Loading />
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { RequireDevice, RequireStaff } from '@/components/auth/Gates';
 import { AppShell } from '@/components/layout/AppShell';
@@ -11,11 +12,26 @@ import { Placeholder } from '@/pages/Placeholder';
 import { SalonHome } from '@/pages/SalonHome';
 import { Settings } from '@/pages/settings/Settings';
 
+// Vista de diseño con datos ficticios: solo existe en `npm run dev`.
+const UiPreview = import.meta.env.DEV
+  ? lazy(() => import('@/pages/dev/UiPreview').then((m) => ({ default: m.UiPreview })))
+  : null;
+
 export function App() {
   return (
     <Routes>
       <Route path="entrar" element={<Login />} />
       <Route path="vincular" element={<LinkDevice />} />
+      {UiPreview ? (
+        <Route
+          path="dev/ui"
+          element={
+            <Suspense>
+              <UiPreview />
+            </Suspense>
+          }
+        />
+      ) : null}
 
       {/* Computadora del salón (sesión anónima vinculada a un grupo). */}
       <Route element={<RequireDevice />}>
