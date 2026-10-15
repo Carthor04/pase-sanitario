@@ -1,16 +1,15 @@
-import { NavLink, Outlet, useLocation } from 'react-router';
+import { NavLink, Outlet } from 'react-router';
 import { env } from '@/lib/env';
 import { navForRoles } from '@/lib/nav';
+import { useStaff } from '@/lib/session';
 import { useClock } from '@/lib/useClock';
-import { useRoles } from '@/lib/useRoles';
 import { BottomNav } from './BottomNav';
 import { BrandMark } from './BrandMark';
 
 export function AppShell() {
-  const roles = useRoles();
+  const { roles } = useStaff();
   const items = navForRoles(roles);
   const clock = useClock();
-  const { search } = useLocation();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -33,7 +32,7 @@ export function AppShell() {
             {items.map((item) => (
               <NavLink
                 key={item.to}
-                to={{ pathname: item.to, search }}
+                to={item.to}
                 className={({ isActive }) =>
                   [
                     'inline-flex min-h-touch items-center rounded-btn px-3.5 text-[15px] font-bold',

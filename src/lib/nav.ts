@@ -1,4 +1,14 @@
-export type Role = 'teacher' | 'prefect' | 'nurse' | 'coordinator' | 'director' | 'admin';
+export const ROLES = ['teacher', 'prefect', 'nurse', 'coordinator', 'director', 'admin'] as const;
+export type Role = (typeof ROLES)[number];
+
+export const ROLE_LABELS: Record<Role, string> = {
+  teacher: 'Maestro',
+  prefect: 'Prefectura',
+  nurse: 'Enfermería',
+  coordinator: 'Coordinación',
+  director: 'Dirección',
+  admin: 'Admin',
+};
 
 export type NavItem = { to: string; label: string };
 

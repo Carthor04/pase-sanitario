@@ -1,16 +1,29 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
+import type { StaffMe } from '@/lib/me';
+import type { Role } from '@/lib/nav';
+import { StaffContext } from '@/lib/session';
 import { AppShell } from './AppShell';
 
-function renderAt(url: string) {
+function renderAt(url: string, roles: Role[] = ['teacher']) {
+  const staff: StaffMe = {
+    kind: 'staff',
+    id: 's1',
+    full_name: 'Laura Ramírez',
+    email: 'laura@colegio.edu.mx',
+    roles,
+    has_pin: false,
+  };
   return render(
-    <MemoryRouter initialEntries={[url]}>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route path="*" element={<p>contenido</p>} />
-        </Route>
-      </Routes>
-    </MemoryRouter>,
+    <StaffContext.Provider value={staff}>
+      <MemoryRouter initialEntries={[url]}>
+        <Routes>
+          <Route element={<AppShell />}>
+            <Route path="*" element={<p>contenido</p>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </StaffContext.Provider>,
   );
 }
 
@@ -20,7 +33,7 @@ const linkLabels = (nav: HTMLElement) =>
     .map((l) => l.textContent);
 
 describe('AppShell', () => {
-  it('muestra la navegación del maestro por defecto', () => {
+  it('muestra la navegación del maestro', () => {
     renderAt('/grupo');
     expect(screen.getByText('contenido')).toBeInTheDocument();
     const navs = screen.getAllByRole('navigation', { name: 'Secciones' });
@@ -39,8 +52,8 @@ describe('AppShell', () => {
     );
   });
 
-  it('cambia de pestañas según el rol (solo en desarrollo)', () => {
-    renderAt('/en-vivo?roles=nurse');
+  it('cambia de pestañas según los roles de la sesión', () => {
+    renderAt('/enfermeria', ['nurse']);
     const bottom = screen.getAllByRole('navigation', { name: 'Secciones' })[1]!;
     expect(linkLabels(bottom)).toEqual(['Hoy', 'Historial']);
   });

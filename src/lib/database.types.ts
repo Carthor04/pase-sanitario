@@ -1,13 +1,713 @@
-// Marcador temporal. Se regenera en la Fase 1 con:
-//   npx supabase gen types typescript --local > src/lib/database.types.ts
-export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
-    Tables: Record<string, never>;
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
-    CompositeTypes: Record<string, never>;
-  };
-};
+    Tables: {
+      destinations: {
+        Row: {
+          capacity: number | null
+          id: string
+          kind: string
+          label: string
+          per_group_limit: number | null
+          queue_enabled: boolean
+          sex: string | null
+          uses_group_slot: boolean
+        }
+        Insert: {
+          capacity?: number | null
+          id: string
+          kind: string
+          label: string
+          per_group_limit?: number | null
+          queue_enabled?: boolean
+          sex?: string | null
+          uses_group_slot?: boolean
+        }
+        Update: {
+          capacity?: number | null
+          id?: string
+          kind?: string
+          label?: string
+          per_group_limit?: number | null
+          queue_enabled?: boolean
+          sex?: string | null
+          uses_group_slot?: boolean
+        }
+        Relationships: []
+      }
+      device_pairings: {
+        Row: {
+          claimed_at: string | null
+          code: string
+          created_at: string
+          created_by: string
+          device_id: string | null
+          expires_at: string
+          group_id: string
+          id: string
+          label: string | null
+        }
+        Insert: {
+          claimed_at?: string | null
+          code: string
+          created_at?: string
+          created_by: string
+          device_id?: string | null
+          expires_at: string
+          group_id: string
+          id?: string
+          label?: string | null
+        }
+        Update: {
+          claimed_at?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string
+          device_id?: string | null
+          expires_at?: string
+          group_id?: string
+          id?: string
+          label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_pairings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_pairings_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_pairings_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_pairings_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
+          },
+        ]
+      }
+      device_unlocks: {
+        Row: {
+          device_id: string
+          expires_at: string
+          id: string
+          lock_reason: string | null
+          locked_at: string | null
+          staff_id: string
+          unlocked_at: string
+        }
+        Insert: {
+          device_id: string
+          expires_at: string
+          id?: string
+          lock_reason?: string | null
+          locked_at?: string | null
+          staff_id: string
+          unlocked_at?: string
+        }
+        Update: {
+          device_id?: string
+          expires_at?: string
+          id?: string
+          lock_reason?: string | null
+          locked_at?: string | null
+          staff_id?: string
+          unlocked_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_unlocks_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_unlocks_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devices: {
+        Row: {
+          auth_user_id: string | null
+          created_at: string
+          created_by: string | null
+          group_id: string
+          id: string
+          label: string | null
+          last_seen_at: string | null
+          revoked_at: string | null
+        }
+        Insert: {
+          auth_user_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          group_id: string
+          id?: string
+          label?: string | null
+          last_seen_at?: string | null
+          revoked_at?: string | null
+        }
+        Update: {
+          auth_user_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          group_id?: string
+          id?: string
+          label?: string | null
+          last_seen_at?: string | null
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devices_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          id: string
+          name: string
+          room: string | null
+          sort: number | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          room?: string | null
+          sort?: number | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          room?: string | null
+          sort?: number | null
+        }
+        Relationships: []
+      }
+      periods: {
+        Row: {
+          ends: string
+          id: string
+          starts: string
+          weekday: number
+        }
+        Insert: {
+          ends: string
+          id?: string
+          starts: string
+          weekday: number
+        }
+        Update: {
+          ends?: string
+          id?: string
+          starts?: string
+          weekday?: number
+        }
+        Relationships: []
+      }
+      schedule_entries: {
+        Row: {
+          group_id: string
+          id: string
+          period_id: string
+          subject: string
+          teacher_id: string | null
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          period_id: string
+          subject: string
+          teacher_id?: string | null
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          period_id?: string
+          subject?: string
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_entries_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_entries_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "schedule_entries_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_entries_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      security_attempts: {
+        Row: {
+          at: string
+          auth_user_id: string | null
+          device_id: string | null
+          id: number
+          kind: string
+          ok: boolean
+        }
+        Insert: {
+          at?: string
+          auth_user_id?: string | null
+          device_id?: string | null
+          id?: number
+          kind: string
+          ok: boolean
+        }
+        Update: {
+          at?: string
+          auth_user_id?: string | null
+          device_id?: string | null
+          id?: number
+          kind?: string
+          ok?: boolean
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          alert_minutes: number
+          auto_lock_after_class_minutes: number
+          confirm_turn_minutes: number
+          escalate_minutes: number
+          id: number
+          pairing_code_minutes: number
+          pin_lockout_seconds: number
+          pin_max_attempts: number
+          review_alerts_threshold: number
+          review_exits_threshold: number
+          sheets_daily_export_time: string
+          sheets_spreadsheet_id: string | null
+          undo_seconds: number
+        }
+        Insert: {
+          alert_minutes?: number
+          auto_lock_after_class_minutes?: number
+          confirm_turn_minutes?: number
+          escalate_minutes?: number
+          id?: number
+          pairing_code_minutes?: number
+          pin_lockout_seconds?: number
+          pin_max_attempts?: number
+          review_alerts_threshold?: number
+          review_exits_threshold?: number
+          sheets_daily_export_time?: string
+          sheets_spreadsheet_id?: string | null
+          undo_seconds?: number
+        }
+        Update: {
+          alert_minutes?: number
+          auto_lock_after_class_minutes?: number
+          confirm_turn_minutes?: number
+          escalate_minutes?: number
+          id?: number
+          pairing_code_minutes?: number
+          pin_lockout_seconds?: number
+          pin_max_attempts?: number
+          review_alerts_threshold?: number
+          review_exits_threshold?: number
+          sheets_daily_export_time?: string
+          sheets_spreadsheet_id?: string | null
+          undo_seconds?: number
+        }
+        Relationships: []
+      }
+      staff: {
+        Row: {
+          active: boolean
+          auth_user_id: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          pin_set_at: string | null
+          roles: string[]
+          whatsapp: string | null
+        }
+        Insert: {
+          active?: boolean
+          auth_user_id?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          pin_set_at?: string | null
+          roles: string[]
+          whatsapp?: string | null
+        }
+        Update: {
+          active?: boolean
+          auth_user_id?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          pin_set_at?: string | null
+          roles?: string[]
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      staff_pins: {
+        Row: {
+          pin_hash: string
+          staff_id: string
+          updated_at: string
+        }
+        Insert: {
+          pin_hash: string
+          staff_id: string
+          updated_at?: string
+        }
+        Update: {
+          pin_hash?: string
+          staff_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_pins_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: true
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      students: {
+        Row: {
+          active: boolean
+          created_at: string
+          full_name: string
+          group_id: string
+          id: string
+          list_number: number
+          rfid_tag: string | null
+          sex: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          full_name: string
+          group_id: string
+          id?: string
+          list_number: number
+          rfid_tag?: string | null
+          sex: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          full_name?: string
+          group_id?: string
+          id?: string
+          list_number?: number
+          rfid_tag?: string | null
+          sex?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "students_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      v_current_class: {
+        Row: {
+          ends: string | null
+          group_id: string | null
+          group_name: string | null
+          period_id: string | null
+          starts: string | null
+          subject: string | null
+          teacher_id: string | null
+          teacher_name: string | null
+        }
+        Relationships: []
+      }
+    }
+    Functions: {
+      claim_device_pairing: { Args: { p_code: string }; Returns: Json }
+      classes_at: {
+        Args: { p_at: string }
+        Returns: {
+          ends: string
+          group_id: string
+          period_id: string
+          starts: string
+          subject: string
+          teacher_id: string
+          teacher_name: string
+        }[]
+      }
+      clear_staff_pin: { Args: { p_staff_id: string }; Returns: undefined }
+      create_device_pairing: {
+        Args: { p_group_id: string; p_label?: string }
+        Returns: Json
+      }
+      import_groups: { Args: { p_rows: Json }; Returns: Json }
+      import_schedule: { Args: { p_rows: Json }; Returns: Json }
+      import_staff: { Args: { p_rows: Json }; Returns: Json }
+      import_students: { Args: { p_rows: Json }; Returns: Json }
+      me: { Args: never; Returns: Json }
+      my_groups: {
+        Args: { p_at?: string }
+        Returns: {
+          ends: string
+          group_id: string
+          name: string
+          rank: number
+          room: string
+          starts: string
+          subject: string
+          teacher_name: string
+        }[]
+      }
+      revoke_device: { Args: { p_device_id: string }; Returns: undefined }
+      set_my_pin: { Args: { p_pin: string }; Returns: Json }
+      set_staff_pin: {
+        Args: { p_pin: string; p_staff_id: string }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never) = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never) = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {},
+  },
+} as const

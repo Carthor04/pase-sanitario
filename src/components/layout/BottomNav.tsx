@@ -1,10 +1,9 @@
-import { NavLink, useLocation } from 'react-router';
+import { NavLink } from 'react-router';
 import type { NavItem } from '@/lib/nav';
 
 type Props = { items: NavItem[]; badges?: Partial<Record<string, number>> };
 
 export function BottomNav({ items, badges = {} }: Props) {
-  const { search } = useLocation();
   return (
     <nav
       aria-label="Secciones"
@@ -16,7 +15,7 @@ export function BottomNav({ items, badges = {} }: Props) {
         return (
           <NavLink
             key={item.to}
-            to={{ pathname: item.to, search }}
+            to={item.to}
             className={({ isActive }) =>
               [
                 'flex min-h-[62px] flex-col items-center justify-center gap-0.5 border-t-[3px] text-[13px] font-bold no-underline',

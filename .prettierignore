@@ -5,3 +5,4 @@ dist
 dev-dist
 package-lock.json
 *.md
+src/lib/database.types.ts
