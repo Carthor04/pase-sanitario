@@ -47,6 +47,7 @@ group_wait ──► queued ──► called ──► out ──► returned
 - `called`: es su turno. Tiene `confirm_minutes` (default 2) para que el maestro confirme. Se ve la franja ámbar "Turno de X" con cuenta regresiva y sonido.
   - Si el maestro **confirma** → `out`.
   - Si **cede** o **no confirma a tiempo** → vuelve a `queued` en **segundo lugar** (detrás del siguiente) y se llama al siguiente.
+  - **Ceder con un solo alumno en fila** (decisión 2026-10-15): no se puede. El botón aparece deshabilitado con el texto "Nadie más en fila"; el maestro confirma o cancela. (Si no confirma a tiempo y no hay nadie más, sigue siendo su turno.)
 - `out`: fuera del salón, corre el cronómetro desde `started_at`.
 - `returned`: el maestro marcó regreso. Cierra el pase.
 - `released`: prefectura liberó el lugar (requiere motivo). Cierra el pase y genera incidencia.
@@ -63,7 +64,7 @@ group_wait ──► queued ──► called ──► out ──► returned
 4. Si no → `queued`.
 
 **Cada vez que un pase se cierra o cambia** se ejecuta `advance(bathroom)`:
-1. Promueve el `group_wait` más antiguo de ese grupo/sexo a `queued` (o `out` si hay lugar y la fila está vacía).
+1. Promueve el `group_wait` más antiguo de ese grupo/sexo a `queued` (o `out` si hay lugar y la fila está vacía). Entra **al final de la fila**: su `queue_ts` es el momento en que pasa a `queued`, no la hora en que se pidió (decisión 2026-10-15).
 2. Mientras haya lugar, pasa el primero de la fila a `called`.
 
 ### Enfermería
@@ -71,6 +72,8 @@ group_wait ──► queued ──► called ──► out ──► returned
 
 ### Deshacer
 Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer". Revierte con un evento nuevo (`undo`) y re-ejecuta `advance`.
+
+- **Deshacer "regresó" cuando ya se llamó al siguiente** (decisión 2026-10-15): se deshace solo el regreso. El alumno vuelve a `out` (con su `started_at` original) y el que ya se llamó conserva su turno; el baño puede quedar un momento por encima de su capacidad. `advance` no llama a nadie más mientras la ocupación esté en o por encima de la capacidad.
 
 ## 5. Computadora del salón (modo salón)
 
@@ -96,7 +99,7 @@ Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer"
 
 ## 7. Alertas
 
-- Se disparan cuando un pase lleva `alert_minutes` (10) en `out` (o en enfermería sin regresar).
+- Se disparan cuando un pase lleva `alert_minutes` (10) en `out`. En enfermería la alerta cubre solo el trayecto: si en 10 min no se marcó "Llegó", hay alerta; una vez en `arrived` el cronómetro de alerta se detiene y la responsable es la enfermera (decisión 2026-10-15).
 - Destinatarios (configurables por canal):
   - **Maestro a cargo del grupo en ese momento** (según horario) y, si es distinto, el maestro que autorizó la salida → en la app.
   - **Prefectura, Coordinación, Dirección** → app + push + WhatsApp.
