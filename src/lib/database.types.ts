@@ -309,6 +309,84 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_rules: {
+        Row: {
+          channel: string
+          enabled: boolean
+          role: string
+        }
+        Insert: {
+          channel: string
+          enabled?: boolean
+          role: string
+        }
+        Update: {
+          channel?: string
+          enabled?: boolean
+          role?: string
+        }
+        Relationships: []
+      }
+      notifications_outbox: {
+        Row: {
+          attempts: number
+          body: string
+          channel: string
+          claimed_at: string | null
+          created_at: string
+          error: string | null
+          id: number
+          kind: string
+          pass_id: string | null
+          payload: Json
+          recipient_staff_id: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          body: string
+          channel: string
+          claimed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: number
+          kind: string
+          pass_id?: string | null
+          payload?: Json
+          recipient_staff_id?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          body?: string
+          channel?: string
+          claimed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: number
+          kind?: string
+          pass_id?: string | null
+          payload?: Json
+          recipient_staff_id?: string | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_outbox_pass_id_fkey"
+            columns: ["pass_id"]
+            isOneToOne: false
+            referencedRelation: "passes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_outbox_recipient_staff_id_fkey"
+            columns: ["recipient_staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nurse_notes: {
         Row: {
           author_id: string
@@ -531,6 +609,50 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_error: string | null
+          last_success_at: string | null
+          p256dh: string
+          staff_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          p256dh: string
+          staff_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_error?: string | null
+          last_success_at?: string | null
+          p256dh?: string
+          staff_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schedule_entries: {
         Row: {
           group_id: string
@@ -627,6 +749,8 @@ export type Database = {
           sheets_spreadsheet_id: string | null
           undo_seconds: number
           unlock_without_class_minutes: number
+          vapid_public_key: string | null
+          whatsapp_enabled: boolean
         }
         Insert: {
           alert_minutes?: number
@@ -643,6 +767,8 @@ export type Database = {
           sheets_spreadsheet_id?: string | null
           undo_seconds?: number
           unlock_without_class_minutes?: number
+          vapid_public_key?: string | null
+          whatsapp_enabled?: boolean
         }
         Update: {
           alert_minutes?: number
@@ -659,6 +785,8 @@ export type Database = {
           sheets_spreadsheet_id?: string | null
           undo_seconds?: number
           unlock_without_class_minutes?: number
+          vapid_public_key?: string | null
+          whatsapp_enabled?: boolean
         }
         Relationships: []
       }
@@ -797,6 +925,16 @@ export type Database = {
       cancel_pass: { Args: { p_pass_id: string }; Returns: Json }
       cede_turn: { Args: { p_pass_id: string }; Returns: Json }
       claim_device_pairing: { Args: { p_code: string }; Returns: Json }
+      claim_push_batch: {
+        Args: { p_limit?: number }
+        Returns: {
+          body: string
+          id: number
+          payload: Json
+          recipient_staff_id: string
+          subscriptions: Json
+        }[]
+      }
       classes_at: {
         Args: { p_at: string }
         Returns: {
@@ -816,7 +954,20 @@ export type Database = {
         Returns: Json
       }
       current_actor: { Args: never; Returns: Json }
+      delete_push_subscription: {
+        Args: { p_endpoint: string }
+        Returns: undefined
+      }
       device_session: { Args: never; Returns: Json }
+      finish_push: {
+        Args: {
+          p_dead_endpoints: string[]
+          p_error: string
+          p_id: number
+          p_ok_endpoints: string[]
+        }
+        Returns: undefined
+      }
       group_board: { Args: { p_group_id: string }; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
@@ -842,6 +993,7 @@ export type Database = {
         }[]
       }
       nurse_today: { Args: never; Returns: Json }
+      push_config: { Args: never; Returns: Json }
       release_pass: {
         Args: { p_pass_id: string; p_reason: string }
         Returns: Json
@@ -851,6 +1003,16 @@ export type Database = {
         Returns: Json
       }
       revoke_device: { Args: { p_device_id: string }; Returns: undefined }
+      save_push_subscription: {
+        Args: {
+          p_auth: string
+          p_endpoint: string
+          p_p256dh: string
+          p_user_agent: string
+        }
+        Returns: undefined
+      }
+      send_test_push: { Args: never; Returns: Json }
       set_my_pin: { Args: { p_pin: string }; Returns: Json }
       set_staff_pin: {
         Args: { p_pin: string; p_staff_id: string }
