@@ -3,6 +3,9 @@
 import { useMemo, useState } from 'react';
 import { GroupLive } from '@/components/pass/GroupLive';
 import { PinPad } from '@/components/pass/PinPad';
+import { LiveBoard } from '@/pages/LiveBoard';
+import type { LiveBoard as LiveData, LivePass } from '@/lib/monitor';
+import { StaffContext } from '@/lib/session';
 import type { Board, BoardPass, StudentRef } from '@/lib/board';
 
 const NAMES = [
@@ -33,7 +36,7 @@ const NAMES = [
 ];
 
 export function UiPreview() {
-  const [view, setView] = useState<'turno' | 'libre' | 'pin'>('turno');
+  const [view, setView] = useState<'turno' | 'libre' | 'pin' | 'prefectura'>('turno');
   const students: StudentRef[] = NAMES.map((full_name, i) => ({
     id: `s${i + 1}`,
     list_number: i + 1,
@@ -154,7 +157,7 @@ export function UiPreview() {
     <div className="min-h-screen bg-ground">
       <div className="flex flex-wrap gap-2 border-b border-line bg-surface p-3">
         <strong className="mr-2 self-center">Vista de prueba (datos ficticios)</strong>
-        {(['turno', 'libre', 'pin'] as const).map((v) => (
+        {(['turno', 'libre', 'pin', 'prefectura'] as const).map((v) => (
           <button
             key={v}
             type="button"
@@ -166,7 +169,20 @@ export function UiPreview() {
         ))}
       </div>
       <main className="mx-auto max-w-container px-4 py-5 sm:px-6">
-        {view === 'pin' ? (
+        {view === 'prefectura' ? (
+          <StaffContext.Provider
+            value={{
+              kind: 'staff',
+              id: 'x',
+              full_name: 'Juan Pérez',
+              email: 'x@x',
+              roles: ['prefect'],
+              has_pin: true,
+            }}
+          >
+            <LiveBoard preview={livePreview()} />
+          </StaffContext.Provider>
+        ) : view === 'pin' ? (
           <div className="mx-auto max-w-[460px] rounded-[22px] bg-surface p-8">
             <PinPad
               onSubmit={async (pin) =>
@@ -186,4 +202,122 @@ export function UiPreview() {
       </main>
     </div>
   );
+}
+
+function livePreview(): LiveData {
+  const now = Date.now();
+  const iso = (minAgo: number) => new Date(now - minAgo * 60_000).toISOString();
+  const p = (
+    o: Partial<LivePass> &
+      Pick<LivePass, 'id' | 'full_name' | 'group_name' | 'destination_id' | 'status'>,
+  ): LivePass => ({
+    student_id: o.id,
+    list_number: 7,
+    sex: 'H',
+    group_id: 'g',
+    requested_at: iso(15),
+    queue_ts: null,
+    called_at: null,
+    started_at: null,
+    arrived_at: null,
+    period_subject: 'Matemáticas',
+    opened_by_name: 'Laura Ramírez',
+    current_teacher_name: 'Prof. Núñez',
+    alert: null,
+    ...o,
+  });
+  return {
+    now: new Date(now).toISOString(),
+    offsetMs: 0,
+    settings: { alert_minutes: 10, escalate_minutes: 5, confirm_turn_minutes: 2 },
+    destinations: [
+      { id: 'bath_h', label: 'Baño hombres', kind: 'bathroom', sex: 'H', capacity: 1 },
+      { id: 'bath_m', label: 'Baño mujeres', kind: 'bathroom', sex: 'M', capacity: 3 },
+      { id: 'nurse', label: 'Enfermería', kind: 'nurse', sex: null, capacity: null },
+    ],
+    passes: [
+      p({
+        id: 'a',
+        full_name: 'Pedro Gómez',
+        group_name: '2°B',
+        destination_id: 'bath_h',
+        status: 'out',
+        started_at: iso(0.7),
+      }),
+      p({
+        id: 'b',
+        full_name: 'Raúl Herrera',
+        group_name: '3°A',
+        destination_id: 'bath_h',
+        status: 'queued',
+        queue_ts: iso(6.2),
+      }),
+      p({
+        id: 'c',
+        full_name: 'Emiliano Cruz',
+        group_name: '1°C',
+        destination_id: 'bath_h',
+        status: 'queued',
+        queue_ts: iso(2.1),
+        current_teacher_name: 'Prof. Lara',
+      }),
+      p({
+        id: 'd',
+        full_name: 'Natalia Quiroz',
+        group_name: '2°B',
+        destination_id: 'bath_m',
+        status: 'out',
+        started_at: iso(12.7),
+        alert: {
+          id: 'al',
+          level: 1,
+          created_at: iso(2.7),
+          acknowledged_by_name: null,
+          acknowledged_at: null,
+        },
+      }),
+      p({
+        id: 'e',
+        full_name: 'Sofía Ramírez',
+        group_name: '1°A',
+        destination_id: 'bath_m',
+        status: 'out',
+        started_at: iso(3.2),
+      }),
+      p({
+        id: 'f',
+        full_name: 'Paola Núñez',
+        group_name: '2°C',
+        destination_id: 'bath_m',
+        status: 'out',
+        started_at: iso(1.4),
+      }),
+      p({
+        id: 'g',
+        full_name: 'Daniela Ortiz',
+        group_name: '3°B',
+        destination_id: 'bath_m',
+        status: 'queued',
+        queue_ts: iso(0.7),
+      }),
+      p({
+        id: 'h',
+        full_name: 'Mateo Pérez',
+        group_name: '2°B',
+        destination_id: 'nurse',
+        status: 'arrived',
+        started_at: iso(8),
+        arrived_at: iso(6),
+      }),
+      p({
+        id: 'i',
+        full_name: 'Iván Ruiz',
+        group_name: '3°C',
+        destination_id: 'nurse',
+        status: 'out',
+        started_at: iso(1.5),
+      }),
+    ],
+    stats: { exits_today: 52, alerts_today: 2 },
+  };
 }

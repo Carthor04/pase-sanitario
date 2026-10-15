@@ -29,6 +29,24 @@ export function playTurnSound() {
   });
 }
 
+/** Tres pitidos agudos para una alerta de tiempo. */
+export function playAlertSound() {
+  if (!audio) return;
+  const start = audio.currentTime;
+  [0, 0.18, 0.36].forEach((t) => {
+    const osc = audio!.createOscillator();
+    const gain = audio!.createGain();
+    osc.type = 'square';
+    osc.frequency.value = 988;
+    gain.gain.setValueAtTime(0.0001, start + t);
+    gain.gain.exponentialRampToValueAtTime(0.18, start + t + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + t + 0.14);
+    osc.connect(gain).connect(audio!.destination);
+    osc.start(start + t);
+    osc.stop(start + t + 0.15);
+  });
+}
+
 /** Activa el audio con el primer toque o tecla de la página. */
 export function useAudioUnlock() {
   useEffect(() => {

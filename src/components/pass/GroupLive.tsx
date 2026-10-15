@@ -466,6 +466,15 @@ function SexSlot({
             style={{ width: `${pct}%` }}
           />
         </div>
+        {pass.alert ? (
+          <span className="text-[14px] font-bold text-alert-fg">
+            {pass.alert.acknowledged_by_name
+              ? `${pass.alert.acknowledged_by_name} va en camino`
+              : pass.alert.level === 2
+                ? 'Alerta escalada · sin atender'
+                : 'Alerta enviada a prefectura · sin atender'}
+          </span>
+        ) : null}
         <ReturnButton busy={busy} onClick={() => onReturn(pass)} name={pass.full_name} />
       </SlotFrame>
     );

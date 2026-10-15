@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router';
 import { env } from '@/lib/env';
+import { useMyAlerts } from '@/lib/monitor';
 import { navForRoles } from '@/lib/nav';
 import { useStaff } from '@/lib/session';
 import { useClock } from '@/lib/useClock';
@@ -9,6 +10,10 @@ import { BrandMark } from './BrandMark';
 export function AppShell() {
   const { roles } = useStaff();
   const items = navForRoles(roles);
+  // Contador de alertas del maestro en la pestaña Alertas.
+  const showsAlerts = items.some((i) => i.to === '/alertas');
+  const myAlerts = useMyAlerts(showsAlerts);
+  const badges = { '/alertas': myAlerts.data?.length ?? 0 };
   const clock = useClock();
 
   return (
@@ -53,7 +58,7 @@ export function AppShell() {
         <Outlet />
       </main>
 
-      <BottomNav items={items} />
+      <BottomNav items={items} badges={badges} />
     </div>
   );
 }

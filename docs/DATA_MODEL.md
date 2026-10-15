@@ -232,3 +232,14 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
   - `group_board(group_id)`: pases activos del grupo con nombre, número, estado, posición en fila y a quién espera (`waiting_for`), más el estado de cada baño (ocupantes y fila **solo con el nombre del grupo**) y los valores de `settings` que usa la pantalla. La puede llamar el personal (cualquier grupo) o la computadora del salón (solo su grupo, aunque esté bloqueada). Así una compu nunca recibe nombres de alumnos de otros grupos.
   - `device_session()`: si la compu está desbloqueada, por quién y hasta cuándo, y quién la bloqueó la última vez.
 - El cliente se suscribe con Realtime a `passes` y vuelve a pedir `group_board` en cada cambio (y cada 30 s como respaldo). Los cronómetros se calculan en el cliente con la hora del servidor (`now`) para corregir relojes desfasados.
+
+## Ajustes hechos en la Fase 4 (2026-10-15)
+
+`supabase/migrations/20261015150000_alerts.sql`:
+
+- `alerts` como arriba, más `escalated_at` y `resolution` (`returned` | `released` | `arrived`); una alerta por pase. Se resuelve sola con un trigger en `passes` cuando el pase regresa, se libera o llega a enfermería, y se reabre si se deshace el regreso.
+- `nurse_notes(pass_id, author_id, body, created_at)`: notas internas de enfermería (solo se agregan). Las leen enfermería, coordinación, dirección y admin; los maestros no.
+- `private.tick()` ahora también crea alertas (`alert_minutes` en `out`; en enfermería solo el trayecto) y las escala a nivel 2 si nadie las atiende en `escalate_minutes`. Cada una deja evento `alert` / `escalated` en la bitácora.
+- RPC: `acknowledge_alert` ("Yo lo atiendo": prefectura, coordinación, admin), `add_nurse_note`, `live_board()` (monitor en vivo para prefectura, enfermería, coordinación, dirección), `my_alerts()` (alertas del maestro a cargo ahora o del que autorizó) y `nurse_today()`. `group_board` incluye la alerta de cada pase.
+- `alerts` está en la publicación `supabase_realtime`.
+- Las notificaciones push y por WhatsApp (destinatarios configurables por canal) son de la Fase 5; en esta fase las alertas se ven en la app.

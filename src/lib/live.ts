@@ -5,7 +5,14 @@ import { useEffect, useState } from 'react';
 import { parseBoard, type ActiveStatus } from './board';
 import { supabase } from './supabase';
 
-/** Escucha cambios en `passes` y refresca los tableros. Devuelve si hay conexión. */
+/** Consultas que dependen de pases y alertas: se refrescan con cada cambio. */
+export const LIVE_KEYS = ['board', 'live', 'my_alerts', 'nurse'] as const;
+
+export function invalidateLive(queryClient: ReturnType<typeof useQueryClient>) {
+  return Promise.all(LIVE_KEYS.map((k) => queryClient.invalidateQueries({ queryKey: [k] })));
+}
+
+/** Escucha cambios en `passes` y `alerts` y refresca las pantallas. Devuelve si hay conexión. */
 export function useLivePasses(): boolean {
   const queryClient = useQueryClient();
   const [online, setOnline] = useState(true);
@@ -14,12 +21,15 @@ export function useLivePasses(): boolean {
     const channel = supabase
       .channel(`passes-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'passes' }, () => {
-        void queryClient.invalidateQueries({ queryKey: ['board'] });
+        void invalidateLive(queryClient);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, () => {
+        void invalidateLive(queryClient);
       })
       .subscribe((status) => {
         setOnline(status === 'SUBSCRIBED');
         // Al reconectar puede haber cambios perdidos.
-        if (status === 'SUBSCRIBED') void queryClient.invalidateQueries({ queryKey: ['board'] });
+        if (status === 'SUBSCRIBED') void invalidateLive(queryClient);
       });
     const goOffline = () => setOnline(false);
     window.addEventListener('offline', goOffline);
@@ -70,7 +80,10 @@ type PassResult = {
 
 type Action =
   | { type: 'request'; studentId: string; kind: 'bathroom' | 'nurse' }
-  | { type: 'confirm' | 'cede' | 'return' | 'cancel' | 'undo'; passId: string };
+  | { type: 'confirm' | 'cede' | 'return' | 'cancel' | 'undo' | 'arrived'; passId: string }
+  | { type: 'release'; passId: string; reason: string }
+  | { type: 'acknowledge'; alertId: string }
+  | { type: 'note'; passId: string; body: string };
 
 const RPC = {
   confirm: 'confirm_turn',
@@ -78,6 +91,7 @@ const RPC = {
   return: 'mark_returned',
   cancel: 'cancel_pass',
   undo: 'undo_last',
+  arrived: 'mark_arrived',
 } as const;
 
 /** Mensaje legible de un error de Supabase (las RPC ya devuelven textos en español). */
@@ -91,6 +105,7 @@ export function errorMessage(err: unknown): string {
   return 'No se pudo completar la acción.';
 }
 
+/** Acciones sobre pases y alertas. Todas son RPC: el cliente no decide nada. */
 export function usePassAction() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -101,10 +116,22 @@ export function usePassAction() {
               p_student_id: action.studentId,
               p_kind: action.kind,
             })
-          : await supabase.rpc(RPC[action.type], { p_pass_id: action.passId });
+          : action.type === 'release'
+            ? await supabase.rpc('release_pass', {
+                p_pass_id: action.passId,
+                p_reason: action.reason,
+              })
+            : action.type === 'acknowledge'
+              ? await supabase.rpc('acknowledge_alert', { p_alert_id: action.alertId })
+              : action.type === 'note'
+                ? await supabase.rpc('add_nurse_note', {
+                    p_pass_id: action.passId,
+                    p_body: action.body,
+                  })
+                : await supabase.rpc(RPC[action.type], { p_pass_id: action.passId });
       if (error) throw error;
       return data as unknown as PassResult;
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['board'] }),
+    onSettled: () => invalidateLive(queryClient),
   });
 }

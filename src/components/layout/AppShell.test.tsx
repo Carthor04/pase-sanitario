@@ -1,9 +1,16 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import type { StaffMe } from '@/lib/me';
 import type { Role } from '@/lib/nav';
 import { StaffContext } from '@/lib/session';
 import { AppShell } from './AppShell';
+
+const rpc = vi.fn(async () => ({ data: [] as unknown[], error: null }));
+vi.mock('@/lib/supabase', () => ({
+  isSupabaseConfigured: true,
+  supabase: { rpc: () => rpc() },
+}));
 
 function renderAt(url: string, roles: Role[] = ['teacher']) {
   const staff: StaffMe = {
@@ -15,15 +22,17 @@ function renderAt(url: string, roles: Role[] = ['teacher']) {
     has_pin: false,
   };
   return render(
-    <StaffContext.Provider value={staff}>
-      <MemoryRouter initialEntries={[url]}>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route path="*" element={<p>contenido</p>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
-    </StaffContext.Provider>,
+    <QueryClientProvider client={new QueryClient()}>
+      <StaffContext.Provider value={staff}>
+        <MemoryRouter initialEntries={[url]}>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route path="*" element={<p>contenido</p>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </StaffContext.Provider>
+    </QueryClientProvider>,
   );
 }
 
@@ -50,6 +59,14 @@ describe('AppShell', () => {
       'aria-current',
       'page',
     );
+  });
+
+  it('muestra cuántas alertas tiene el maestro', async () => {
+    rpc.mockResolvedValueOnce({ data: [{ pass_id: 'p' }], error: null });
+    renderAt('/grupo');
+    const bottom = screen.getAllByRole('navigation', { name: 'Secciones' })[1]!;
+    const alertas = within(bottom).getByRole('link', { name: /Alertas/ });
+    expect(await within(alertas).findByText('1')).toBeInTheDocument();
   });
 
   it('cambia de pestañas según los roles de la sesión', () => {

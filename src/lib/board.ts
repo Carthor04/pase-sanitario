@@ -24,6 +24,11 @@ export type BoardPass = {
   opened_by_name: string | null;
   queue_position: number | null;
   waiting_for: { list_number: number; full_name: string } | null;
+  alert?: {
+    id: string;
+    level: 1 | 2;
+    acknowledged_by_name: string | null;
+  } | null;
 };
 
 export type Bathroom = {

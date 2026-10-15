@@ -2,12 +2,15 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { RequireDevice, RequireStaff } from '@/components/auth/Gates';
 import { AppShell } from '@/components/layout/AppShell';
+import { Alerts } from '@/pages/Alerts';
 import { Home } from '@/pages/Home';
 import { LinkDevice } from '@/pages/LinkDevice';
+import { LiveBoard } from '@/pages/LiveBoard';
 import { Login } from '@/pages/Login';
 import { More } from '@/pages/More';
 import { MyGroup } from '@/pages/MyGroup';
 import { MyPin } from '@/pages/MyPin';
+import { Nurse } from '@/pages/Nurse';
 import { Placeholder } from '@/pages/Placeholder';
 import { SalonHome } from '@/pages/SalonHome';
 import { Settings } from '@/pages/settings/Settings';
@@ -47,9 +50,9 @@ export function App() {
           <Route path="mas" element={<More />} />
           <Route path="ajustes/*" element={<Settings />} />
           <Route path="banos" element={<Placeholder title="Baños" phase={3} />} />
-          <Route path="alertas" element={<Placeholder title="Alertas" phase={4} />} />
-          <Route path="en-vivo" element={<Placeholder title="En vivo" phase={4} />} />
-          <Route path="enfermeria" element={<Placeholder title="Enfermería" phase={4} />} />
+          <Route path="alertas" element={<Alerts />} />
+          <Route path="en-vivo" element={<LiveBoard />} />
+          <Route path="enfermeria" element={<Nurse />} />
           <Route path="reportes" element={<Placeholder title="Reportes" phase={6} />} />
           <Route path="historial" element={<Placeholder title="Historial" phase={6} />} />
           <Route
