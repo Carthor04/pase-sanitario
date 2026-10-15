@@ -721,6 +721,8 @@ export type Database = {
         Returns: Json
       }
       current_actor: { Args: never; Returns: Json }
+      device_session: { Args: never; Returns: Json }
+      group_board: { Args: { p_group_id: string }; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
       import_staff: { Args: { p_rows: Json }; Returns: Json }
