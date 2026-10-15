@@ -13,7 +13,7 @@
     "typecheck": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:db": "node scripts/db-test.mjs"
+    "test:db": "node scripts/db-test.mjs && node scripts/db-test-concurrency.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "^5.1.0",
