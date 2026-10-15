@@ -39,6 +39,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          created_at: string
+          escalated_at: string | null
+          id: string
+          level: number
+          pass_id: string
+          resolution: string | null
+          resolved_at: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          escalated_at?: string | null
+          id?: string
+          level?: number
+          pass_id: string
+          resolution?: string | null
+          resolved_at?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          created_at?: string
+          escalated_at?: string | null
+          id?: string
+          level?: number
+          pass_id?: string
+          resolution?: string | null
+          resolved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_pass_id_fkey"
+            columns: ["pass_id"]
+            isOneToOne: false
+            referencedRelation: "passes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destinations: {
         Row: {
           capacity: number | null
@@ -257,6 +308,45 @@ export type Database = {
           sort?: number | null
         }
         Relationships: []
+      }
+      nurse_notes: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: number
+          pass_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: number
+          pass_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: number
+          pass_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nurse_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nurse_notes_pass_id_fkey"
+            columns: ["pass_id"]
+            isOneToOne: false
+            referencedRelation: "passes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pass_events: {
         Row: {
@@ -699,6 +789,11 @@ export type Database = {
       }
     }
     Functions: {
+      acknowledge_alert: { Args: { p_alert_id: string }; Returns: Json }
+      add_nurse_note: {
+        Args: { p_body: string; p_pass_id: string }
+        Returns: undefined
+      }
       cancel_pass: { Args: { p_pass_id: string }; Returns: Json }
       cede_turn: { Args: { p_pass_id: string }; Returns: Json }
       claim_device_pairing: { Args: { p_code: string }; Returns: Json }
@@ -727,10 +822,12 @@ export type Database = {
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
       import_staff: { Args: { p_rows: Json }; Returns: Json }
       import_students: { Args: { p_rows: Json }; Returns: Json }
+      live_board: { Args: never; Returns: Json }
       lock_device: { Args: never; Returns: undefined }
       mark_arrived: { Args: { p_pass_id: string }; Returns: Json }
       mark_returned: { Args: { p_pass_id: string }; Returns: Json }
       me: { Args: never; Returns: Json }
+      my_alerts: { Args: never; Returns: Json }
       my_groups: {
         Args: { p_at?: string }
         Returns: {
@@ -744,6 +841,7 @@ export type Database = {
           teacher_name: string
         }[]
       }
+      nurse_today: { Args: never; Returns: Json }
       release_pass: {
         Args: { p_pass_id: string; p_reason: string }
         Returns: Json
