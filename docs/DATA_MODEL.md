@@ -212,3 +212,16 @@ Implementado en `supabase/migrations/20261015120000_base_schema.sql` y siguiente
 - **Auth:** trigger `before insert on auth.users` que rechaza correos que no son de personal activo (los anónimos pasan, pero no ven nada hasta vincularse) y otro `after insert` que llena `staff.auth_user_id`.
 - **RPC de la Fase 1:** `me()`, `set_my_pin`, `set_staff_pin`, `clear_staff_pin`, `create_device_pairing`, `claim_device_pairing`, `revoke_device`, `classes_at(ts)`, `my_groups(ts)`, `import_groups`, `import_staff`, `import_students`, `import_schedule`. Vista `v_current_class` (security invoker).
 - **Pruebas SQL:** `supabase/tests/*.sql`, se corren con `npm run test:db` contra la BD vinculada, cada archivo en una transacción que se revierte.
+
+## Ajustes hechos en la Fase 2 (2026-10-15)
+
+Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
+
+- `passes`, `pass_events` y el enum `pass_status` como arriba. `pass_events.type` tiene CHECK con la lista de tipos, más `promoted` (sale de `group_wait`). Los tiempos usan `clock_timestamp()` para que el FIFO sea exacto.
+- **Candado:** toda operación sobre un baño hace `select … for update` en su fila de `destinations` y después en el pase. Así `request_pass` simultáneos quedan en serie (probado con dos conexiones en `scripts/db-test-concurrency.mjs`).
+- **Actor:** `private.current_actor()` devuelve `(staff_id, roles, device_id, device_group_id)`; en el equipo de salón usa el `device_unlocks` vigente y falla con "Equipo bloqueado" si no hay. Un equipo solo opera pases de su grupo. `public.current_actor()` lo expone como JSON.
+- **Permisos por rol:** abrir/confirmar/ceder/cancelar: teacher, coordinator, admin. Marcar regreso: además prefect, y nurse solo en enfermería. Llegó: nurse (y coordinator/admin). Liberar: prefect, coordinator, admin, con motivo obligatorio. Deshacer: solo quien hizo el cambio.
+- **Decisiones del 2026-10-15** (SPEC §4/§7): `group_wait` entra al final de la fila; ceder sin nadie más formado da error ("Nadie más en fila") y un turno vencido sin nadie más sigue llamado; deshacer "regresó" deshace solo el regreso aunque el baño quede arriba de su capacidad.
+- **Desbloqueo:** `unlock_device(pin)` devuelve `{ok:false, error:'wrong_pin'|'locked'}`. Cada `pin_max_attempts` fallos seguidos bloquean `pin_lockout_seconds`. El desbloqueo vence al terminar la clase actual + `auto_lock_after_class_minutes`, o en `unlock_without_class_minutes` (nuevo en `settings`, 15) si no hay clase. Un desbloqueo nuevo cierra el anterior (`lock_reason = 'replaced'`).
+- **`private.tick()`** con pg_cron (`pase-tick`, cada minuto): vence turnos `called` después de `confirm_turn_minutes` y registra autobloqueos. Las alertas de 10 min llegan en la Fase 4.
+- `passes` está en la publicación `supabase_realtime`. `pass_events` solo la lee el personal; los equipos no.
