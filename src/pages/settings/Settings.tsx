@@ -4,6 +4,7 @@ import { canManage } from '@/lib/me';
 import { useStaff } from '@/lib/session';
 import { DevicesPanel } from './DevicesPanel';
 import { ImportPanel } from './ImportPanel';
+import { NotificationsPanel } from './NotificationsPanel';
 import { StaffPanel } from './StaffPanel';
 
 const TABS = [
@@ -78,7 +79,7 @@ export function Settings() {
           }
         />
         <Route path="equipos" element={<DevicesPanel />} />
-        <Route path="notificaciones" element={<Later title="Notificaciones" phase={5} />} />
+        <Route path="notificaciones" element={<NotificationsPanel />} />
         <Route path="*" element={<Navigate to="/ajustes/alumnos" replace />} />
       </Routes>
     </div>

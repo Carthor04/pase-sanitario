@@ -243,3 +243,10 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - RPC: `acknowledge_alert` ("Yo lo atiendo": prefectura, coordinación, admin), `add_nurse_note`, `live_board()` (monitor en vivo para prefectura, enfermería, coordinación, dirección), `my_alerts()` (alertas del maestro a cargo ahora o del que autorizó) y `nurse_today()`. `group_board` incluye la alerta de cada pase.
 - `alerts` está en la publicación `supabase_realtime`.
 - Las notificaciones push y por WhatsApp (destinatarios configurables por canal) son de la Fase 5; en esta fase las alertas se ven en la app.
+
+## Ajustes hechos en la Fase 5 (2026-10-15)
+
+- `notification_rules`, `notifications_outbox` y `push_subscriptions` como arriba. El outbox suma `kind`, `pass_id`, `claimed_at` y `attempts`; las suscripciones, `user_agent`, `last_success_at` y `last_error`.
+- `settings.vapid_public_key` y `settings.whatsapp_enabled` (apagado: no se encolan mensajes de WhatsApp hasta tener el bot).
+- La regla "En la app" de `current_teacher` / `authorizing_teacher` filtra `my_alerts()`.
+- Detalle del envío en `docs/INTEGRATIONS.md` §1.

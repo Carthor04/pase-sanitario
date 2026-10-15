@@ -1,10 +1,13 @@
 # Integraciones
 
 ## 1. Notificaciones push (Web Push)
-- Llaves VAPID en secretos de Supabase.
-- El cliente pide permiso desde "Más → Notificaciones" y guarda la suscripción en `push_subscriptions`.
-- Edge Function `send-push` lee `notifications_outbox` (`channel='push'`, `sent_at is null`) y envía con `web-push`. Se invoca por Database Webhook al insertar en el outbox (o cada minuto por cron).
-- iPhone/iPad: solo funciona si la PWA está instalada en la pantalla de inicio (iOS 16.4+). Mostrar instrucción en la app.
+Implementado en la Fase 5 (`20261015160000_notifications.sql`, `supabase/functions/send-push`).
+- **Llaves VAPID** en los secretos de la función: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`https://pase-oviedo.vercel.app`) y `PUSH_WEBHOOK_SECRET`. La llave pública también está en `settings.vapid_public_key` (la app la lee con `push_config()`). Si se cambian las llaves, todos tienen que volver a activar las notificaciones.
+- El usuario activa las notificaciones en **Más → Notificaciones** o **Ajustes → Notificaciones** (cada equipo por separado); la suscripción se guarda con `save_push_subscription`.
+- Un trigger en `alerts` encola avisos (alerta, escalada, atendida, resuelta) en `notifications_outbox` según `notification_rules`, **solo para quien tiene al menos un equipo registrado**.
+- Al insertar en la bandeja, `pg_net` llama a `send-push` con el encabezado `x-push-secret`; un cron cada minuto (`pase-push`) la vuelve a llamar si quedan pendientes. La URL y el secreto están en Vault (`send_push_url`, `send_push_secret`). La función reserva lotes con `claim_push_batch` (sin envíos dobles), envía con `web-push` y cierra con `finish_push`, que borra suscripciones vencidas (404/410).
+- iPhone/iPad: solo funciona con la PWA instalada en la pantalla de inicio (iOS 16.4+); la app muestra las instrucciones.
+- Íconos PNG para iPhone y notificaciones: `node scripts/make-icons.mjs`.
 
 ## 2. WhatsApp (bot con número dedicado)
 - Servicio aparte en `services/whatsapp-bot/` con **whatsapp-web.js** (Node 20). Corre 24/7 en Railway/Render/VPS con sesión persistente (`LocalAuth` en volumen).
