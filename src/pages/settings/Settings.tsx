@@ -43,7 +43,7 @@ export function Settings() {
         {TABS.map((t) => (
           <NavLink
             key={t.to}
-            to={t.to}
+            to={`/ajustes/${t.to}`}
             className={({ isActive }) =>
               [
                 'inline-flex min-h-touch shrink-0 items-center rounded-btn px-3.5 text-[15px] font-bold',
@@ -56,7 +56,7 @@ export function Settings() {
         ))}
       </nav>
       <Routes>
-        <Route index element={<Navigate to="alumnos" replace />} />
+        <Route index element={<Navigate to="/ajustes/alumnos" replace />} />
         <Route path="banos" element={<Later title="Baños y reglas" phase={6} />} />
         <Route
           path="horarios"
@@ -79,7 +79,7 @@ export function Settings() {
         />
         <Route path="equipos" element={<DevicesPanel />} />
         <Route path="notificaciones" element={<Later title="Notificaciones" phase={5} />} />
-        <Route path="*" element={<Navigate to="alumnos" replace />} />
+        <Route path="*" element={<Navigate to="/ajustes/alumnos" replace />} />
       </Routes>
     </div>
   );
