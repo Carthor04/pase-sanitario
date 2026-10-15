@@ -77,6 +77,7 @@ Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer"
 - Coordinación registra cada computadora una vez como "Equipo de salón 2°B" (código de vinculación de 6 dígitos desde Configuración).
 - **Pantalla bloqueada** por defecto: muestra grupo, clase actual (según horario), teclado de PIN y, en solo lectura, el estado del grupo (quién está fuera, cronómetros).
 - El maestro desbloquea con su **PIN de 4 dígitos**. Cualquier maestro puede desbloquear (suplentes); los pases quedan a nombre de quien desbloqueó.
+- **El PIN es único por persona** (decisión 2026-10-15): al definirlo o cambiarlo se rechaza si otra persona activa ya lo usa ("Ese PIN no está disponible, elige otro"), sin revelar de quién es. Así `unlock_device(pin)` identifica al maestro solo con el PIN.
 - 5 intentos fallidos → bloqueo de 60 s.
 - Botón **Bloquear** (candado) en el encabezado.
 - **Bloqueo automático 5 minutos después de que termina la clase** si nadie bloqueó (configurable).
@@ -86,7 +87,7 @@ Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer"
 ## 6. Celular
 
 - Login con Google (cuenta institucional). Sesión persistente. **Sin PIN ni bloqueo** en el celular.
-- El maestro ve su grupo de la hora actual (según horario) y puede cambiar de grupo.
+- El maestro ve su grupo de la hora actual (según horario) y puede cambiar a **cualquier grupo** (suplencias; decisión 2026-10-15). En el selector aparecen primero el grupo de la hora actual y luego los grupos que imparte; después, todos los demás.
 - Navegación inferior por rol:
   - Maestro: Mi grupo · Baños · Alertas · Más
   - Prefectura: En vivo · Historial · Más
