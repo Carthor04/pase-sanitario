@@ -258,6 +258,168 @@ export type Database = {
         }
         Relationships: []
       }
+      pass_events: {
+        Row: {
+          actor_id: string | null
+          at: string
+          device_id: string | null
+          id: number
+          pass_id: string
+          payload: Json
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          at?: string
+          device_id?: string | null
+          id?: number
+          pass_id: string
+          payload?: Json
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          at?: string
+          device_id?: string | null
+          id?: number
+          pass_id?: string
+          payload?: Json
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pass_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_events_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_events_pass_id_fkey"
+            columns: ["pass_id"]
+            isOneToOne: false
+            referencedRelation: "passes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      passes: {
+        Row: {
+          arrived_at: string | null
+          called_at: string | null
+          closed_by: string | null
+          destination_id: string
+          device_id: string | null
+          ended_at: string | null
+          group_id: string
+          id: string
+          opened_by: string | null
+          period_subject: string | null
+          queue_ts: string | null
+          release_reason: string | null
+          requested_at: string
+          source: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["pass_status"]
+          student_id: string
+        }
+        Insert: {
+          arrived_at?: string | null
+          called_at?: string | null
+          closed_by?: string | null
+          destination_id: string
+          device_id?: string | null
+          ended_at?: string | null
+          group_id: string
+          id?: string
+          opened_by?: string | null
+          period_subject?: string | null
+          queue_ts?: string | null
+          release_reason?: string | null
+          requested_at?: string
+          source?: string
+          started_at?: string | null
+          status: Database["public"]["Enums"]["pass_status"]
+          student_id: string
+        }
+        Update: {
+          arrived_at?: string | null
+          called_at?: string | null
+          closed_by?: string | null
+          destination_id?: string
+          device_id?: string | null
+          ended_at?: string | null
+          group_id?: string
+          id?: string
+          opened_by?: string | null
+          period_subject?: string | null
+          queue_ts?: string | null
+          release_reason?: string | null
+          requested_at?: string
+          source?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["pass_status"]
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "passes_closed_by_fkey"
+            columns: ["closed_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
+          },
+          {
+            foreignKeyName: "passes_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       periods: {
         Row: {
           ends: string
@@ -374,6 +536,7 @@ export type Database = {
           sheets_daily_export_time: string
           sheets_spreadsheet_id: string | null
           undo_seconds: number
+          unlock_without_class_minutes: number
         }
         Insert: {
           alert_minutes?: number
@@ -389,6 +552,7 @@ export type Database = {
           sheets_daily_export_time?: string
           sheets_spreadsheet_id?: string | null
           undo_seconds?: number
+          unlock_without_class_minutes?: number
         }
         Update: {
           alert_minutes?: number
@@ -404,6 +568,7 @@ export type Database = {
           sheets_daily_export_time?: string
           sheets_spreadsheet_id?: string | null
           undo_seconds?: number
+          unlock_without_class_minutes?: number
         }
         Relationships: []
       }
@@ -534,6 +699,8 @@ export type Database = {
       }
     }
     Functions: {
+      cancel_pass: { Args: { p_pass_id: string }; Returns: Json }
+      cede_turn: { Args: { p_pass_id: string }; Returns: Json }
       claim_device_pairing: { Args: { p_code: string }; Returns: Json }
       classes_at: {
         Args: { p_at: string }
@@ -548,14 +715,19 @@ export type Database = {
         }[]
       }
       clear_staff_pin: { Args: { p_staff_id: string }; Returns: undefined }
+      confirm_turn: { Args: { p_pass_id: string }; Returns: Json }
       create_device_pairing: {
         Args: { p_group_id: string; p_label?: string }
         Returns: Json
       }
+      current_actor: { Args: never; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
       import_staff: { Args: { p_rows: Json }; Returns: Json }
       import_students: { Args: { p_rows: Json }; Returns: Json }
+      lock_device: { Args: never; Returns: undefined }
+      mark_arrived: { Args: { p_pass_id: string }; Returns: Json }
+      mark_returned: { Args: { p_pass_id: string }; Returns: Json }
       me: { Args: never; Returns: Json }
       my_groups: {
         Args: { p_at?: string }
@@ -570,15 +742,33 @@ export type Database = {
           teacher_name: string
         }[]
       }
+      release_pass: {
+        Args: { p_pass_id: string; p_reason: string }
+        Returns: Json
+      }
+      request_pass: {
+        Args: { p_kind: string; p_student_id: string }
+        Returns: Json
+      }
       revoke_device: { Args: { p_device_id: string }; Returns: undefined }
       set_my_pin: { Args: { p_pin: string }; Returns: Json }
       set_staff_pin: {
         Args: { p_pin: string; p_staff_id: string }
         Returns: Json
       }
+      undo_last: { Args: { p_pass_id: string }; Returns: Json }
+      unlock_device: { Args: { p_pin: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      pass_status:
+        | "group_wait"
+        | "queued"
+        | "called"
+        | "out"
+        | "arrived"
+        | "returned"
+        | "released"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -708,6 +898,17 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      pass_status: [
+        "group_wait",
+        "queued",
+        "called",
+        "out",
+        "arrived",
+        "returned",
+        "released",
+        "cancelled",
+      ],
+    },
   },
 } as const
