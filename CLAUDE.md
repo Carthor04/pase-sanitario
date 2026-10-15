@@ -42,6 +42,7 @@ Lee estos documentos antes de programar cualquier cosa:
 npm run dev          # frontend
 npm run build && npm run preview
 npm run test
+npm run test:db      # pruebas SQL (supabase/tests) contra la BD vinculada; se revierten
 supabase start       # BD local
 supabase db reset    # aplica migraciones + seed
 supabase functions serve

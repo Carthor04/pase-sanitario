@@ -198,3 +198,17 @@ create table push_subscriptions (
 
 ## Realtime
 Publicar cambios de `passes` y `alerts`. El cliente refresca `v_live_board` con TanStack Query al recibir eventos. Cronómetros se calculan en el cliente desde `started_at` (no polling por segundo).
+
+## Ajustes hechos en la Fase 1 (2026-10-15)
+
+Implementado en `supabase/migrations/20261015120000_base_schema.sql` y siguientes. Diferencias con el esquema de arriba:
+
+- **PIN fuera de `staff`:** el hash vive en `staff_pins(staff_id, pin_hash, updated_at)` sin ningún GRANT; `staff.pin_set_at` dice si la persona tiene PIN. Así un `select` sobre `staff` nunca expone hashes. El PIN es único entre el personal activo (`set_my_pin` / `set_staff_pin` comparan con `crypt()` contra todos, bajo un advisory lock) y al dar de baja a alguien se borra su PIN.
+- **`students`:** `(group_id, list_number)` es único solo entre activos (índice parcial). El importador da de baja (no borra) a quien ya no viene en el CSV y reutiliza el número.
+- **Equipos:** `devices.revoked_at`, `devices.created_by`; tabla `device_pairings` (código de 6 dígitos, vence en `settings.pairing_code_minutes`, un solo uso). La computadora del salón entra como **usuario anónimo** de Supabase Auth y reclama el código con `claim_device_pairing`.
+- **`security_attempts`:** bitácora de intentos (`set_pin`, `pair_device`, `unlock`) para limitar abusos. Las RPC que pueden rechazar por regla devuelven `{ok:false, error}` en vez de lanzar excepción, para que el intento quede guardado.
+- **`settings`:** más columnas `pin_max_attempts` (5), `pin_lockout_seconds` (60), `pairing_code_minutes` (15).
+- **Schema `private`:** ayudantes de RLS (`current_staff_id`, `has_any_role`, `can_manage`, `current_device_id`, …) fuera de la API.
+- **Auth:** trigger `before insert on auth.users` que rechaza correos que no son de personal activo (los anónimos pasan, pero no ven nada hasta vincularse) y otro `after insert` que llena `staff.auth_user_id`.
+- **RPC de la Fase 1:** `me()`, `set_my_pin`, `set_staff_pin`, `clear_staff_pin`, `create_device_pairing`, `claim_device_pairing`, `revoke_device`, `classes_at(ts)`, `my_groups(ts)`, `import_groups`, `import_staff`, `import_students`, `import_schedule`. Vista `v_current_class` (security invoker).
+- **Pruebas SQL:** `supabase/tests/*.sql`, se corren con `npm run test:db` contra la BD vinculada, cada archivo en una transacción que se revierte.

@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Scripts: `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `format`.
+Scripts: `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `test:db` (pruebas SQL contra la BD vinculada), `format`.
 
 Supabase (CLI incluida como dependencia de desarrollo):
 
