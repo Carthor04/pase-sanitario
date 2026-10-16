@@ -165,7 +165,11 @@ export function useBathrooms() {
   });
 }
 
-export type TodayCounts = Record<string, { bathroom: number; nurse: number }>;
+export type TodayCounts = {
+  /** A partir de cuántas salidas al baño en el día se marca al alumno (settings). */
+  flag: number;
+  counts: Record<string, { bathroom: number; nurse: number }>;
+};
 
 /** Salidas de hoy por alumno del grupo (baño y enfermería). Se refresca con Realtime. */
 export function useTodayCounts(groupId: string | undefined) {
@@ -176,7 +180,34 @@ export function useTodayCounts(groupId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase.rpc('group_today_counts', { p_group_id: groupId! });
       if (error) throw error;
-      return (data ?? {}) as unknown as TodayCounts;
+      return data as unknown as TodayCounts;
+    },
+  });
+}
+
+export type TodayExit = {
+  started_at: string;
+  ended_at: string | null;
+  status: string;
+  destination: string;
+  kind: 'bathroom' | 'nurse';
+  subject: string | null;
+  opened_by: string | null;
+  minutes: number | null;
+  alert: boolean;
+};
+
+/** Salidas de hoy de un alumno: horario, destino, clase y quién autorizó. */
+export function useStudentToday(studentId: string | null) {
+  return useQuery({
+    queryKey: ['board', 'student-today', studentId],
+    enabled: Boolean(studentId),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('student_today_passes', {
+        p_student_id: studentId!,
+      });
+      if (error) throw error;
+      return data as unknown as TodayExit[];
     },
   });
 }

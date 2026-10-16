@@ -105,3 +105,58 @@ describe('captura rápida', () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 });
+
+describe('salidas del día', () => {
+  beforeEach(() => rpc.mockReset());
+
+  it('marca con ⚠ a quien llegó al límite y al tocarlo muestra horarios y clases', async () => {
+    rpc.mockImplementation(async (fn: string) => {
+      if (fn === 'group_today_counts') {
+        return {
+          data: {
+            flag: 3,
+            counts: { s14: { bathroom: 3, nurse: 0 }, s3: { bathroom: 1, nurse: 0 } },
+          },
+          error: null,
+        };
+      }
+      if (fn === 'student_today_passes') {
+        return {
+          data: [
+            {
+              started_at: '2026-10-16T14:05:00Z',
+              ended_at: '2026-10-16T14:11:00Z',
+              status: 'returned',
+              destination: 'Baño hombres',
+              kind: 'bathroom',
+              subject: 'Matemáticas',
+              opened_by: 'Laura Ramírez',
+              minutes: 6,
+              alert: false,
+            },
+          ],
+          error: null,
+        };
+      }
+      return { data: null, error: null };
+    });
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <GroupLive board={board} groupName="2°B" groupId="g" students={students} />
+      </QueryClientProvider>,
+    );
+    const flag = await screen.findByRole('button', {
+      name: /Luis Martínez salió 3 veces al baño hoy/,
+    });
+    expect(screen.getByText('Hoy: 1 baño')).toBeInTheDocument(); // Carla: sin marca
+    expect(screen.queryByRole('button', { name: /Carla Domínguez salió/ })).toBeNull();
+    fireEvent.click(flag);
+    expect(
+      await screen.findByRole('dialog', { name: 'Salidas de hoy de Luis Martínez' }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText('08:05 – 08:11')).toBeInTheDocument();
+    expect(
+      screen.getByText('Baño hombres · en Matemáticas · autorizó Laura Ramírez'),
+    ).toBeInTheDocument();
+  });
+});

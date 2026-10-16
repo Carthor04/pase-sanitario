@@ -23,8 +23,16 @@ import {
   type Tone,
 } from '@/lib/board';
 import { playTurnSound } from '@/lib/device';
-import { errorMessage, todayLabel, usePassAction, useServerNow, useTodayCounts } from '@/lib/live';
+import {
+  errorMessage,
+  todayLabel,
+  usePassAction,
+  useServerNow,
+  useTodayCounts,
+  type TodayCounts,
+} from '@/lib/live';
 import { PassMenu } from './PassMenu';
+import { TodayDialog } from './TodayExits';
 
 const timeFmt = new Intl.DateTimeFormat('es-MX', {
   hour: '2-digit',
@@ -61,6 +69,8 @@ type Props = {
   bathroomBar?: boolean;
   /** Para mostrar cuántas veces salió hoy cada alumno. */
   groupId?: string;
+  /** Solo la vista de diseño de desarrollo. */
+  todayPreview?: TodayCounts;
   /** Texto bajo el menú, p. ej. a nombre de quién quedan los pases. */
   footnote?: string;
 };
@@ -77,11 +87,13 @@ export function GroupLive({
   capture,
   bathroomBar = true,
   groupId,
+  todayPreview,
   footnote,
 }: Props) {
   const now = useServerNow(board.offsetMs);
   const action = usePassAction();
   const [menuFor, setMenuFor] = useState<StudentRef | null>(null);
+  const [detailFor, setDetailFor] = useState<StudentRef | null>(null);
   const [undo, setUndo] = useState<Undo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const clearUndo = useCallback(() => setUndo(null), []);
@@ -102,7 +114,8 @@ export function GroupLive({
     return () => window.clearTimeout(id);
   }, [error]);
 
-  const counts = useTodayCounts(groupId);
+  const countsQuery = useTodayCounts(groupId);
+  const counts = { data: todayPreview ?? countsQuery.data };
   const studentById = useMemo(() => new Map(students.map((st) => [st.id, st])), [students]);
 
   async function run(
@@ -262,14 +275,17 @@ export function GroupLive({
           {students.map((st) => {
             const pass = passForStudent(board.passes, st.id);
             const tag = pass ? passTag(pass, now, s) : null;
+            const today = counts.data?.counts[st.id];
+            // Marca para quien ya salió al baño muchas veces hoy (límite en settings).
+            const flagged = Boolean(counts.data && today && today.bathroom >= counts.data.flag);
             return (
-              <li key={st.id}>
+              <li key={st.id} className="relative">
                 <button
                   type="button"
                   onClick={() => setMenuFor(st)}
                   className={`flex min-h-[56px] w-full items-center gap-3 rounded-btn-lg bg-surface px-3 text-left sm:min-h-[72px] sm:flex-col sm:items-stretch sm:gap-1 sm:rounded-card sm:p-3 ${
-                    tag ? TILE_CLASS[tag.tone] : TILE_CLASS.free
-                  }`}
+                    flagged ? 'pr-[60px] sm:pr-3' : ''
+                  } ${tag ? TILE_CLASS[tag.tone] : TILE_CLASS.free}`}
                 >
                   <span className="flex items-center justify-between sm:w-full">
                     <span className="w-7 text-right font-mono text-[15px] font-semibold tabular-nums text-muted sm:w-auto sm:text-left sm:text-[20px] sm:text-ink">
@@ -281,9 +297,11 @@ export function GroupLive({
                     <span className="truncate text-[17px] sm:text-[15px] sm:font-bold">
                       {st.full_name}
                     </span>
-                    {todayLabel(counts.data?.[st.id]) ? (
-                      <span className="text-[12px] text-muted">
-                        Hoy: {todayLabel(counts.data?.[st.id])}
+                    {todayLabel(today) ? (
+                      <span
+                        className={`text-[12px] ${flagged ? 'font-bold text-wait-fg' : 'text-muted'}`}
+                      >
+                        Hoy: {todayLabel(today)}
                       </span>
                     ) : null}
                   </span>
@@ -296,6 +314,18 @@ export function GroupLive({
                   ) : null}
                   <SexChip sex={st.sex} className="sm:hidden" />
                 </button>
+                {flagged ? (
+                  <button
+                    type="button"
+                    onClick={() => setDetailFor(st)}
+                    aria-label={`${st.full_name} salió ${today!.bathroom} veces al baño hoy. Ver horarios`}
+                    title="Ver salidas de hoy"
+                    className="absolute right-2 top-1/2 flex h-10 min-w-[44px] -translate-y-1/2 items-center justify-center gap-0.5 rounded-chip border-2 border-wait-bd bg-wait-bg px-2 text-[14px] font-bold text-wait-fg sm:right-9 sm:top-2 sm:h-8 sm:translate-y-0"
+                  >
+                    <span aria-hidden="true">⚠</span>
+                    {today!.bathroom}
+                  </button>
+                ) : null}
               </li>
             );
           })}
@@ -304,6 +334,14 @@ export function GroupLive({
 
       {bathroomBar ? <BathroomBar bathrooms={board.bathrooms} now={now} /> : null}
 
+      {detailFor ? (
+        <TodayDialog
+          studentId={detailFor.id}
+          name={detailFor.full_name}
+          onClose={() => setDetailFor(null)}
+        />
+      ) : null}
+
       {menuFor ? (
         <PassMenu
           student={studentById.get(menuFor.id) ?? menuFor}
@@ -311,7 +349,8 @@ export function GroupLive({
           now={now}
           groupName={groupName}
           footnote={footnote}
-          today={todayLabel(counts.data?.[menuFor.id])}
+          today={todayLabel(counts.data?.counts[menuFor.id])}
+          showToday
           busy={action.isPending}
           onRequest={(kind) => request(menuFor, kind)}
           onPassAction={onPassAction}

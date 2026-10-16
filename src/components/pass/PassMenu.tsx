@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ChevronIcon, CloseIcon, PlusIcon, ToiletIcon } from '@/components/ui/icons';
 import { buttonClass } from '@/components/ui/styles';
+import { TodayList } from './TodayExits';
 import {
   bathroomHint,
   passForStudent,
@@ -19,6 +20,8 @@ type Props = {
   footnote?: string;
   /** Salidas de hoy, p. ej. "2 baño · 1 enfermería". */
   today?: string | null;
+  /** Muestra la lista de salidas de hoy (horario, destino y clase). */
+  showToday?: boolean;
   busy: boolean;
   onRequest: (kind: 'bathroom' | 'nurse') => void;
   onPassAction: (type: 'return' | 'cancel', pass: BoardPass) => void;
@@ -43,6 +46,7 @@ export function PassMenu(props: Props) {
     groupName,
     footnote,
     today,
+    showToday,
     busy,
     onRequest,
     onPassAction,
@@ -153,6 +157,17 @@ export function PassMenu(props: Props) {
             </button>
           </div>
         )}
+
+        {showToday && today ? (
+          <details className="rounded-card border border-line px-3 py-2">
+            <summary className="min-h-touch cursor-pointer content-center font-bold">
+              Salidas de hoy ({today})
+            </summary>
+            <div className="pt-2">
+              <TodayList studentId={student.id} />
+            </div>
+          </details>
+        ) : null}
 
         <button type="button" onClick={onClose} className={`${buttonClass.secondary} sm:hidden`}>
           Cancelar

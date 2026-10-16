@@ -44,9 +44,15 @@ begin
   perform pg_temp.login(pc, true);
   perform public.claim_device_pairing(v_code);
   -- Salidas de hoy por alumno: cuenta las que ocurrieron, no las que esperan en fila.
-  v := public.group_today_counts(g);
+  v := public.group_today_counts(g) -> 'counts';
   assert v -> b3::text is null, 'en espera del grupo no cuenta';
   assert (v -> b1::text) is null, 'en fila no cuenta';
+  assert (public.group_today_counts(g) ->> 'flag')::int = 3, 'límite del día desde settings';
+  begin
+    perform public.student_today_passes(b2);
+    raise exception 'no debe ver salidas de otro grupo' using errcode = 'TF001';
+  exception when insufficient_privilege then null;
+  end;
   begin
     perform public.group_today_counts(g2);
     raise exception 'no debe ver conteos de otro grupo' using errcode = 'TF001';
@@ -83,12 +89,16 @@ begin
    where student_id = b1 and status in ('queued', 'called', 'group_wait');
   perform pg_temp.login(t);
   perform public.request_pass(b1, 'nurse');
-  v := public.group_today_counts(g);
+  v := public.group_today_counts(g) -> 'counts';
   assert v -> b1::text = '{"bathroom": 1, "nurse": 1}'::jsonb, 'conteo del día ' || v::text;
+  v := public.student_today_passes(b1);
+  assert jsonb_array_length(v) = 2 and v -> 1 ->> 'destination' = 'Enfermería'
+     and v -> 1 ->> 'opened_by' = 'Prueba tablero.t@test.mx', 'detalle del día ' || v::text;
   perform pg_temp.logout();
   update public.passes set started_at = now() - interval '1 day' where student_id = b1 and destination_id = 'nurse';
   perform pg_temp.login(t);
-  assert public.group_today_counts(g) -> b1::text = '{"bathroom": 1, "nurse": 0}'::jsonb, 'solo cuenta hoy';
+  assert public.group_today_counts(g) -> 'counts' -> b1::text = '{"bathroom": 1, "nurse": 0}'::jsonb, 'solo cuenta hoy';
+  assert jsonb_array_length(public.student_today_passes(b1)) = 1, 'el detalle también es solo de hoy';
   perform pg_temp.logout();
 
   -- El nombre del alumno de otro grupo (B2) nunca aparece en el tablero de B1.

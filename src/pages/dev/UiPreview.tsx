@@ -215,6 +215,14 @@ export function UiPreview() {
             groupName="2°B"
             students={students}
             capture
+            todayPreview={{
+              flag: 3,
+              counts: {
+                s14: { bathroom: 4, nurse: 0 },
+                s3: { bathroom: 1, nurse: 1 },
+                s7: { bathroom: 3, nurse: 0 },
+              },
+            }}
             footnote="Queda registrado a nombre de Laura Ramírez."
           />
         )}

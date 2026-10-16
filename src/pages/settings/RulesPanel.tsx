@@ -24,6 +24,7 @@ type Times = {
   undo_seconds: number;
   review_alerts_threshold: number;
   review_exits_threshold: number;
+  daily_exits_flag: number;
 };
 
 const TIME_FIELDS: {
@@ -75,6 +76,14 @@ const TIME_FIELDS: {
     max: 60,
   },
   {
+    key: 'daily_exits_flag',
+    label: 'Marcar al alumno (⚠) en la lista',
+    unit: 'salidas al día',
+    help: 'Desde cuántas idas al baño en el mismo día',
+    min: 1,
+    max: 20,
+  },
+  {
     key: 'review_alerts_threshold',
     label: '"A revisar": alertas',
     unit: 'o más',
@@ -107,7 +116,7 @@ export function RulesPanel() {
         supabase
           .from('settings')
           .select(
-            'alert_minutes, escalate_minutes, confirm_turn_minutes, auto_lock_after_class_minutes, undo_seconds, review_alerts_threshold, review_exits_threshold',
+            'alert_minutes, escalate_minutes, confirm_turn_minutes, auto_lock_after_class_minutes, undo_seconds, review_alerts_threshold, review_exits_threshold, daily_exits_flag',
           )
           .eq('id', 1)
           .single(),

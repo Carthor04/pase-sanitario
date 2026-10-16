@@ -738,6 +738,7 @@ export type Database = {
           alert_minutes: number
           auto_lock_after_class_minutes: number
           confirm_turn_minutes: number
+          daily_exits_flag: number
           escalate_minutes: number
           id: number
           pairing_code_minutes: number
@@ -756,6 +757,7 @@ export type Database = {
           alert_minutes?: number
           auto_lock_after_class_minutes?: number
           confirm_turn_minutes?: number
+          daily_exits_flag?: number
           escalate_minutes?: number
           id?: number
           pairing_code_minutes?: number
@@ -774,6 +776,7 @@ export type Database = {
           alert_minutes?: number
           auto_lock_after_class_minutes?: number
           confirm_turn_minutes?: number
+          daily_exits_flag?: number
           escalate_minutes?: number
           id?: number
           pairing_code_minutes?: number
@@ -1034,6 +1037,7 @@ export type Database = {
         Args: { p_pin: string; p_staff_id: string }
         Returns: Json
       }
+      student_today_passes: { Args: { p_student_id: string }; Returns: Json }
       undo_last: { Args: { p_pass_id: string }; Returns: Json }
       unlock_device: { Args: { p_pin: string }; Returns: Json }
     }
