@@ -357,7 +357,7 @@ function Column({
                           : p.status === 'arrived'
                             ? `en atención desde ${hm(p.arrived_at)}`
                             : nurse
-                              ? 'en camino'
+                              ? `en camino${p.period_subject ? ` · salió en ${p.period_subject}` : ''}`
                               : `salió ${hm(p.started_at)}`}
                       {p.alert ? ` · ${alertStatusText(p.alert)}` : ''}
                     </span>
@@ -405,7 +405,8 @@ function Column({
                   <span className="truncate font-bold">{p.full_name}</span>
                   <span className="text-[13px] text-muted">
                     {p.group_name}
-                    {p.current_teacher_name ? ` · ${p.current_teacher_name}` : ''}
+                    {p.period_subject ? ` · salió en ${p.period_subject}` : ''}
+                    {p.current_teacher_name ? ` · ahora con ${p.current_teacher_name}` : ''}
                   </span>
                 </span>
                 <span className="font-mono text-[15px] tabular-nums text-wait-fg">

@@ -140,18 +140,36 @@ export function usePassAction() {
   });
 }
 
+/** Un renglón de las listas: grupo siempre; nombre y clase solo para el personal. */
+export type WaitItem = {
+  group_name: string;
+  status: string;
+  since: string;
+  full_name?: string;
+  list_number?: number;
+  subject?: string | null;
+  opened_by?: string | null;
+  current_teacher?: string | null;
+};
+
 export type BathroomsStatus = {
   now: string;
+  /** true = el personal (con nombres); false = compu del salón (solo grupos). */
+  names?: boolean;
   nurse: number;
+  nurse_queue?: WaitItem[];
+  nurse_care?: WaitItem[];
+  nurse_returning?: WaitItem[];
   offsetMs: number;
   bathrooms: {
     id: string;
     label: string;
     sex: 'H' | 'M';
     capacity: number | null;
-    occupants: { group_name: string; status: 'called' | 'out'; since: string }[];
-    queue: { group_name: string; since: string }[];
+    occupants: WaitItem[];
+    queue: WaitItem[];
     group_wait: number;
+    group_wait_list?: WaitItem[];
   }[];
 };
 

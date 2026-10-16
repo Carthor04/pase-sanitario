@@ -35,6 +35,15 @@ begin
   assert (select x -> 'occupants' -> 0 ->> 'group_name' from jsonb_array_elements(v -> 'bathrooms') x
            where x ->> 'id' = 'bath_h') = 'B2', 'ocupantes por grupo';
   assert (v -> 'settings' ->> 'alert_minutes')::int > 0, 'settings';
+  -- El personal ve en las listas de espera nombre, grupo y quién autorizó.
+  v := public.bathrooms_status();
+  assert (v ->> 'names')::boolean, 'personal ve nombres';
+  assert (select q ->> 'full_name' = 'Alumno 1H' and q ->> 'group_name' = 'B1'
+            and q ->> 'opened_by' = 'Prueba tablero.t@test.mx'
+            from jsonb_array_elements(v -> 'bathrooms') b, jsonb_array_elements(b -> 'queue') q
+           where b ->> 'id' = 'bath_h' limit 1), 'fila con nombre y grupo ' || v::text;
+  assert jsonb_array_length((select b -> 'group_wait_list' from jsonb_array_elements(v -> 'bathrooms') b
+                              where b ->> 'id' = 'bath_h')) = 1, 'espera del grupo con detalle';
   perform pg_temp.logout();
 
   perform pg_temp.login(c);
@@ -75,6 +84,7 @@ begin
   v := public.bathrooms_status();
   assert jsonb_array_length(v -> 'bathrooms') = 2, 'el equipo ve los baños';
   assert v::text not like '%Alumno%', 'sin nombres de alumnos';
+  assert not (v ->> 'names')::boolean, 'la compu del salón no ve nombres';
   perform public.unlock_device('5150');
   v := public.device_session();
   assert (v ->> 'unlocked')::boolean and v ->> 'staff_name' = 'Prueba tablero.t@test.mx', v::text;

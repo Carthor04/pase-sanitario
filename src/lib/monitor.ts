@@ -71,6 +71,7 @@ export type NursePass = {
   list_number: number;
   group_name: string;
   status: ActiveStatus | 'returned' | 'released' | 'cancelled';
+  period_subject?: string | null;
   started_at: string | null;
   arrived_at: string | null;
   left_nurse_at: string | null;

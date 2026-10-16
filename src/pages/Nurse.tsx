@@ -101,8 +101,8 @@ export function Nurse() {
                   {p.full_name} · {p.group_name}
                 </span>
                 <span className="text-[13px] text-muted">
-                  {p.opened_by_name ? `Lo mandó ${p.opened_by_name}` : 'Enviado'} a las{' '}
-                  {hm(p.started_at)}
+                  {p.period_subject ? `Salió de ${p.period_subject}` : 'Salió de clase'}
+                  {p.opened_by_name ? ` · lo mandó ${p.opened_by_name}` : ''} · {hm(p.started_at)}
                 </span>
                 {p.alert ? (
                   <span className="text-[13px] font-bold text-alert-fg">

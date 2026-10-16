@@ -177,6 +177,10 @@ export function UiPreview() {
       <main className="mx-auto max-w-container px-4 py-5 sm:px-6">
         {view === 'baños' ? (
           <div className="grid gap-6 lg:grid-cols-2">
+            <div className="flex flex-col gap-3 lg:col-span-2">
+              <h2 className="m-0 font-display text-[22px] font-bold">Personal (pantalla Baños)</h2>
+              <BathroomsLive preview={bathroomsPreview(true)} />
+            </div>
             <div className="flex flex-col gap-3">
               <h2 className="m-0 font-display text-[22px] font-bold">Panel (salón desbloqueado)</h2>
               <BathroomsLive variant="panel" ownGroup="2°B" preview={bathroomsPreview()} />
@@ -423,12 +427,32 @@ function reportPreview(): Report {
   };
 }
 
-function bathroomsPreview(): BathroomsStatus {
+function bathroomsPreview(names = false): BathroomsStatus {
   const iso = (minAgo: number) => new Date(Date.now() - minAgo * 60_000).toISOString();
+  const who = (full_name: string, subject: string, opened_by: string) =>
+    names ? { full_name, subject, opened_by } : {};
   return {
     now: new Date().toISOString(),
     offsetMs: 0,
+    names,
     nurse: 2,
+    nurse_queue: [
+      {
+        group_name: '3°C',
+        status: 'out',
+        since: iso(1.5),
+        ...who('Iván Ruiz', 'Historia', 'Prof. Lara'),
+      },
+    ],
+    nurse_care: [
+      {
+        group_name: '2°B',
+        status: 'arrived',
+        since: iso(6),
+        ...who('Mateo Pérez', 'Español', 'Prof. Soto'),
+      },
+    ],
+    nurse_returning: [],
     bathrooms: [
       {
         id: 'bath_h',
@@ -436,11 +460,38 @@ function bathroomsPreview(): BathroomsStatus {
         sex: 'H',
         capacity: 1,
         group_wait: 1,
-        occupants: [{ group_name: '2°B', status: 'out', since: iso(4.2) }],
-        queue: [
-          { group_name: '3°A', since: iso(3.1) },
-          { group_name: '1°C', since: iso(1.2) },
+        occupants: [
+          {
+            group_name: '2°B',
+            status: 'out',
+            since: iso(4.2),
+            ...who('Pedro Gómez', 'Matemáticas', 'Prof. Ramírez'),
+          },
         ],
+        queue: [
+          {
+            group_name: '3°A',
+            status: 'queued',
+            since: iso(3.1),
+            ...who('Raúl Herrera', 'Ciencias', 'Prof. Núñez'),
+          },
+          {
+            group_name: '1°C',
+            status: 'queued',
+            since: iso(1.2),
+            ...who('Emiliano Cruz', 'Inglés', 'Prof. Lara'),
+          },
+        ],
+        group_wait_list: names
+          ? [
+              {
+                group_name: '2°B',
+                status: 'group_wait',
+                since: iso(0.8),
+                ...who('Jorge Valdez', 'Matemáticas', 'Prof. Ramírez'),
+              },
+            ]
+          : undefined,
       },
       {
         id: 'bath_m',
@@ -449,8 +500,18 @@ function bathroomsPreview(): BathroomsStatus {
         capacity: 3,
         group_wait: 0,
         occupants: [
-          { group_name: '1°A', status: 'out', since: iso(11.4) },
-          { group_name: '2°C', status: 'out', since: iso(2) },
+          {
+            group_name: '1°A',
+            status: 'out',
+            since: iso(11.4),
+            ...who('Sofía Ramírez', 'Artes', 'Prof. Vega'),
+          },
+          {
+            group_name: '2°C',
+            status: 'out',
+            since: iso(2),
+            ...who('Paola Núñez', 'Física', 'Prof. Luna'),
+          },
         ],
         queue: [],
       },

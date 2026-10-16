@@ -1,6 +1,12 @@
 import { Loading, Notice } from '@/components/ui/Page';
 import { formatElapsed } from '@/lib/board';
-import { errorMessage, useBathrooms, useServerNow, type BathroomsStatus } from '@/lib/live';
+import {
+  errorMessage,
+  useBathrooms,
+  useServerNow,
+  type BathroomsStatus,
+  type WaitItem,
+} from '@/lib/live';
 
 type Variant = 'cards' | 'panel' | 'dark';
 
@@ -15,7 +21,10 @@ type Props = {
   preview?: BathroomsStatus;
 };
 
-/** Lista en tiempo real de los baños: quién está dentro (por grupo) y quién está en fila. */
+/**
+ * Baños y enfermería en tiempo real: quién está dentro y quién espera. El personal ve
+ * nombre, grupo y clase; la compu del salón (a la vista de los alumnos) solo el grupo.
+ */
 export function BathroomsLive({ variant = 'cards', ownGroup, alertMinutes = 10, preview }: Props) {
   const query = useBathrooms();
   const data = preview ?? query.data;
@@ -24,57 +33,137 @@ export function BathroomsLive({ variant = 'cards', ownGroup, alertMinutes = 10, 
   if (!data && query.isError) return <Notice tone="error">{errorMessage(query.error)}</Notice>;
   if (!data) return <Loading />;
 
-  const dark = variant === 'dark';
-  const wrap = variant === 'cards' ? 'grid gap-4 sm:grid-cols-2' : 'flex flex-col gap-3';
+  const wrap =
+    variant === 'cards' ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'flex flex-col gap-3';
+  const ctx: Ctx = { now, variant, ownGroup, alertMs: alertMinutes * 60_000 };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className={wrap}>
-        {data.bathrooms.map((b) => (
-          <Bathroom
-            key={b.id}
-            b={b}
-            now={now}
-            variant={variant}
-            ownGroup={ownGroup}
-            alertMs={alertMinutes * 60_000}
-          />
-        ))}
-      </div>
-      <span className={`text-[14px] ${dark ? 'text-white/80' : 'text-muted'}`}>
-        Enfermería: {data.nurse} {data.nurse === 1 ? 'alumno' : 'alumnos'} ahora · no hace fila
-      </span>
+    <div className={wrap}>
+      {data.bathrooms.map((b) => (
+        <Bathroom key={b.id} b={b} ctx={ctx} />
+      ))}
+      <Nurse data={data} ctx={ctx} />
     </div>
   );
 }
 
-function Bathroom({
-  b,
-  now,
+type Ctx = { now: number; variant: Variant; ownGroup?: string; alertMs: number };
+
+function box(variant: Variant) {
+  return variant === 'dark'
+    ? 'rounded-card border border-white/15 bg-white/5 text-white'
+    : 'rounded-card border border-line bg-surface';
+}
+
+function Heading({
+  text,
+  tone,
   variant,
-  ownGroup,
-  alertMs,
 }: {
-  b: BathroomsStatus['bathrooms'][number];
-  now: number;
+  text: string;
+  tone: 'muted' | 'wait' | 'nurse';
   variant: Variant;
-  ownGroup?: string;
-  alertMs: number;
 }) {
+  const dark = variant === 'dark';
+  const color =
+    tone === 'wait'
+      ? dark
+        ? 'text-[#FFD08A]'
+        : 'text-wait-fg'
+      : tone === 'nurse'
+        ? dark
+          ? 'text-[#A9C4F0]'
+          : 'text-nurse-fg'
+        : dark
+          ? 'text-white/70'
+          : 'text-muted';
+  return (
+    <span className={`text-[12px] font-bold uppercase tracking-[0.08em] ${color}`}>{text}</span>
+  );
+}
+
+/** Un renglón: posición, alumno (o grupo), clase y tiempo. */
+function Row({
+  item,
+  ctx,
+  position,
+  timeLabel,
+  late,
+  tone,
+}: {
+  item: WaitItem;
+  ctx: Ctx;
+  position?: number;
+  timeLabel: string;
+  late?: boolean;
+  tone: 'plain' | 'wait' | 'nurse';
+}) {
+  const dark = ctx.variant === 'dark';
+  const mine = ctx.ownGroup !== undefined && item.group_name === ctx.ownGroup;
+  const frame = late
+    ? 'border-2 border-alert-bd bg-alert-bg text-alert-fg'
+    : mine
+      ? dark
+        ? 'border-2 border-white/60'
+        : 'border-2 border-ink'
+      : tone === 'wait'
+        ? dark
+          ? 'border border-[#FFD08A]/40'
+          : 'border border-wait-bd/50 bg-wait-bg/40'
+        : tone === 'nurse'
+          ? dark
+            ? 'border border-[#A9C4F0]/40'
+            : 'border border-nurse-bd/50'
+          : dark
+            ? 'border border-white/15'
+            : 'border border-line';
+  const detail = item.full_name
+    ? [
+        item.subject ? `salió en ${item.subject}` : null,
+        item.opened_by ? `autorizó ${item.opened_by}` : null,
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : '';
+  return (
+    <span className={`flex items-center justify-between gap-2 rounded-btn px-3 py-1.5 ${frame}`}>
+      <span className="flex min-w-0 flex-col">
+        <span className="truncate">
+          {position ? `${position}. ` : ''}
+          {item.full_name ? (
+            <>
+              <strong>{item.full_name}</strong> · {item.group_name}
+            </>
+          ) : (
+            <strong>{item.group_name}</strong>
+          )}
+          {mine ? ' · tu grupo' : ''}
+        </span>
+        {detail ? (
+          <span
+            className={`truncate text-[12px] ${late ? '' : dark ? 'text-white/70' : 'text-muted'}`}
+          >
+            {detail}
+          </span>
+        ) : null}
+      </span>
+      <span className="shrink-0 font-mono tabular-nums">{timeLabel}</span>
+    </span>
+  );
+}
+
+function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ctx }) {
+  const { now, variant } = ctx;
   const dark = variant === 'dark';
   const compact = variant !== 'cards';
   const occ = b.occupants.length;
   const full = b.capacity !== null && occ >= b.capacity;
-  const box = dark
-    ? 'rounded-card border border-white/15 bg-white/5 text-white'
-    : 'rounded-card border border-line bg-surface';
   const muted = dark ? 'text-white/70' : 'text-muted';
-  const mine = (g: string) => ownGroup !== undefined && g === ownGroup;
 
   return (
     <section
       aria-label={b.label}
-      className={`flex flex-col gap-2 ${compact ? 'p-3.5' : 'p-5'} ${box}`}
+      className={`flex min-w-0 flex-col gap-2 ${compact ? 'p-3.5' : 'p-5'} ${box(variant)}`}
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className={`m-0 font-display font-bold ${compact ? 'text-[18px]' : 'text-[22px]'}`}>
@@ -91,71 +180,142 @@ function Bathroom({
       </div>
 
       <div className="flex flex-col gap-1">
-        <span className={`text-[12px] font-bold uppercase tracking-[0.08em] ${muted}`}>Dentro</span>
+        <Heading text="Dentro" tone="muted" variant={variant} />
         {occ === 0 ? <span className={muted}>Nadie</span> : null}
         {b.occupants.map((o, i) => {
           const ms = now - new Date(o.since).getTime();
-          const late = o.status === 'out' && ms >= alertMs;
+          const late = o.status === 'out' && ms >= ctx.alertMs;
           return (
-            <span
+            <Row
               key={i}
-              className={`flex items-center justify-between gap-2 rounded-btn px-3 py-1.5 ${
-                late
-                  ? 'border-2 border-alert-bd bg-alert-bg text-alert-fg'
-                  : mine(o.group_name)
-                    ? dark
-                      ? 'border-2 border-white/60'
-                      : 'border-2 border-ink'
-                    : dark
-                      ? 'border border-white/15'
-                      : 'border border-line'
-              }`}
-            >
-              <span className="font-bold">
-                {o.group_name}
-                {mine(o.group_name) ? ' · tu grupo' : ''}
-              </span>
-              <span className="font-mono tabular-nums">
-                {o.status === 'called'
+              item={o}
+              ctx={ctx}
+              tone="plain"
+              late={late}
+              timeLabel={
+                o.status === 'called'
                   ? 'su turno'
-                  : `${late ? 'Alerta · ' : ''}${formatElapsed(ms)}`}
-              </span>
-            </span>
+                  : `${late ? 'Alerta · ' : ''}${formatElapsed(ms)}`
+              }
+            />
           );
         })}
       </div>
 
       <div className="flex flex-col gap-1">
-        <span
-          className={`text-[12px] font-bold uppercase tracking-[0.08em] ${dark ? 'text-[#FFD08A]' : 'text-wait-fg'}`}
-        >
-          Fila · {b.queue.length}
-        </span>
+        <Heading text={`Lista de espera · ${b.queue.length}`} tone="wait" variant={variant} />
         {b.queue.length === 0 ? (
           <span className={dark ? 'text-[#8FE0B0]' : 'text-free-fg'}>
             {full ? 'Sin fila' : 'Sin fila: si sale alguien ahora, entra directo'}
           </span>
         ) : null}
         {b.queue.map((q, i) => (
-          <span
+          <Row
             key={i}
-            className={`flex items-center justify-between gap-2 rounded-btn px-3 py-1.5 ${
-              dark ? 'border border-[#FFD08A]/40' : 'border border-wait-bd/50 bg-wait-bg/40'
-            } ${mine(q.group_name) ? 'font-bold' : ''}`}
-          >
-            <span>
-              {i + 1}. <strong>{q.group_name}</strong>
-              {mine(q.group_name) ? ' · tu grupo' : ''}
-            </span>
-            <span className={`font-mono tabular-nums ${dark ? 'text-[#FFD08A]' : 'text-wait-fg'}`}>
-              espera {formatElapsed(now - new Date(q.since).getTime())}
-            </span>
-          </span>
+            item={q}
+            ctx={ctx}
+            position={i + 1}
+            tone="wait"
+            timeLabel={`espera ${formatElapsed(now - new Date(q.since).getTime())}`}
+          />
         ))}
-        {b.group_wait ? (
+        {b.group_wait_list?.length ? (
+          <>
+            <Heading text="Esperan a su grupo" tone="muted" variant={variant} />
+            {b.group_wait_list.map((q, i) => (
+              <Row
+                key={i}
+                item={q}
+                ctx={ctx}
+                tone="plain"
+                timeLabel={formatElapsed(now - new Date(q.since).getTime())}
+              />
+            ))}
+          </>
+        ) : b.group_wait ? (
           <span className={`text-[13px] ${muted}`}>{b.group_wait} en espera de su grupo</span>
         ) : null}
       </div>
+    </section>
+  );
+}
+
+function Nurse({ data, ctx }: { data: BathroomsStatus; ctx: Ctx }) {
+  const { now, variant } = ctx;
+  const compact = variant !== 'cards';
+  const muted = variant === 'dark' ? 'text-white/70' : 'text-muted';
+  const queue = data.nurse_queue ?? [];
+  const care = data.nurse_care ?? [];
+  const back = data.nurse_returning ?? [];
+
+  return (
+    <section
+      aria-label="Enfermería"
+      className={`flex min-w-0 flex-col gap-2 ${compact ? 'p-3.5' : 'p-5'} ${box(variant)}`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <h2 className={`m-0 font-display font-bold ${compact ? 'text-[18px]' : 'text-[22px]'}`}>
+          Enfermería
+        </h2>
+        <span className="rounded-chip bg-nurse-bg px-2.5 py-0.5 text-[13px] font-bold text-nurse-fg">
+          {care.length} en atención
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <Heading text={`Lista de espera · ${queue.length}`} tone="nurse" variant={variant} />
+        {queue.length === 0 ? <span className={muted}>Nadie en camino</span> : null}
+        {queue.map((q, i) => {
+          const ms = now - new Date(q.since).getTime();
+          const late = ms >= ctx.alertMs;
+          return (
+            <Row
+              key={i}
+              item={q}
+              ctx={ctx}
+              position={i + 1}
+              tone="nurse"
+              late={late}
+              timeLabel={`${late ? 'Alerta · ' : 'en camino '}${formatElapsed(ms)}`}
+            />
+          );
+        })}
+      </div>
+
+      {care.length ? (
+        <div className="flex flex-col gap-1">
+          <Heading text={`En atención · ${care.length}`} tone="muted" variant={variant} />
+          {care.map((q, i) => (
+            <Row
+              key={i}
+              item={q}
+              ctx={ctx}
+              tone="plain"
+              timeLabel={formatElapsed(now - new Date(q.since).getTime())}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      {back.length ? (
+        <div className="flex flex-col gap-1">
+          <Heading text={`De regreso al salón · ${back.length}`} tone="wait" variant={variant} />
+          {back.map((q, i) => {
+            const ms = now - new Date(q.since).getTime();
+            const late = ms >= ctx.alertMs;
+            return (
+              <Row
+                key={i}
+                item={q}
+                ctx={ctx}
+                tone="wait"
+                late={late}
+                timeLabel={`${late ? 'Alerta · ' : ''}${formatElapsed(ms)}`}
+              />
+            );
+          })}
+        </div>
+      ) : null}
     </section>
   );
 }
