@@ -72,6 +72,6 @@ describe('AppShell', () => {
   it('cambia de pestañas según los roles de la sesión', () => {
     renderAt('/enfermeria', ['nurse']);
     const bottom = screen.getAllByRole('navigation', { name: 'Secciones' })[1]!;
-    expect(linkLabels(bottom)).toEqual(['Hoy', 'Historial']);
+    expect(linkLabels(bottom)).toEqual(['Enfermería', 'Historial']);
   });
 });

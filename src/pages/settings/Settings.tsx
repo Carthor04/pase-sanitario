@@ -9,10 +9,12 @@ import { RulesPanel } from './RulesPanel';
 import { SchedulePanel } from './SchedulePanel';
 import { StaffPanel } from './StaffPanel';
 import { StudentsPanel } from './StudentsPanel';
+import { TeachersPanel } from './TeachersPanel';
 
 const TABS = [
   { to: 'banos', label: 'Baños y reglas' },
   { to: 'horarios', label: 'Horarios' },
+  { to: 'docentes', label: 'Docentes' },
   { to: 'alumnos', label: 'Alumnos' },
   { to: 'personal', label: 'Personal y PIN' },
   { to: 'equipos', label: 'Salones y equipos' },
@@ -54,6 +56,7 @@ export function Settings() {
         <Route index element={<Navigate to="/ajustes/banos" replace />} />
         <Route path="banos" element={<RulesPanel />} />
         <Route path="horarios" element={<SchedulePanel />} />
+        <Route path="docentes" element={<TeachersPanel />} />
         <Route
           path="alumnos"
           element={

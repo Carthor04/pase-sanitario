@@ -263,3 +263,9 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 ## Regreso de enfermería (2026-10-16)
 
 `20261016120000_returning_status.sql` y `20261016120100_returning_flow.sql`: nuevo estado `returning` en `pass_status` y columna `passes.left_nurse_at`. `nurse_send_back(pase)` (enfermería) pasa `arrived` → `returning`, deja evento `sent_back` y encola un aviso push `returning` al maestro a cargo y al que autorizó (según `notification_rules`). El maestro cierra con `mark_returned`. `tick()` alerta también el regreso; `alerts` ahora permite una alerta abierta por pase (índice parcial), no una sola en toda su historia. `undo_last` deshace `sent_back`.
+
+## Detalle de reportes y horarios por docente (2026-10-16)
+
+- `report_detail(p_from, p_to, p_destination?, p_weekday?, p_hour?, p_group?, p_alerts_only?)`: los pases que salieron en el periodo con alumno, grupo, clase, destino, minutos y si tuvieron alerta. Lo usa Reportes al tocar un cuadro, una celda del mapa de calor o un grupo. Solo coordinación, dirección y admin. Máximo 1000 renglones.
+- `teacher_schedule(p_staff_id)`: horario semanal de un docente y su clase actual (`classes_at(now())`). Cualquier personal.
+- `current_classes()`: la clase actual de cada grupo (o null). Cualquier personal.

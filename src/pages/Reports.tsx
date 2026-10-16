@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import { ReportDetailDialog } from '@/components/reports/ReportDetailDialog';
 import { Card, Loading, Notice, PageTitle, SectionLabel } from '@/components/ui/Page';
 import { errorMessage } from '@/lib/live';
 import { hm } from '@/lib/monitor';
@@ -10,11 +11,15 @@ import {
   rangeTitle,
   useHistory,
   useReport,
+  type DetailFilter,
   type RangeKey,
   type Report,
 } from '@/lib/reports';
 
 const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+const DAY_NAMES = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'];
+
+type OpenDetail = (f: DetailFilter) => void;
 const fmtMin = (n: number | null | undefined) => (n == null ? '—' : `${Number(n).toFixed(1)} min`);
 
 const dayTimeFmt = new Intl.DateTimeFormat('es-MX', {
@@ -80,6 +85,7 @@ export function Reports() {
 export function ReportBody({ report, from, to }: { report: Report; from: string; to: string }) {
   const t = report.totals;
   const mq = report.max_queue;
+  const [detail, setDetail] = useState<DetailFilter | null>(null);
   return (
     <>
       <section aria-label="Resumen" className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
@@ -87,17 +93,28 @@ export function ReportBody({ report, from, to }: { report: Report; from: string;
           label="Salidas"
           value={String(t.exits)}
           sub={`${t.bathroom} baño · ${t.nurse} enfermería`}
+          onClick={() => setDetail({ title: 'Todas las salidas' })}
         />
         <Stat
           label="Tiempo promedio"
           value={fmtMin(t.avg_minutes)}
           sub={`Hombres ${t.avg_minutes_h ?? '—'} · Mujeres ${t.avg_minutes_m ?? '—'}`}
+          onClick={() =>
+            setDetail({
+              title: 'Salidas al baño · más tiempo fuera',
+              destination: 'bathroom',
+              byMinutes: true,
+            })
+          }
         />
         <Stat
           label="Alertas"
           value={String(report.alerts.count)}
           tone="alert"
           sub={`${report.alerts.acknowledged_fast} atendidas en menos de 3 min`}
+          onClick={() =>
+            setDetail({ title: 'Salidas con alerta', alertsOnly: true, byMinutes: true })
+          }
         />
         <Stat
           label="Fila máxima"
@@ -107,14 +124,18 @@ export function ReportBody({ report, from, to }: { report: Report; from: string;
         />
       </section>
 
-      <Heatmap report={report} />
+      <Heatmap report={report} onOpen={setDetail} />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <ByGroup report={report} />
+        <ByGroup report={report} onOpen={setDetail} />
         <Review report={report} />
       </div>
 
       <Recent from={from} to={to} />
+
+      {detail ? (
+        <ReportDetailDialog from={from} to={to} filter={detail} onClose={() => setDetail(null)} />
+      ) : null}
     </>
   );
 }
@@ -124,14 +145,16 @@ function Stat({
   value,
   sub,
   tone,
+  onClick,
 }: {
   label: string;
   value: string;
   sub: string;
   tone?: 'alert' | 'wait';
+  onClick?: () => void;
 }) {
-  return (
-    <Card className="gap-1 p-4 sm:p-5">
+  const body = (
+    <>
       <SectionLabel>{label}</SectionLabel>
       <span
         className={`font-mono text-[28px] font-semibold tabular-nums leading-tight sm:text-[40px] ${
@@ -141,11 +164,23 @@ function Stat({
         {value}
       </span>
       <span className="hidden text-[14px] text-muted sm:inline">{sub}</span>
-    </Card>
+      {onClick ? <span className="text-[13px] font-bold text-accent">Ver alumnos ›</span> : null}
+    </>
+  );
+  if (!onClick) return <Card className="gap-1 p-4 sm:p-5">{body}</Card>;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`${label}: ${value}. Ver alumnos`}
+      className="flex flex-col gap-1 rounded-card border border-line bg-surface p-4 text-left transition hover:border-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent sm:p-5"
+    >
+      {body}
+    </button>
   );
 }
 
-function Heatmap({ report }: { report: Report }) {
+function Heatmap({ report, onOpen }: { report: Report; onOpen: OpenDetail }) {
   const [dest, setDest] = useState<'bath_h' | 'bath_m'>('bath_h');
   const m = heatmapMatrix(report, dest);
   const label = dest === 'bath_h' ? 'Baño hombres' : 'Baño mujeres';
@@ -172,7 +207,8 @@ function Heatmap({ report }: { report: Report }) {
         </div>
       </div>
       <p className="m-0 text-[14px] text-muted">
-        Cada cuadro es el número de salidas en esa hora. Los cuadros con borde tuvieron fila.
+        Cada cuadro es el número de salidas en esa hora. Los cuadros con borde tuvieron fila. Toca
+        un cuadro para ver quién salió.
       </p>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[280px] border-separate border-spacing-1 text-center">
@@ -196,20 +232,32 @@ function Heatmap({ report }: { report: Report }) {
                 {row.map((c) => {
                   const a = c.count / m.max;
                   return (
-                    <td
-                      key={c.hour}
-                      title={`${DAYS[i]} ${c.hour}:00 · ${c.count} salidas${c.queued ? ' · hubo fila' : ''}`}
-                      className={`h-10 rounded-[8px] font-mono text-[14px] font-semibold tabular-nums sm:h-12 sm:text-[16px] ${
-                        c.queued ? 'outline outline-2 -outline-offset-2 outline-wait-bd' : ''
-                      }`}
-                      style={{
-                        backgroundColor: c.count
-                          ? `rgba(29, 78, 137, ${0.15 + a * 0.8})`
-                          : '#EEF1F4',
-                        color: a > 0.55 ? '#fff' : '#15212C',
-                      }}
-                    >
-                      {c.count || ''}
+                    <td key={c.hour} className="p-0">
+                      <button
+                        type="button"
+                        disabled={!c.count}
+                        onClick={() =>
+                          onOpen({
+                            title: `${label} · ${DAY_NAMES[i]} ${c.hour}:00–${c.hour}:59`,
+                            destination: dest,
+                            weekday: c.weekday,
+                            hour: c.hour,
+                          })
+                        }
+                        title={`${DAYS[i]} ${c.hour}:00 · ${c.count} salidas${c.queued ? ' · hubo fila' : ''}`}
+                        aria-label={`${DAYS[i]} ${c.hour}:00, ${c.count} salidas${c.queued ? ', hubo fila' : ''}`}
+                        className={`h-10 w-full min-w-[30px] rounded-[8px] font-mono text-[14px] font-semibold tabular-nums enabled:cursor-pointer enabled:hover:ring-2 enabled:hover:ring-ink sm:h-12 sm:text-[16px] ${
+                          c.queued ? 'outline outline-2 -outline-offset-2 outline-wait-bd' : ''
+                        }`}
+                        style={{
+                          backgroundColor: c.count
+                            ? `rgba(29, 78, 137, ${0.15 + a * 0.8})`
+                            : '#EEF1F4',
+                          color: a > 0.55 ? '#fff' : '#15212C',
+                        }}
+                      >
+                        {c.count || ''}
+                      </button>
                     </td>
                   );
                 })}
@@ -222,11 +270,18 @@ function Heatmap({ report }: { report: Report }) {
   );
 }
 
-function ByGroup({ report }: { report: Report }) {
+function ByGroup({ report, onOpen }: { report: Report; onOpen: OpenDetail }) {
   const max = Math.max(1, ...report.by_group.map((g) => g.exits));
+  const openGroup = (g: Report['by_group'][number]) =>
+    onOpen({ title: `Salidas de ${g.group_name}`, groupId: g.group_id });
   return (
     <Card>
-      <h2 className="m-0 font-display text-[20px] font-bold sm:text-[24px]">Por grupo</h2>
+      <div className="flex flex-col">
+        <h2 className="m-0 font-display text-[20px] font-bold sm:text-[24px]">Por grupo</h2>
+        <span className="text-[14px] text-muted">
+          Toca un grupo para ver quién salió, o el número de alertas para ver solo esas.
+        </span>
+      </div>
       <table className="w-full border-collapse text-left">
         <thead>
           <tr className="border-b border-line text-[12px] uppercase tracking-[0.08em] text-muted">
@@ -239,8 +294,26 @@ function ByGroup({ report }: { report: Report }) {
         </thead>
         <tbody>
           {report.by_group.map((g) => (
-            <tr key={g.group_id} className="border-b border-line last:border-0">
-              <td className="py-2.5 font-bold">{g.group_name}</td>
+            <tr
+              key={g.group_id}
+              className={`border-b border-line last:border-0 ${
+                g.exits ? 'cursor-pointer hover:bg-[#F3F6F9]' : ''
+              }`}
+              onClick={() => (g.exits ? openGroup(g) : undefined)}
+            >
+              <td className="py-1">
+                <button
+                  type="button"
+                  disabled={!g.exits}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openGroup(g);
+                  }}
+                  className="min-h-touch pr-3 text-left font-bold text-accent underline-offset-2 hover:underline disabled:text-ink disabled:no-underline"
+                >
+                  {g.group_name}
+                </button>
+              </td>
               <td className="py-2.5 font-mono tabular-nums">{g.exits}</td>
               <td className="hidden w-[40%] py-2.5 pr-4 sm:table-cell">
                 <span className="block h-2 rounded-full bg-[#E6EBF0]" aria-hidden="true">
@@ -253,9 +326,21 @@ function ByGroup({ report }: { report: Report }) {
               <td className="hidden py-2.5 font-mono tabular-nums sm:table-cell">
                 {fmtMin(g.avg_minutes)}
               </td>
-              <td className="py-2.5 text-right">
-                <span
-                  className={`inline-block min-w-[28px] rounded-chip px-2 text-center font-bold ${
+              <td className="py-1 text-right">
+                <button
+                  type="button"
+                  disabled={!g.alerts}
+                  aria-label={`${g.alerts} alertas en ${g.group_name}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpen({
+                      title: `Alertas de ${g.group_name}`,
+                      groupId: g.group_id,
+                      alertsOnly: true,
+                      byMinutes: true,
+                    });
+                  }}
+                  className={`inline-flex min-h-touch min-w-[44px] items-center justify-center rounded-chip px-2 font-bold enabled:hover:ring-2 enabled:hover:ring-alert-bd ${
                     g.alerts >= 2
                       ? 'bg-alert-bg text-alert-fg'
                       : g.alerts === 1
@@ -264,7 +349,7 @@ function ByGroup({ report }: { report: Report }) {
                   }`}
                 >
                   {g.alerts}
-                </span>
+                </button>
               </td>
             </tr>
           ))}

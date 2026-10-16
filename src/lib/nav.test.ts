@@ -10,7 +10,7 @@ describe('navForRoles', () => {
     expect(labels(['prefect'])).toEqual(['En vivo', 'Historial', 'Más']);
   });
   it('enfermería', () => {
-    expect(labels(['nurse'])).toEqual(['Hoy', 'Historial']);
+    expect(labels(['nurse'])).toEqual(['Enfermería', 'Historial']);
   });
   it('coordinación y dirección', () => {
     const expected = ['En vivo', 'Reportes', 'Historial', 'Ajustes'];

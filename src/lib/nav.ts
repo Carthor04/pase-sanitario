@@ -14,7 +14,7 @@ export type NavItem = { to: string; label: string };
 
 const ITEMS = {
   grupo: { to: '/grupo', label: 'Mi grupo' },
-  hoy: { to: '/enfermeria', label: 'Hoy' },
+  hoy: { to: '/enfermeria', label: 'Enfermería' },
   enVivo: { to: '/en-vivo', label: 'En vivo' },
   banos: { to: '/banos', label: 'Baños' },
   alertas: { to: '/alertas', label: 'Alertas' },

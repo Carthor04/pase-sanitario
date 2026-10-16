@@ -254,3 +254,61 @@ export const EVENT_LABELS: Record<string, string> = {
   alert_ack: 'Alguien atiende la alerta',
   note: 'Nota de enfermería',
 };
+
+// ---------------------------------------------------------------------------
+// Detalle: alumnos que salieron, al tocar un cuadro del reporte
+// ---------------------------------------------------------------------------
+export type DetailFilter = {
+  title: string;
+  destination?: 'bath_h' | 'bath_m' | 'nurse' | 'bathroom';
+  weekday?: number;
+  hour?: number;
+  groupId?: string;
+  alertsOnly?: boolean;
+  /** Ordenar de más a menos minutos fuera (para "Tiempo promedio"). */
+  byMinutes?: boolean;
+};
+
+export type DetailRow = {
+  id: string;
+  full_name: string;
+  list_number: number;
+  group_name: string;
+  destination: string;
+  kind: 'bathroom' | 'nurse';
+  started_at: string;
+  ended_at: string | null;
+  status: string;
+  minutes: number | null;
+  subject: string | null;
+  opened_by: string | null;
+  queued: boolean;
+  alert: boolean;
+  release_reason: string | null;
+};
+
+export function useReportDetail(from: string, to: string, f: DetailFilter | null) {
+  return useQuery({
+    queryKey: ['report-detail', from, to, f],
+    enabled: Boolean(f),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('report_detail', {
+        p_from: from,
+        p_to: to,
+        p_destination: f!.destination,
+        p_weekday: f!.weekday,
+        p_hour: f!.hour,
+        p_group: f!.groupId,
+        p_alerts_only: f!.alertsOnly ?? false,
+      });
+      if (error) throw error;
+      return data as unknown as DetailRow[];
+    },
+  });
+}
+
+/** Orden del detalle: por hora, o de más a menos tiempo fuera (los que siguen fuera al final). */
+export function sortDetail(rows: DetailRow[], byMinutes: boolean): DetailRow[] {
+  if (!byMinutes) return rows;
+  return [...rows].sort((a, b) => (b.minutes ?? -1) - (a.minutes ?? -1));
+}

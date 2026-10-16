@@ -1,9 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useId, useState } from 'react';
-import { Card, Loading, SectionLabel } from '@/components/ui/Page';
+import { Card, Loading, Notice, SectionLabel } from '@/components/ui/Page';
+import { errorMessage } from '@/lib/live';
 import { hhmm, useGroups } from '@/lib/queries';
+import { useCurrentClasses } from '@/lib/schedule';
 import { supabase } from '@/lib/supabase';
 import { ImportPanel } from './ImportPanel';
+import { WeekGrid } from './WeekGrid';
 
 type Entry = {
   weekday: number;
@@ -12,9 +15,8 @@ type Entry = {
   subject: string;
   teacher_name: string | null;
 };
-const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
-/** Configuración → Horarios: ver el horario de un grupo e importar grupos/horario. */
+/** Configuración → Horarios: la clase de cada grupo ahora, el horario de un grupo e importar. */
 export function SchedulePanel() {
   const selectId = useId();
   const groups = useGroups();
@@ -31,10 +33,9 @@ export function SchedulePanel() {
     },
   });
 
-  const slots = [...new Set((schedule.data ?? []).map((e) => `${e.starts}|${e.ends}`))].sort();
-
   return (
     <div className="flex flex-col gap-4">
+      <NowCard onPick={setGroupId} />
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <SectionLabel>Horario del grupo</SectionLabel>
@@ -61,55 +62,79 @@ export function SchedulePanel() {
           <span className="text-muted">Este grupo no tiene horario. Impórtalo abajo.</span>
         ) : null}
         {schedule.data && schedule.data.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px] border-collapse text-left text-[14px]">
-              <thead>
-                <tr className="border-b border-line">
-                  <th className="py-2 pr-2 font-bold">Hora</th>
-                  {DAYS.map((d) => (
-                    <th key={d} className="px-2 py-2 font-bold">
-                      {d}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {slots.map((slot) => {
-                  const [starts, ends] = slot.split('|');
-                  return (
-                    <tr key={slot} className="border-b border-line align-top last:border-0">
-                      <td className="whitespace-nowrap py-2 pr-2 font-mono tabular-nums text-muted">
-                        {hhmm(starts)}–{hhmm(ends)}
-                      </td>
-                      {[1, 2, 3, 4, 5].map((wd) => {
-                        const e = schedule.data.find(
-                          (x) => x.weekday === wd && x.starts === starts && x.ends === ends,
-                        );
-                        return (
-                          <td key={wd} className="px-2 py-2">
-                            {e ? (
-                              <>
-                                <span className="font-bold">{e.subject}</span>
-                                {e.teacher_name ? (
-                                  <span className="block text-[12px] text-muted">
-                                    {e.teacher_name}
-                                  </span>
-                                ) : null}
-                              </>
-                            ) : null}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <WeekGrid
+            entries={schedule.data}
+            cell={(e) => (
+              <>
+                <span className="font-bold">{e.subject}</span>
+                {e.teacher_name ? (
+                  <span className="block text-[12px] text-muted">{e.teacher_name}</span>
+                ) : null}
+              </>
+            )}
+          />
         ) : null}
       </Card>
       <ImportPanel kind="groups" title="Importar grupos" />
       <ImportPanel kind="schedule" title="Importar horario" />
     </div>
+  );
+}
+
+/** En qué clase está cada grupo en este momento. */
+function NowCard({ onPick }: { onPick: (groupId: string) => void }) {
+  const current = useCurrentClasses();
+  const inClass = current.data?.filter((g) => g.subject).length ?? 0;
+  return (
+    <Card>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <SectionLabel>Ahora</SectionLabel>
+        {current.data ? (
+          <span className="text-[14px] text-muted">
+            {inClass} de {current.data.length} grupos en clase · se actualiza cada minuto
+          </span>
+        ) : null}
+      </div>
+      {current.isPending ? <Loading /> : null}
+      {current.isError ? <Notice tone="error">{errorMessage(current.error)}</Notice> : null}
+      {current.data ? (
+        <ul className="m-0 grid list-none gap-2 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          {current.data.map((g) => (
+            <li key={g.group_id}>
+              <button
+                type="button"
+                onClick={() => onPick(g.group_id)}
+                title={`Ver el horario de ${g.group_name}`}
+                className={`flex min-h-btn w-full items-start gap-3 rounded-btn-lg border px-3 py-2 text-left hover:border-accent ${
+                  g.subject ? 'border-transparent bg-free-bg' : 'border-line bg-surface'
+                }`}
+              >
+                <span className="w-12 shrink-0 font-display text-[20px] font-bold">
+                  {g.group_name}
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  {g.subject ? (
+                    <>
+                      <span className="font-bold">
+                        <span aria-hidden="true" className="text-free-fg">
+                          ●{' '}
+                        </span>
+                        {g.subject}
+                      </span>
+                      <span className="text-[13px] text-muted">
+                        {g.teacher_name ?? 'Sin maestro'} · hasta{' '}
+                        <span className="font-mono tabular-nums">{hhmm(g.ends!)}</span>
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-muted">○ Sin clase en este momento</span>
+                  )}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </Card>
   );
 }

@@ -961,6 +961,7 @@ export type Database = {
         Returns: Json
       }
       current_actor: { Args: never; Returns: Json }
+      current_classes: { Args: never; Returns: Json }
       delete_push_subscription: {
         Args: { p_endpoint: string }
         Returns: undefined
@@ -1020,6 +1021,18 @@ export type Database = {
         Args: { p_pass_id: string; p_reason: string }
         Returns: Json
       }
+      report_detail: {
+        Args: {
+          p_alerts_only?: boolean
+          p_destination?: string
+          p_from: string
+          p_group?: string
+          p_hour?: number
+          p_to: string
+          p_weekday?: number
+        }
+        Returns: Json
+      }
       report_summary: { Args: { p_from: string; p_to: string }; Returns: Json }
       request_pass: {
         Args: { p_kind: string; p_student_id: string }
@@ -1042,6 +1055,7 @@ export type Database = {
         Returns: Json
       }
       student_today_passes: { Args: { p_student_id: string }; Returns: Json }
+      teacher_schedule: { Args: { p_staff_id: string }; Returns: Json }
       undo_last: { Args: { p_pass_id: string }; Returns: Json }
       unlock_device: { Args: { p_pin: string }; Returns: Json }
     }
