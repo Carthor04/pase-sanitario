@@ -274,51 +274,58 @@ export function GroupLive({
             Lista · {students.length} alumnos
           </h2>
           <span className="hidden text-[15px] text-muted sm:inline">
-            H = baño hombres · M = baño mujeres (automático)
+            Toca un nombre para abrir un pase · ⚠ = muchas salidas hoy · H/M = baño
           </span>
         </div>
-        <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-[repeat(auto-fill,minmax(168px,1fr))] sm:gap-2.5">
+        {/* Lista en renglones: nombre completo, salidas de hoy y estado. Dos columnas en
+            pantallas anchas (compu del salón). */}
+        <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 xl:grid-cols-2 xl:gap-x-4">
           {students.map((st) => {
             const pass = passForStudent(board.passes, st.id);
             const tag = pass ? passTag(pass, now, s) : null;
             const today = counts.data?.counts[st.id];
             // Marca para quien ya salió al baño muchas veces hoy (límite en settings).
             const flagged = Boolean(counts.data && today && today.bathroom >= counts.data.flag);
+            const todayText = todayLabel(today);
             return (
-              <li key={st.id} className="relative">
+              <li key={st.id} className="flex items-stretch gap-2">
                 <button
                   type="button"
                   onClick={() => setMenuFor(st)}
-                  className={`flex min-h-[56px] w-full items-center gap-3 rounded-btn-lg bg-surface px-3 text-left sm:min-h-[72px] sm:flex-col sm:items-stretch sm:gap-1 sm:rounded-card sm:p-3 ${
-                    flagged ? 'pr-[60px] sm:pr-3' : ''
-                  } ${tag ? TILE_CLASS[tag.tone] : TILE_CLASS.free}`}
+                  className={`flex min-h-[56px] min-w-0 flex-1 items-center gap-3 rounded-btn-lg bg-surface px-3 py-2 text-left ${
+                    tag ? TILE_CLASS[tag.tone] : TILE_CLASS.free
+                  }`}
                 >
-                  <span className="flex items-center justify-between sm:w-full">
-                    <span className="w-7 text-right font-mono text-[15px] font-semibold tabular-nums text-muted sm:w-auto sm:text-left sm:text-[20px] sm:text-ink">
-                      {st.list_number}
-                    </span>
-                    <SexChip sex={st.sex} className="hidden sm:inline" />
+                  <span className="w-7 shrink-0 text-right font-mono text-[16px] font-semibold tabular-nums text-muted">
+                    {st.list_number}
                   </span>
-                  <span className="flex min-w-0 flex-1 flex-col sm:flex-none">
-                    <span className="truncate text-[17px] sm:text-[15px] sm:font-bold">
+                  <span className="flex min-w-0 flex-1 flex-col">
+                    <span className="break-words text-[17px] font-bold leading-tight">
                       {st.full_name}
                     </span>
-                    {todayLabel(today) ? (
+                    {todayText ? (
                       <span
-                        className={`text-[12px] ${flagged ? 'font-bold text-wait-fg' : 'text-muted'}`}
+                        className={`text-[13px] sm:hidden ${flagged ? 'font-bold text-wait-fg' : 'text-muted'}`}
                       >
-                        Hoy: {todayLabel(today)}
+                        Hoy: {todayText}
+                      </span>
+                    ) : null}
+                    {tag ? (
+                      <span
+                        className={`mt-0.5 self-start rounded-chip px-2 py-0.5 font-mono text-[12px] font-bold tabular-nums ${TAG_CLASS[tag.tone]}`}
+                      >
+                        {tag.label}
                       </span>
                     ) : null}
                   </span>
-                  {tag ? (
-                    <span
-                      className={`shrink-0 self-center rounded-chip px-2 py-0.5 font-mono text-[12px] font-bold tabular-nums sm:self-start ${TAG_CLASS[tag.tone]}`}
-                    >
-                      {tag.label}
-                    </span>
-                  ) : null}
-                  <SexChip sex={st.sex} className="sm:hidden" />
+                  <span
+                    className={`hidden w-[150px] shrink-0 text-[13px] sm:block ${
+                      flagged ? 'font-bold text-wait-fg' : 'text-muted'
+                    }`}
+                  >
+                    {todayText ? `Hoy: ${todayText}` : 'Hoy: 0'}
+                  </span>
+                  <SexChip sex={st.sex} />
                 </button>
                 {flagged ? (
                   <button
@@ -326,7 +333,7 @@ export function GroupLive({
                     onClick={() => setDetailFor(st)}
                     aria-label={`${st.full_name} salió ${today!.bathroom} veces al baño hoy. Ver horarios`}
                     title="Ver salidas de hoy"
-                    className="absolute right-2 top-1/2 flex h-10 min-w-[44px] -translate-y-1/2 items-center justify-center gap-0.5 rounded-chip border-2 border-wait-bd bg-wait-bg px-2 text-[14px] font-bold text-wait-fg sm:right-9 sm:top-2 sm:h-8 sm:translate-y-0"
+                    className="flex min-w-[52px] shrink-0 items-center justify-center gap-0.5 rounded-btn-lg border-2 border-wait-bd bg-wait-bg px-2 text-[15px] font-bold text-wait-fg"
                   >
                     <span aria-hidden="true">⚠</span>
                     {today!.bathroom}

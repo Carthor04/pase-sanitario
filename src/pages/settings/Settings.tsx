@@ -8,6 +8,7 @@ import { NotificationsPanel } from './NotificationsPanel';
 import { RulesPanel } from './RulesPanel';
 import { SchedulePanel } from './SchedulePanel';
 import { StaffPanel } from './StaffPanel';
+import { StudentsPanel } from './StudentsPanel';
 
 const TABS = [
   { to: 'banos', label: 'Baños y reglas' },
@@ -53,7 +54,15 @@ export function Settings() {
         <Route index element={<Navigate to="/ajustes/banos" replace />} />
         <Route path="banos" element={<RulesPanel />} />
         <Route path="horarios" element={<SchedulePanel />} />
-        <Route path="alumnos" element={<ImportPanel kind="students" title="Alumnos" />} />
+        <Route
+          path="alumnos"
+          element={
+            <div className="flex flex-col gap-4">
+              <StudentsPanel />
+              <ImportPanel kind="students" title="Importar alumnos desde CSV" />
+            </div>
+          }
+        />
         <Route
           path="personal"
           element={

@@ -148,7 +148,7 @@ describe('salidas del día', () => {
     const flag = await screen.findByRole('button', {
       name: /Luis Martínez salió 3 veces al baño hoy/,
     });
-    expect(screen.getByText('Hoy: 1 baño')).toBeInTheDocument(); // Carla: sin marca
+    expect(screen.getAllByText('Hoy: 1 baño').length).toBeGreaterThan(0); // Carla: sin marca
     expect(screen.queryByRole('button', { name: /Carla Domínguez salió/ })).toBeNull();
     fireEvent.click(flag);
     expect(
