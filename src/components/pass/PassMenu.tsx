@@ -17,6 +17,8 @@ type Props = {
   now: number;
   groupName: string;
   footnote?: string;
+  /** Salidas de hoy, p. ej. "2 baño · 1 enfermería". */
+  today?: string | null;
   busy: boolean;
   onRequest: (kind: 'bathroom' | 'nurse') => void;
   onPassAction: (type: 'return' | 'cancel', pass: BoardPass) => void;
@@ -34,8 +36,18 @@ const HINT_TONE = {
  * inferior en celular). Si ya tiene pase, muestra su estado y las acciones posibles.
  */
 export function PassMenu(props: Props) {
-  const { student, board, now, groupName, footnote, busy, onRequest, onPassAction, onClose } =
-    props;
+  const {
+    student,
+    board,
+    now,
+    groupName,
+    footnote,
+    today,
+    busy,
+    onRequest,
+    onPassAction,
+    onClose,
+  } = props;
   const firstButton = useRef<HTMLButtonElement>(null);
   const pass = passForStudent(board.passes, student.id);
   const hint = bathroomHint(student, board);
@@ -77,6 +89,9 @@ export function PassMenu(props: Props) {
               {student.full_name}{' '}
               <span className="font-mono text-[20px] text-muted">#{student.list_number}</span>
             </h2>
+            <span className="text-[15px] text-muted">
+              {today ? `Hoy ha salido: ${today}` : 'Hoy no ha salido'}
+            </span>
           </div>
           <button
             type="button"

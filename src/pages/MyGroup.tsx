@@ -125,7 +125,12 @@ export function MyGroup() {
       ) : null}
 
       {board.data && students.data ? (
-        <GroupLive board={board.data} groupName={selected.name} students={filtered} />
+        <GroupLive
+          board={board.data}
+          groupName={selected.name}
+          groupId={selected.group_id}
+          students={filtered}
+        />
       ) : (
         <Loading />
       )}

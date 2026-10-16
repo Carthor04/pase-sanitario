@@ -164,3 +164,28 @@ export function useBathrooms() {
     },
   });
 }
+
+export type TodayCounts = Record<string, { bathroom: number; nurse: number }>;
+
+/** Salidas de hoy por alumno del grupo (baño y enfermería). Se refresca con Realtime. */
+export function useTodayCounts(groupId: string | undefined) {
+  return useQuery({
+    queryKey: ['board', 'counts', groupId],
+    enabled: Boolean(groupId),
+    refetchInterval: 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('group_today_counts', { p_group_id: groupId! });
+      if (error) throw error;
+      return (data ?? {}) as unknown as TodayCounts;
+    },
+  });
+}
+
+/** "2 baño · 1 enfermería" o null si no ha salido hoy. */
+export function todayLabel(c: { bathroom: number; nurse: number } | undefined): string | null {
+  if (!c || (!c.bathroom && !c.nurse)) return null;
+  const parts = [];
+  if (c.bathroom) parts.push(`${c.bathroom} baño`);
+  if (c.nurse) parts.push(`${c.nurse} enfermería`);
+  return parts.join(' · ');
+}

@@ -971,6 +971,7 @@ export type Database = {
       }
       group_board: { Args: { p_group_id: string }; Returns: Json }
       group_schedule: { Args: { p_group_id: string }; Returns: Json }
+      group_today_counts: { Args: { p_group_id: string }; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
       import_staff: { Args: { p_rows: Json }; Returns: Json }

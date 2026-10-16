@@ -23,7 +23,7 @@ import {
   type Tone,
 } from '@/lib/board';
 import { playTurnSound } from '@/lib/device';
-import { errorMessage, usePassAction, useServerNow } from '@/lib/live';
+import { errorMessage, todayLabel, usePassAction, useServerNow, useTodayCounts } from '@/lib/live';
 import { PassMenu } from './PassMenu';
 
 const timeFmt = new Intl.DateTimeFormat('es-MX', {
@@ -59,6 +59,8 @@ type Props = {
   capture?: boolean;
   /** Barra de baños al final (la compu del salón usa su propia columna de baños). */
   bathroomBar?: boolean;
+  /** Para mostrar cuántas veces salió hoy cada alumno. */
+  groupId?: string;
   /** Texto bajo el menú, p. ej. a nombre de quién quedan los pases. */
   footnote?: string;
 };
@@ -74,6 +76,7 @@ export function GroupLive({
   students,
   capture,
   bathroomBar = true,
+  groupId,
   footnote,
 }: Props) {
   const now = useServerNow(board.offsetMs);
@@ -99,6 +102,7 @@ export function GroupLive({
     return () => window.clearTimeout(id);
   }, [error]);
 
+  const counts = useTodayCounts(groupId);
   const studentById = useMemo(() => new Map(students.map((st) => [st.id, st])), [students]);
 
   async function run(
@@ -273,8 +277,15 @@ export function GroupLive({
                     </span>
                     <SexChip sex={st.sex} className="hidden sm:inline" />
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-[17px] sm:flex-none sm:text-[15px] sm:font-bold">
-                    {st.full_name}
+                  <span className="flex min-w-0 flex-1 flex-col sm:flex-none">
+                    <span className="truncate text-[17px] sm:text-[15px] sm:font-bold">
+                      {st.full_name}
+                    </span>
+                    {todayLabel(counts.data?.[st.id]) ? (
+                      <span className="text-[12px] text-muted">
+                        Hoy: {todayLabel(counts.data?.[st.id])}
+                      </span>
+                    ) : null}
                   </span>
                   {tag ? (
                     <span
@@ -300,6 +311,7 @@ export function GroupLive({
           now={now}
           groupName={groupName}
           footnote={footnote}
+          today={todayLabel(counts.data?.[menuFor.id])}
           busy={action.isPending}
           onRequest={(kind) => request(menuFor, kind)}
           onPassAction={onPassAction}

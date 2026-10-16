@@ -208,6 +208,7 @@ export function SalonHome() {
             <GroupLive
               board={board.data}
               groupName={device.group_name}
+              groupId={device.group_id}
               students={students.data}
               capture
               bathroomBar={false}

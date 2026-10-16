@@ -173,3 +173,13 @@ describe('requestMessage', () => {
     );
   });
 });
+
+describe('todayLabel', () => {
+  it('resume las salidas del día', async () => {
+    const { todayLabel } = await import('./live');
+    expect(todayLabel(undefined)).toBeNull();
+    expect(todayLabel({ bathroom: 0, nurse: 0 })).toBeNull();
+    expect(todayLabel({ bathroom: 2, nurse: 0 })).toBe('2 baño');
+    expect(todayLabel({ bathroom: 3, nurse: 1 })).toBe('3 baño · 1 enfermería');
+  });
+});
