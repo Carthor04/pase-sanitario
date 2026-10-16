@@ -56,6 +56,14 @@ describe('closureText', () => {
     ).toBe('Liberado: Se fue a casa');
     expect(
       closureText({
+        status: 'released',
+        closed_by: null,
+        release_reason: 'Cierre automático',
+        alert: null,
+      }),
+    ).toBe('Cierre automático: no se marcó el regreso');
+    expect(
+      closureText({
         status: 'returned',
         closed_by: null,
         release_reason: null,

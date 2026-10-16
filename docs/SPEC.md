@@ -113,6 +113,8 @@ Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer"
 
 Un pase no se cierra al sonar el timbre. Si el alumno sigue fuera, el maestro de la siguiente clase lo ve en la pantalla (bloqueada y desbloqueada) con la etiqueta "salió en Matemáticas". Las alertas van al maestro a cargo **ahora**.
 
+**Cierre automático al final del día (decisión 2026-10-16):** al terminar la última clase del día (la hora de fin más tarde del horario de ese día), el sistema libera los pases que sigan abiertos (en espera, fuera, en enfermería o de regreso) con motivo "Cierre automático"; su alerta se cierra. También cierra los que hayan quedado abiertos de días anteriores. Un pase pedido después de la última clase no se cierra ese día. Queda el evento en la bitácora como hecho por el sistema, y esos minutos no cuentan en los promedios de los reportes.
+
 ## 9. Reportes (Coordinación y Dirección)
 
 - Resumen del periodo: salidas, tiempo promedio fuera, alertas, fila máxima.

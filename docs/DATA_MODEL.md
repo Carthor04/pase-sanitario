@@ -269,3 +269,9 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - `report_detail(p_from, p_to, p_destination?, p_weekday?, p_hour?, p_group?, p_alerts_only?)`: los pases que salieron en el periodo con alumno, grupo, clase, destino, minutos y si tuvieron alerta. Lo usa Reportes al tocar un cuadro, una celda del mapa de calor o un grupo. Solo coordinación, dirección y admin. Máximo 1000 renglones.
 - `teacher_schedule(p_staff_id)`: horario semanal de un docente y su clase actual (`classes_at(now())`). Cualquier personal.
 - `current_classes()`: la clase actual de cada grupo (o null). Cualquier personal.
+
+## Cierre automático (2026-10-16)
+
+- `passes.auto_closed boolean`: el sistema liberó el pase al final del día (`release_reason = 'Cierre automático'`, evento `released` con `actor_id` null y `payload.auto = true`).
+- `private.auto_close_passes(p_at default clock_timestamp())`: lo llama `tick()` cada 30 s. Cierra los pases abiertos de días anteriores y, después de `max(periods.ends)` del día, los de hoy pedidos antes de esa hora. `p_at` solo se usa en las pruebas.
+- `report_summary`, `report_detail`, `pass_history` y `student_today_passes` no calculan minutos para los pases con `auto_closed`.

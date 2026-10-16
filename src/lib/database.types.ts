@@ -481,6 +481,7 @@ export type Database = {
       passes: {
         Row: {
           arrived_at: string | null
+          auto_closed: boolean
           called_at: string | null
           closed_by: string | null
           destination_id: string
@@ -501,6 +502,7 @@ export type Database = {
         }
         Insert: {
           arrived_at?: string | null
+          auto_closed?: boolean
           called_at?: string | null
           closed_by?: string | null
           destination_id: string
@@ -521,6 +523,7 @@ export type Database = {
         }
         Update: {
           arrived_at?: string | null
+          auto_closed?: boolean
           called_at?: string | null
           closed_by?: string | null
           destination_id?: string

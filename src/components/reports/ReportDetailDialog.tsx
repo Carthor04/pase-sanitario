@@ -3,7 +3,13 @@ import { Loading, Notice } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
 import { errorMessage } from '@/lib/live';
 import { hm } from '@/lib/monitor';
-import { sortDetail, useReportDetail, type DetailFilter, type DetailRow } from '@/lib/reports';
+import {
+  AUTO_CLOSE_REASON,
+  sortDetail,
+  useReportDetail,
+  type DetailFilter,
+  type DetailRow,
+} from '@/lib/reports';
 
 const dayFmt = new Intl.DateTimeFormat('es-MX', {
   weekday: 'short',
@@ -14,7 +20,8 @@ const dayFmt = new Intl.DateTimeFormat('es-MX', {
 
 function stateText(r: DetailRow): string {
   if (r.minutes != null) return `${Number(r.minutes).toFixed(1)} min`;
-  if (r.status === 'released') return 'Liberado';
+  if (r.status === 'released')
+    return r.release_reason === AUTO_CLOSE_REASON ? 'Cierre automático' : 'Liberado';
   if (r.status === 'cancelled') return 'Cancelado';
   return 'En curso';
 }

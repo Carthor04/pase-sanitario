@@ -212,6 +212,9 @@ export function useTimeline(passId: string | null) {
   });
 }
 
+/** Motivo que pone el sistema al cerrar los pases olvidados al final del día. */
+export const AUTO_CLOSE_REASON = 'Cierre automático';
+
 /** Cómo terminó un pase, en palabras. */
 export function closureText(
   r: Pick<HistoryRow, 'status' | 'closed_by' | 'release_reason' | 'alert'>,
@@ -222,6 +225,8 @@ export function closureText(
         ? `Regresó con alerta${r.alert.acknowledged_by ? ` · atendió ${r.alert.acknowledged_by}` : ''}`
         : 'Regresó';
     case 'released':
+      if (r.release_reason === AUTO_CLOSE_REASON)
+        return 'Cierre automático: no se marcó el regreso';
       return `Liberado${r.release_reason ? `: ${r.release_reason}` : ''}`;
     case 'cancelled':
       return 'Cancelado';
