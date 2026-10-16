@@ -247,6 +247,7 @@ function livePreview(): LiveData {
     called_at: null,
     started_at: null,
     arrived_at: null,
+    left_nurse_at: null,
     period_subject: 'Matemáticas',
     opened_by_name: 'Laura Ramírez',
     current_teacher_name: 'Prof. Núñez',

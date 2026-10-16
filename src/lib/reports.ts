@@ -227,6 +227,8 @@ export function closureText(
       return 'Cancelado';
     case 'arrived':
       return 'En enfermería';
+    case 'returning':
+      return 'De regreso al salón';
     case 'out':
       return 'Fuera';
     default:
@@ -242,6 +244,7 @@ export const EVENT_LABELS: Record<string, string> = {
   ceded: 'Cedió el turno',
   turn_expired: 'No se confirmó a tiempo',
   arrived: 'Llegó a enfermería',
+  sent_back: 'Salió de enfermería hacia el salón',
   returned: 'Regresó',
   released: 'Se liberó el lugar',
   cancelled: 'Se canceló',

@@ -28,6 +28,7 @@ export type LivePass = {
   called_at: string | null;
   started_at: string | null;
   arrived_at: string | null;
+  left_nurse_at: string | null;
   period_subject: string | null;
   opened_by_name: string | null;
   current_teacher_name: string | null;
@@ -72,6 +73,7 @@ export type NursePass = {
   status: ActiveStatus | 'returned' | 'released' | 'cancelled';
   started_at: string | null;
   arrived_at: string | null;
+  left_nurse_at: string | null;
   ended_at: string | null;
   opened_by_name: string | null;
   note: string | null;

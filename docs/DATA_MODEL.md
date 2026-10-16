@@ -259,3 +259,7 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - Rangos válidos en `settings` (alerta 1–120 min, escalada 1–60, turno 1–15, autobloqueo 0–60, deshacer 3–60 s).
 - RPC de lectura en lugar de vistas `v_report_*`: `report_summary(desde, hasta)` (coordinación, dirección, admin: totales, alertas, fila máxima, mapa de calor por baño, por grupo y "a revisar" con los umbrales de `settings`), `pass_history(desde, hasta, búsqueda, grupo)` (prefectura, enfermería —solo pases de enfermería—, coordinación, dirección, admin), `pass_timeline(pase)` (bitácora con quién y desde dónde), `bathrooms_status()` (cualquier personal; solo nombres de grupo) y `group_schedule(grupo)`.
 - Pendiente: `export-sheets` (necesita la cuenta de servicio de Google; ver INTEGRATIONS §3).
+
+## Regreso de enfermería (2026-10-16)
+
+`20261016120000_returning_status.sql` y `20261016120100_returning_flow.sql`: nuevo estado `returning` en `pass_status` y columna `passes.left_nurse_at`. `nurse_send_back(pase)` (enfermería) pasa `arrived` → `returning`, deja evento `sent_back` y encola un aviso push `returning` al maestro a cargo y al que autorizó (según `notification_rules`). El maestro cierra con `mark_returned`. `tick()` alerta también el regreso; `alerts` ahora permite una alerta abierta por pase (índice parcial), no una sola en toda su historia. `undo_last` deshace `sent_back`.

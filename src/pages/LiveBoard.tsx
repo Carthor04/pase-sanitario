@@ -85,12 +85,14 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
   }
 
   const title = staff.roles.includes('prefect') ? 'Prefectura' : 'En vivo';
-  const outCount = board.passes.filter((p) => p.status === 'out' || p.status === 'arrived').length;
+  const outCount = board.passes.filter((p) =>
+    ['out', 'arrived', 'returning'].includes(p.status),
+  ).length;
   const queueCount = board.passes.filter((p) => p.status === 'queued').length;
   const columns = board.destinations;
   const destLabel = (id: string) => columns.find((d) => d.id === id)?.label ?? '';
   const canReturn = (p: LivePass) =>
-    (p.status === 'out' || p.status === 'arrived') &&
+    (p.status === 'out' || p.status === 'arrived' || p.status === 'returning') &&
     (columns.find((d) => d.id === p.destination_id)?.kind === 'nurse'
       ? caps.returnNurse
       : caps.returnBath);
@@ -250,7 +252,7 @@ function Column({
 }) {
   const mine = board.passes.filter((p) => p.destination_id === dest.id);
   const inside = mine
-    .filter((p) => p.status === 'out' || p.status === 'arrived' || p.status === 'called')
+    .filter((p) => ['out', 'arrived', 'returning', 'called'].includes(p.status))
     .sort((a, b) =>
       (a.started_at ?? a.called_at ?? '').localeCompare(b.started_at ?? b.called_at ?? ''),
     );
@@ -286,14 +288,20 @@ function Column({
       </div>
       <div className="flex flex-col gap-2 p-3">
         <span className="px-2 pt-1 text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
-          {dest.kind === 'nurse' ? 'En enfermería y en camino' : 'Dentro · más tiempo primero'}
+          {dest.kind === 'nurse'
+            ? 'En camino, en enfermería y de regreso'
+            : 'Dentro · más tiempo primero'}
         </span>
         {inside.length === 0 ? (
           <span className="px-2 pb-2 text-[15px] text-muted">Nadie</span>
         ) : null}
         {inside.map((p) => {
-          const elapsed = elapsedSince(p.started_at, now);
-          const overdue = p.status === 'out' && elapsed >= alertMs;
+          // De regreso de enfermería: el cronómetro cuenta desde que salió de enfermería.
+          const elapsed = elapsedSince(
+            p.status === 'returning' ? p.left_nurse_at : p.started_at,
+            now,
+          );
+          const overdue = (p.status === 'out' || p.status === 'returning') && elapsed >= alertMs;
           const nurse = dest.kind === 'nurse';
           return (
             <button
@@ -317,11 +325,13 @@ function Column({
                     {p.group_name} ·{' '}
                     {p.status === 'called'
                       ? 'su turno, sin confirmar'
-                      : p.status === 'arrived'
-                        ? `llegó ${hm(p.arrived_at)} ✓`
-                        : nurse
-                          ? 'en camino'
-                          : `salió ${hm(p.started_at)}`}
+                      : p.status === 'returning'
+                        ? `de regreso al salón desde ${hm(p.left_nurse_at)}`
+                        : p.status === 'arrived'
+                          ? `llegó ${hm(p.arrived_at)} ✓`
+                          : nurse
+                            ? 'en camino'
+                            : `salió ${hm(p.started_at)}`}
                     {p.alert ? ` · ${alertStatusText(p.alert)}` : ''}
                   </span>
                 </span>

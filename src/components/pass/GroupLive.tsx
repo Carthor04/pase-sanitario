@@ -12,6 +12,7 @@ import {
   passForStudent,
   passTag,
   requestMessage,
+  returningMs,
   slotPass,
   turnLeftMs,
   turnPasses,
@@ -102,11 +103,16 @@ export function GroupLive({
   // Sonido cuando aparece un turno nuevo de este grupo.
   const seenTurns = useRef<Set<string> | null>(null);
   const turns = turnPasses(board.passes);
+  // También suena cuando un alumno sale de enfermería de regreso al salón.
+  const soundKey = board.passes
+    .filter((p) => p.status === 'called' || p.status === 'returning')
+    .map((p) => `${p.id}:${p.status}`)
+    .join(',');
   useEffect(() => {
-    const ids = new Set(turns.map((p) => p.id));
+    const ids = new Set(soundKey ? soundKey.split(',') : []);
     if (seenTurns.current && [...ids].some((id) => !seenTurns.current!.has(id))) playTurnSound();
     seenTurns.current = ids;
-  }, [turns]);
+  }, [soundKey]);
 
   useEffect(() => {
     if (!error) return;
@@ -563,6 +569,12 @@ function SexSlot({
   );
 }
 
+const NURSE_CHIP: Partial<Record<BoardPass['status'], string>> = {
+  out: 'En camino',
+  arrived: 'Llegó',
+  returning: 'De regreso',
+};
+
 function NurseSlot({
   passes,
   board,
@@ -594,27 +606,34 @@ function NurseSlot({
       chip={
         <Chip tone={anyOverdue ? 'alert' : 'nurse'}>
           {passes.length === 1
-            ? passes[0]!.status === 'arrived'
-              ? 'Llegó'
-              : 'En camino'
+            ? (NURSE_CHIP[passes[0]!.status] ?? 'En camino')
             : `${passes.length} alumnos`}
         </Chip>
       }
     >
       {passes.map((p) => (
-        <div key={p.id} className="flex flex-col gap-2">
+        <div
+          key={p.id}
+          className={`flex flex-col gap-2 ${
+            p.status === 'returning' ? '-mx-2 rounded-btn-lg bg-wait-bg/60 p-2' : ''
+          }`}
+        >
           <div className="flex items-end justify-between gap-3">
             <div className="flex min-w-0 flex-col">
               <span className="truncate text-[18px] font-bold">{p.full_name}</span>
-              <span className="text-[15px] text-muted">
+              <span
+                className={`text-[15px] ${p.status === 'returning' ? 'font-bold text-wait-fg' : 'text-muted'}`}
+              >
                 #{p.list_number} ·{' '}
-                {p.status === 'arrived'
-                  ? `en enfermería desde ${hm(p.arrived_at)}`
-                  : `en camino desde ${hm(p.started_at)}`}
+                {p.status === 'returning'
+                  ? `salió de enfermería ${hm(p.left_nurse_at ?? null)}: viene de regreso`
+                  : p.status === 'arrived'
+                    ? `en enfermería desde ${hm(p.arrived_at)}`
+                    : `en camino desde ${hm(p.started_at)}`}
               </span>
             </div>
             <span className="font-mono text-[24px] font-semibold tabular-nums">
-              {formatElapsed(elapsedMs(p, now))}
+              {formatElapsed(p.status === 'returning' ? returningMs(p, now) : elapsedMs(p, now))}
             </span>
           </div>
           <ReturnButton busy={busy} onClick={() => onReturn(p)} name={p.full_name} />

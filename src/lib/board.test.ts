@@ -99,6 +99,20 @@ describe('passTag', () => {
     });
     expect(passTag({ ...nurse, status: 'out' }, T0 + 700_000, settings).tone).toBe('alert');
   });
+
+  it('de regreso de enfermería cuenta desde que la enfermera lo manda', () => {
+    const back = pass({
+      destination_kind: 'nurse',
+      destination_id: 'nurse',
+      status: 'returning',
+      left_nurse_at: iso(1_200_000),
+    });
+    expect(passTag(back, T0 + 1_380_000, settings)).toEqual({
+      label: 'De regreso · 03:00',
+      tone: 'wait',
+    });
+    expect(passTag(back, T0 + 1_860_000, settings).label).toBe('Alerta · de regreso 11:00');
+  });
 });
 
 describe('bathroomHint', () => {

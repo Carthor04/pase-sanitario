@@ -7,7 +7,10 @@ import { errorMessage, useLivePasses, usePassAction, useServerNow } from '@/lib/
 import { alertStatusText, hm, useAlertSound, useNurseToday, type NursePass } from '@/lib/monitor';
 import { useStaff } from '@/lib/session';
 
-/** Enfermería en celular: en camino → Llegó; en enfermería → nota y Regresa al salón. */
+/**
+ * Enfermería en celular: en camino → Llegó; en enfermería → nota y Regresa al salón; de
+ * regreso → el maestro marca su regreso al llegar al salón.
+ */
 export function Nurse() {
   const staff = useStaff();
   const today = useNurseToday();
@@ -21,6 +24,7 @@ export function Nurse() {
   const passes = data?.passes ?? [];
   const onTheWay = passes.filter((p) => p.status === 'out');
   const here = passes.filter((p) => p.status === 'arrived');
+  const goingBack = passes.filter((p) => p.status === 'returning');
   const done = passes.filter((p) => p.status === 'returned' || p.status === 'released');
   useAlertSound(
     onTheWay.filter((p) => p.alert).map((p) => ({ id: p.alert!.id, level: p.alert!.level })),
@@ -94,6 +98,34 @@ export function Nurse() {
         ))}
       </Section>
 
+      {goingBack.length ? (
+        <Section title={`De regreso al salón · ${goingBack.length}`}>
+          <p className="m-0 text-[14px] text-muted">
+            Ya salieron de enfermería; su maestro marca el regreso cuando lleguen al salón.
+          </p>
+          {goingBack.map((p) => (
+            <div
+              key={p.id}
+              className={`flex flex-col gap-1 rounded-card border-2 bg-surface p-3 ${
+                p.alert ? 'border-alert-bd bg-alert-bg' : 'border-wait-bd'
+              }`}
+            >
+              <Head
+                p={p}
+                now={now}
+                since={p.left_nurse_at}
+                sub={`salió de enfermería ${hm(p.left_nurse_at)}`}
+              />
+              {p.alert ? (
+                <span className="text-[14px] font-bold text-alert-fg">
+                  Alerta: no ha llegado al salón · {alertStatusText(p.alert)}
+                </span>
+              ) : null}
+            </div>
+          ))}
+        </Section>
+      ) : null}
+
       {done.length ? (
         <Section title={`Atendidos hoy · ${done.length}`}>
           <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
@@ -117,7 +149,7 @@ export function Nurse() {
 
       <div className="flex justify-between rounded-card border border-line bg-surface px-4 py-3 text-[15px]">
         <span>
-          Hoy atendidos <strong>{done.length + here.length}</strong>
+          Hoy atendidos <strong>{done.length + here.length + goingBack.length}</strong>
         </span>
         <span>
           Promedio <strong>{avgMin === null ? '—' : `${avgMin} min`}</strong>
@@ -187,7 +219,7 @@ function HereCard({
 
   async function returnToClass() {
     if (dirty && !(await run({ type: 'note', passId: p.id, body: note }))) return;
-    await run({ type: 'return', passId: p.id });
+    await run({ type: 'sendBack', passId: p.id });
   }
 
   return (

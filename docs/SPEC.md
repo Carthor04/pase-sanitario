@@ -68,7 +68,7 @@ group_wait ──► queued ──► called ──► out ──► returned
 2. Mientras haya lugar, pasa el primero de la fila a `called`.
 
 ### Enfermería
-`out` (en camino) → `arrived` (la enfermera confirma) → `returned` (la enfermera lo regresa, o el maestro marca regreso). No hace fila ni ocupa lugar.
+`out` (en camino) → `arrived` (la enfermera confirma) → `returning` (la enfermera toca "Regresa al salón"; se avisa al maestro a cargo y al que autorizó) → `returned` (el maestro marca el regreso cuando llega al salón). No hace fila ni ocupa lugar. La alerta cubre los dos trayectos: de ida hasta "Llegó" y de regreso desde que sale de enfermería hasta que el maestro marca el regreso (decisión 2026-10-16).
 
 ### Deshacer
 Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer". Revierte con un evento nuevo (`undo`) y re-ejecuta `advance`.

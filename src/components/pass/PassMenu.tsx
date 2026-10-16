@@ -194,7 +194,8 @@ function ActivePass({
   onPassAction: Props['onPassAction'];
 }) {
   const tag = passTag(pass, now, board.settings);
-  const canReturn = pass.status === 'out' || pass.status === 'arrived';
+  const canReturn =
+    pass.status === 'out' || pass.status === 'arrived' || pass.status === 'returning';
   return (
     <div className="flex flex-col gap-3">
       <div className="rounded-card border border-line bg-ground p-4">

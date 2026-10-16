@@ -2,7 +2,7 @@
 // las reglas viven en Postgres; aquí solo se arman textos, etiquetas y cronómetros.
 import type { Json } from './database.types';
 
-export type ActiveStatus = 'group_wait' | 'queued' | 'called' | 'out' | 'arrived';
+export type ActiveStatus = 'group_wait' | 'queued' | 'called' | 'out' | 'arrived' | 'returning';
 export type Sex = 'H' | 'M';
 
 export type BoardPass = {
@@ -20,6 +20,8 @@ export type BoardPass = {
   called_at: string | null;
   started_at: string | null;
   arrived_at: string | null;
+  /** Cuando la enfermera lo mandó de regreso al salón. */
+  left_nurse_at?: string | null;
   period_subject: string | null;
   opened_by_name: string | null;
   queue_position: number | null;
@@ -84,16 +86,21 @@ const ms = (iso: string | null | undefined) => (iso ? new Date(iso).getTime() : 
 /** Milisegundos fuera del salón (desde started_at). */
 export const elapsedMs = (p: BoardPass, now: number) => now - ms(p.started_at);
 
+/** Milisegundos de regreso desde enfermería (desde left_nurse_at). */
+export const returningMs = (p: BoardPass, now: number) => now - ms(p.left_nurse_at);
+
 /** Tiempo que le queda al turno para confirmarse. */
 export const turnLeftMs = (p: BoardPass, now: number, s: BoardSettings) =>
   ms(p.called_at) + s.confirm_turn_minutes * 60_000 - now;
 
 /**
  * ¿Lleva más de alert_minutes fuera? Solo para pintar la tarjeta: las alertas reales las
- * genera tick() en la Fase 4. En enfermería cuenta solo el trayecto (decisión 2026-10-15).
+ * genera tick(). En enfermería cuentan los trayectos: de ida (hasta "Llegó") y de regreso
+ * al salón (desde que la enfermera lo manda hasta que el maestro marca su regreso).
  */
 export const isOverdue = (p: BoardPass, now: number, s: BoardSettings) =>
-  p.status === 'out' && elapsedMs(p, now) >= s.alert_minutes * 60_000;
+  (p.status === 'out' && elapsedMs(p, now) >= s.alert_minutes * 60_000) ||
+  (p.status === 'returning' && returningMs(p, now) >= s.alert_minutes * 60_000);
 
 // ---------------------------------------------------------------------------
 // Lugares del grupo
@@ -136,6 +143,11 @@ export function passTag(
 ): { label: string; tone: Tone } {
   if (p.destination_kind === 'nurse') {
     if (p.status === 'arrived') return { label: 'En enfermería', tone: 'nurse' };
+    if (p.status === 'returning') {
+      return isOverdue(p, now, s)
+        ? { label: `Alerta · de regreso ${formatElapsed(returningMs(p, now))}`, tone: 'alert' }
+        : { label: `De regreso · ${formatElapsed(returningMs(p, now))}`, tone: 'wait' };
+    }
     if (isOverdue(p, now, s))
       return { label: `Alerta · ${formatElapsed(elapsedMs(p, now))}`, tone: 'alert' };
     return { label: `Enfermería · ${formatElapsed(elapsedMs(p, now))}`, tone: 'nurse' };

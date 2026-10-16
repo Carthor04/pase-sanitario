@@ -44,7 +44,7 @@ export function Alerts() {
             now={now}
             busy={action.isPending}
             onReturn={
-              a.status === 'out' || a.status === 'arrived'
+              a.status === 'out' || a.status === 'arrived' || a.status === 'returning'
                 ? () =>
                     void action
                       .mutateAsync({ type: 'return', passId: a.pass_id })

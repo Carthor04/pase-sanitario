@@ -270,11 +270,13 @@ function LockedStatus({
                   {r.pass.full_name} #{r.pass.list_number}
                 </span>
                 <span className="text-[13px] text-white/80">
-                  {r.pass.status === 'out' || r.pass.status === 'arrived'
-                    ? `Salió${r.pass.period_subject ? ` en ${r.pass.period_subject}` : ''} · ${hm(r.pass.started_at)}`
-                    : r.pass.status === 'called'
-                      ? 'Su turno: desbloquea para confirmar'
-                      : `En fila · lugar ${r.pass.queue_position ?? '—'}`}
+                  {r.pass.status === 'returning'
+                    ? `De regreso al salón desde ${hm(r.pass.left_nurse_at)}`
+                    : r.pass.status === 'out' || r.pass.status === 'arrived'
+                      ? `Salió${r.pass.period_subject ? ` en ${r.pass.period_subject}` : ''} · ${hm(r.pass.started_at)}`
+                      : r.pass.status === 'called'
+                        ? 'Su turno: desbloquea para confirmar'
+                        : `En fila · lugar ${r.pass.queue_position ?? '—'}`}
                 </span>
               </>
             ) : null}

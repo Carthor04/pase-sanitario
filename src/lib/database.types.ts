@@ -488,6 +488,7 @@ export type Database = {
           ended_at: string | null
           group_id: string
           id: string
+          left_nurse_at: string | null
           opened_by: string | null
           period_subject: string | null
           queue_ts: string | null
@@ -507,6 +508,7 @@ export type Database = {
           ended_at?: string | null
           group_id: string
           id?: string
+          left_nurse_at?: string | null
           opened_by?: string | null
           period_subject?: string | null
           queue_ts?: string | null
@@ -526,6 +528,7 @@ export type Database = {
           ended_at?: string | null
           group_id?: string
           id?: string
+          left_nurse_at?: string | null
           opened_by?: string | null
           period_subject?: string | null
           queue_ts?: string | null
@@ -998,6 +1001,7 @@ export type Database = {
           teacher_name: string
         }[]
       }
+      nurse_send_back: { Args: { p_pass_id: string }; Returns: Json }
       nurse_today: { Args: never; Returns: Json }
       pass_history: {
         Args: {
@@ -1048,6 +1052,7 @@ export type Database = {
         | "called"
         | "out"
         | "arrived"
+        | "returning"
         | "returned"
         | "released"
         | "cancelled"
@@ -1187,6 +1192,7 @@ export const Constants = {
         "called",
         "out",
         "arrived",
+        "returning",
         "returned",
         "released",
         "cancelled",
