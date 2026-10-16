@@ -12,6 +12,8 @@ cp .env.example .env.local
 npm run dev
 ```
 
+Historial ficticio para presentar reportes: `node scripts/demo-history.mjs` (solo grupos de ejemplo; `--limpiar` lo borra).
+
 Scripts: `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `test:db` (pruebas SQL contra la BD vinculada), `format`.
 
 Supabase (CLI incluida como dependencia de desarrollo):
