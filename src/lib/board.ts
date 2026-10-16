@@ -142,7 +142,7 @@ export function passTag(
   s: BoardSettings,
 ): { label: string; tone: Tone } {
   if (p.destination_kind === 'nurse') {
-    if (p.status === 'arrived') return { label: 'En enfermería', tone: 'nurse' };
+    if (p.status === 'arrived') return { label: 'En atención', tone: 'nurse' };
     if (p.status === 'returning') {
       return isOverdue(p, now, s)
         ? { label: `Alerta · de regreso ${formatElapsed(returningMs(p, now))}`, tone: 'alert' }

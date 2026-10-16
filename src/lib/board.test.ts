@@ -94,7 +94,7 @@ describe('passTag', () => {
   it('en enfermería ya no hay alerta (solo cuenta el trayecto)', () => {
     const nurse = pass({ destination_kind: 'nurse', destination_id: 'nurse', status: 'arrived' });
     expect(passTag(nurse, T0 + 3_600_000, settings)).toEqual({
-      label: 'En enfermería',
+      label: 'En atención',
       tone: 'nurse',
     });
     expect(passTag({ ...nurse, status: 'out' }, T0 + 700_000, settings).tone).toBe('alert');

@@ -1,8 +1,8 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Loading, Notice, PageTitle } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
 import { formatElapsed } from '@/lib/board';
-import { useAudioUnlock } from '@/lib/device';
+import { playTurnSound, useAudioUnlock } from '@/lib/device';
 import { errorMessage, useLivePasses, usePassAction, useServerNow } from '@/lib/live';
 import { alertStatusText, hm, useAlertSound, useNurseToday, type NursePass } from '@/lib/monitor';
 import { useStaff } from '@/lib/session';
@@ -22,13 +22,25 @@ export function Nurse() {
   const data = today.data;
   const now = useServerNow(data?.offsetMs ?? 0);
   const passes = data?.passes ?? [];
-  const onTheWay = passes.filter((p) => p.status === 'out');
+  // Lista de espera: el que lleva más tiempo en camino primero.
+  const onTheWay = passes
+    .filter((p) => p.status === 'out')
+    .sort((a, b) => (a.started_at ?? '').localeCompare(b.started_at ?? ''));
   const here = passes.filter((p) => p.status === 'arrived');
   const goingBack = passes.filter((p) => p.status === 'returning');
   const done = passes.filter((p) => p.status === 'returned' || p.status === 'released');
   useAlertSound(
     onTheWay.filter((p) => p.alert).map((p) => ({ id: p.alert!.id, level: p.alert!.level })),
   );
+  // Suena cuando llega una solicitud nueva a la lista de espera.
+  const waitingKey = onTheWay.map((p) => p.id).join(',');
+  const seenWaiting = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const ids = new Set(waitingKey ? waitingKey.split(',') : []);
+    if (seenWaiting.current && [...ids].some((id) => !seenWaiting.current!.has(id)))
+      playTurnSound();
+    seenWaiting.current = ids;
+  }, [waitingKey]);
 
   const durations = done
     .filter((p) => p.started_at && p.ended_at)
@@ -61,38 +73,63 @@ export function Nurse() {
       ) : null}
       {error ? <Notice tone="error">{error}</Notice> : null}
 
-      <Section title={`En camino · ${onTheWay.length}`}>
+      <div className="grid grid-cols-3 gap-2" aria-label="Resumen">
+        <Count label="En espera" value={onTheWay.length} tone="nurse" />
+        <Count label="En atención" value={here.length} tone="ink" />
+        <Count label="De regreso" value={goingBack.length} tone="wait" />
+      </div>
+
+      <Section title={`Lista de espera · ${onTheWay.length}`}>
+        <p className="m-0 text-[14px] text-muted">
+          Alumnos que un maestro mandó y vienen en camino, en orden de llegada. Toca
+          &quot;Llegó&quot; cuando estén contigo.
+        </p>
         {onTheWay.length === 0 ? <Empty>Nadie viene en camino</Empty> : null}
-        {onTheWay.map((p) => (
-          <div
-            key={p.id}
-            className={`flex flex-col gap-3 rounded-card border-2 bg-surface p-4 ${p.alert ? 'border-alert-bd bg-alert-bg' : 'border-nurse-bd'}`}
-          >
-            <Head
-              p={p}
-              now={now}
-              since={p.started_at}
-              sub={`enviado${p.opened_by_name ? ` por ${p.opened_by_name}` : ''} · ${hm(p.started_at)}`}
-            />
-            {p.alert ? (
-              <span className="text-[14px] font-bold text-alert-fg">
-                Alerta · {alertStatusText(p.alert)}
-              </span>
-            ) : null}
-            <button
-              type="button"
-              disabled={action.isPending}
-              onClick={() => void run({ type: 'arrived', passId: p.id })}
-              className={buttonClass.primary}
+        <ol className="m-0 flex list-none flex-col gap-2 p-0">
+          {onTheWay.map((p, i) => (
+            <li
+              key={p.id}
+              className={`flex items-center gap-3 rounded-card border-2 bg-surface p-3 ${
+                p.alert ? 'border-alert-bd bg-alert-bg' : 'border-nurse-bd'
+              }`}
             >
-              Llegó
-            </button>
-          </div>
-        ))}
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-nurse-bg font-bold text-nurse-fg">
+                {i + 1}
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <span className="truncate text-[17px] font-bold">
+                  {p.full_name} · {p.group_name}
+                </span>
+                <span className="text-[13px] text-muted">
+                  {p.opened_by_name ? `Lo mandó ${p.opened_by_name}` : 'Enviado'} a las{' '}
+                  {hm(p.started_at)}
+                </span>
+                {p.alert ? (
+                  <span className="text-[13px] font-bold text-alert-fg">
+                    Alerta: no ha llegado · {alertStatusText(p.alert)}
+                  </span>
+                ) : null}
+              </div>
+              <span
+                className={`font-mono text-[20px] font-semibold tabular-nums ${p.alert ? 'text-alert-fg' : ''}`}
+              >
+                {p.started_at ? formatElapsed(now - new Date(p.started_at).getTime()) : ''}
+              </span>
+              <button
+                type="button"
+                disabled={action.isPending}
+                onClick={() => void run({ type: 'arrived', passId: p.id })}
+                className="min-h-btn shrink-0 rounded-btn bg-accent px-4 text-[16px] font-bold text-white disabled:opacity-50"
+              >
+                Llegó
+              </button>
+            </li>
+          ))}
+        </ol>
       </Section>
 
-      <Section title={`En enfermería · ${here.length}`}>
-        {here.length === 0 ? <Empty>Nadie en enfermería</Empty> : null}
+      <Section title={`En atención · ${here.length}`}>
+        {here.length === 0 ? <Empty>Nadie en atención</Empty> : null}
         {here.map((p) => (
           <HereCard key={p.id} p={p} now={now} busy={action.isPending} run={run} />
         ))}
@@ -224,7 +261,7 @@ function HereCard({
 
   return (
     <div className="flex flex-col gap-3 rounded-card border border-line bg-surface p-4">
-      <Head p={p} now={now} since={p.arrived_at} sub={`llegó ${hm(p.arrived_at)}`} />
+      <Head p={p} now={now} since={p.arrived_at} sub={`en atención desde ${hm(p.arrived_at)}`} />
       <label htmlFor={id} className="text-[15px] font-bold">
         Nota (opcional, solo personal)
       </label>
@@ -258,6 +295,24 @@ function HereCard({
           Regresa al salón
         </button>
       </div>
+    </div>
+  );
+}
+
+function Count({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: 'nurse' | 'ink' | 'wait';
+}) {
+  const color = tone === 'nurse' ? 'text-nurse-fg' : tone === 'wait' ? 'text-wait-fg' : 'text-ink';
+  return (
+    <div className="flex flex-col rounded-card border border-line bg-surface px-3 py-2">
+      <span className="text-[12px] font-bold uppercase tracking-[0.06em] text-muted">{label}</span>
+      <span className={`font-mono text-[28px] font-semibold tabular-nums ${color}`}>{value}</span>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { AlertCard, ReleaseDialog } from '@/components/pass/AlertCard';
 import { Loading, Notice } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
@@ -239,6 +239,17 @@ function countLabel(d: LiveDestination, board: Board) {
   return d.capacity === null ? String(inside) : `${inside}/${d.capacity}`;
 }
 
+const NURSE_ORDER: Partial<Record<LivePass['status'], number>> = {
+  out: 0,
+  arrived: 1,
+  returning: 2,
+};
+const NURSE_HEADER: Partial<Record<LivePass['status'], string>> = {
+  out: 'En camino · lista de espera',
+  arrived: 'En atención',
+  returning: 'De regreso al salón',
+};
+
 function Column({
   dest,
   board,
@@ -251,10 +262,14 @@ function Column({
   onSelect: (p: LivePass) => void;
 }) {
   const mine = board.passes.filter((p) => p.destination_id === dest.id);
+  const isNurse = dest.kind === 'nurse';
   const inside = mine
     .filter((p) => ['out', 'arrived', 'returning', 'called'].includes(p.status))
-    .sort((a, b) =>
-      (a.started_at ?? a.called_at ?? '').localeCompare(b.started_at ?? b.called_at ?? ''),
+    .sort(
+      (a, b) =>
+        // Enfermería: primero la lista de espera (en camino), luego en atención y de regreso.
+        (isNurse ? (NURSE_ORDER[a.status] ?? 9) - (NURSE_ORDER[b.status] ?? 9) : 0) ||
+        (a.started_at ?? a.called_at ?? '').localeCompare(b.started_at ?? b.called_at ?? ''),
     );
   const queue = mine
     .filter((p) => p.status === 'queued')
@@ -288,14 +303,12 @@ function Column({
       </div>
       <div className="flex flex-col gap-2 p-3">
         <span className="px-2 pt-1 text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
-          {dest.kind === 'nurse'
-            ? 'En camino, en enfermería y de regreso'
-            : 'Dentro · más tiempo primero'}
+          {dest.kind === 'nurse' ? 'Enfermería ahora' : 'Dentro · más tiempo primero'}
         </span>
         {inside.length === 0 ? (
           <span className="px-2 pb-2 text-[15px] text-muted">Nadie</span>
         ) : null}
-        {inside.map((p) => {
+        {inside.map((p, idx) => {
           // De regreso de enfermería: el cronómetro cuenta desde que salió de enfermería.
           const elapsed = elapsedSince(
             p.status === 'returning' ? p.left_nurse_at : p.started_at,
@@ -303,56 +316,71 @@ function Column({
           );
           const overdue = (p.status === 'out' || p.status === 'returning') && elapsed >= alertMs;
           const nurse = dest.kind === 'nurse';
+          const header =
+            nurse && (idx === 0 || inside[idx - 1]!.status !== p.status)
+              ? NURSE_HEADER[p.status]
+              : null;
+          const position = nurse && p.status === 'out' ? idx + 1 : null;
           return (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => onSelect(p)}
-              className={`flex flex-col gap-1.5 rounded-btn-lg border px-3 py-2.5 text-left ${
-                overdue
-                  ? 'border-2 border-alert-bd bg-alert-bg'
-                  : p.status === 'called'
-                    ? 'border-wait-bd bg-wait-bg/40'
-                    : nurse
-                      ? 'border-nurse-bd/50'
-                      : 'border-line'
-              }`}
-            >
-              <span className="flex items-center justify-between gap-2">
-                <span className="flex min-w-0 flex-col">
-                  <span className="truncate font-bold">{p.full_name}</span>
-                  <span className="text-[13px] text-muted">
-                    {p.group_name} ·{' '}
-                    {p.status === 'called'
-                      ? 'su turno, sin confirmar'
-                      : p.status === 'returning'
-                        ? `de regreso al salón desde ${hm(p.left_nurse_at)}`
-                        : p.status === 'arrived'
-                          ? `llegó ${hm(p.arrived_at)} ✓`
-                          : nurse
-                            ? 'en camino'
-                            : `salió ${hm(p.started_at)}`}
-                    {p.alert ? ` · ${alertStatusText(p.alert)}` : ''}
-                  </span>
-                </span>
-                <span
-                  className={`font-mono text-[26px] font-semibold tabular-nums ${overdue ? 'text-alert-fg' : ''}`}
-                >
-                  {p.status === 'called' ? 'Turno' : formatElapsed(elapsed)}
-                </span>
-              </span>
-              {p.status !== 'called' ? (
-                <span
-                  className="h-1.5 overflow-hidden rounded-[3px] bg-[#E6EBF0]"
-                  aria-hidden="true"
-                >
-                  <span
-                    className={`block h-full ${overdue ? 'bg-alert-fg' : nurse ? 'bg-nurse-bd' : 'bg-ink'}`}
-                    style={{ width: `${Math.min(100, (elapsed / alertMs) * 100)}%` }}
-                  />
+            <Fragment key={p.id}>
+              {header ? (
+                <span className="px-2 pt-2 text-[12px] font-bold uppercase tracking-[0.08em] text-nurse-fg">
+                  {header}
                 </span>
               ) : null}
-            </button>
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onSelect(p)}
+                className={`flex flex-col gap-1.5 rounded-btn-lg border px-3 py-2.5 text-left ${
+                  overdue
+                    ? 'border-2 border-alert-bd bg-alert-bg'
+                    : p.status === 'called'
+                      ? 'border-wait-bd bg-wait-bg/40'
+                      : nurse
+                        ? 'border-nurse-bd/50'
+                        : 'border-line'
+                }`}
+              >
+                <span className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 flex-col">
+                    <span className="truncate font-bold">
+                      {position ? `${position}. ` : ''}
+                      {p.full_name}
+                    </span>
+                    <span className="text-[13px] text-muted">
+                      {p.group_name} ·{' '}
+                      {p.status === 'called'
+                        ? 'su turno, sin confirmar'
+                        : p.status === 'returning'
+                          ? `de regreso al salón desde ${hm(p.left_nurse_at)}`
+                          : p.status === 'arrived'
+                            ? `en atención desde ${hm(p.arrived_at)}`
+                            : nurse
+                              ? 'en camino'
+                              : `salió ${hm(p.started_at)}`}
+                      {p.alert ? ` · ${alertStatusText(p.alert)}` : ''}
+                    </span>
+                  </span>
+                  <span
+                    className={`font-mono text-[26px] font-semibold tabular-nums ${overdue ? 'text-alert-fg' : ''}`}
+                  >
+                    {p.status === 'called' ? 'Turno' : formatElapsed(elapsed)}
+                  </span>
+                </span>
+                {p.status !== 'called' ? (
+                  <span
+                    className="h-1.5 overflow-hidden rounded-[3px] bg-[#E6EBF0]"
+                    aria-hidden="true"
+                  >
+                    <span
+                      className={`block h-full ${overdue ? 'bg-alert-fg' : nurse ? 'bg-nurse-bd' : 'bg-ink'}`}
+                      style={{ width: `${Math.min(100, (elapsed / alertMs) * 100)}%` }}
+                    />
+                  </span>
+                ) : null}
+              </button>
+            </Fragment>
           );
         })}
 
@@ -471,7 +499,7 @@ function PersonDialog({
             onClick={() => onAction('arrived')}
             className={buttonClass.primary}
           >
-            Llegó a enfermería
+            Llegó: en atención
           </button>
         ) : null}
         {caps.ack && pass.alert && !pass.alert.acknowledged_by_name ? (

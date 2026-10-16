@@ -571,7 +571,7 @@ function SexSlot({
 
 const NURSE_CHIP: Partial<Record<BoardPass['status'], string>> = {
   out: 'En camino',
-  arrived: 'Llegó',
+  arrived: 'En atención',
   returning: 'De regreso',
 };
 
@@ -628,7 +628,7 @@ function NurseSlot({
                 {p.status === 'returning'
                   ? `salió de enfermería ${hm(p.left_nurse_at ?? null)}: viene de regreso`
                   : p.status === 'arrived'
-                    ? `en enfermería desde ${hm(p.arrived_at)}`
+                    ? `en atención desde ${hm(p.arrived_at)}`
                     : `en camino desde ${hm(p.started_at)}`}
               </span>
             </div>
