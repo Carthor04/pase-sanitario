@@ -56,6 +56,10 @@ begin
   end;
   v := public.device_session();
   assert not (v ->> 'unlocked')::boolean and v -> 'last_lock' = 'null'::jsonb, 'bloqueado: ' || v::text;
+  -- El estado general de los baños también lo ve (solo grupos, sin nombres).
+  v := public.bathrooms_status();
+  assert jsonb_array_length(v -> 'bathrooms') = 2, 'el equipo ve los baños';
+  assert v::text not like '%Alumno%', 'sin nombres de alumnos';
   perform public.unlock_device('5150');
   v := public.device_session();
   assert (v ->> 'unlocked')::boolean and v ->> 'staff_name' = 'Prueba tablero.t@test.mx', v::text;

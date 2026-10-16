@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { BrandMark } from '@/components/layout/BrandMark';
+import { BathroomsLive } from '@/components/pass/BathroomsLive';
 import { GroupLive } from '@/components/pass/GroupLive';
 import { PinPad } from '@/components/pass/PinPad';
 import { Loading, Notice } from '@/components/ui/Page';
@@ -126,7 +127,7 @@ export function SalonHome() {
           </span>
           <span className="ml-auto font-mono text-[24px] font-semibold tabular-nums">{clock}</span>
         </header>
-        <main className="mx-auto flex w-full max-w-[980px] flex-1 flex-col items-center justify-center gap-8 px-4 py-6 lg:flex-row lg:items-center lg:gap-8">
+        <main className="mx-auto flex w-full max-w-[980px] flex-1 flex-col items-center justify-center gap-8 px-4 py-6 lg:flex-row lg:items-start lg:gap-8">
           <section
             aria-labelledby="lockTitle"
             className="flex w-full max-w-[460px] flex-col items-center gap-3 rounded-[22px] bg-surface px-8 py-8 text-ink"
@@ -148,7 +149,9 @@ export function SalonHome() {
               quedarán a tu nombre.
             </span>
           </section>
-          {board.data ? <LockedStatus board={board.data} session={session.data} /> : null}
+          {board.data ? (
+            <LockedStatus board={board.data} session={session.data} groupName={device.group_name} />
+          ) : null}
         </main>
       </div>
     );
@@ -198,19 +201,34 @@ export function SalonHome() {
           </button>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-container flex-1 px-4 py-5 sm:px-6">
-        {board.isError ? <Notice tone="error">No se pudo cargar el grupo.</Notice> : null}
-        {board.data && students.data ? (
-          <GroupLive
-            board={board.data}
-            groupName={device.group_name}
-            students={students.data}
-            capture
-            footnote={`Un toque abre el pase. Queda registrado a nombre de ${session.data?.staff_name}, quien desbloqueó a las ${hm(session.data?.unlocked_at)}.`}
+      <main className="mx-auto grid w-full max-w-[1600px] flex-1 gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0">
+          {board.isError ? <Notice tone="error">No se pudo cargar el grupo.</Notice> : null}
+          {board.data && students.data ? (
+            <GroupLive
+              board={board.data}
+              groupName={device.group_name}
+              students={students.data}
+              capture
+              bathroomBar={false}
+              footnote={`Un toque abre el pase. Queda registrado a nombre de ${session.data?.staff_name}, quien desbloqueó a las ${hm(session.data?.unlocked_at)}.`}
+            />
+          ) : (
+            <Loading />
+          )}
+        </div>
+        {/* Baños de toda la escuela en vivo (solo grupos, sin nombres). */}
+        <aside
+          aria-label="Baños en vivo"
+          className="flex flex-col gap-3 xl:sticky xl:top-5 xl:self-start"
+        >
+          <h2 className="m-0 font-display text-[22px] font-bold">Baños ahora</h2>
+          <BathroomsLive
+            variant="panel"
+            ownGroup={device.group_name}
+            alertMinutes={board.data?.settings.alert_minutes}
           />
-        ) : (
-          <Loading />
-        )}
+        </aside>
       </main>
     </div>
   );
@@ -220,9 +238,11 @@ export function SalonHome() {
 function LockedStatus({
   board,
   session,
+  groupName,
 }: {
   board: Board & { offsetMs: number };
   session?: Session;
+  groupName: string;
 }) {
   const now = useServerNow(board.offsetMs);
   const rows: { title: string; pass?: BoardPass; empty: string }[] = [
@@ -267,6 +287,14 @@ function LockedStatus({
           ) : null}
         </div>
       ))}
+      <span className="mt-2 text-[13px] font-bold uppercase tracking-[0.08em] text-white/70">
+        Baños ahora
+      </span>
+      <BathroomsLive
+        variant="dark"
+        ownGroup={groupName}
+        alertMinutes={board.settings.alert_minutes}
+      />
       <p className="m-0 text-[13px] text-white/80">
         Los cronómetros siguen corriendo.
         {last

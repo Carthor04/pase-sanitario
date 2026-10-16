@@ -24,6 +24,9 @@ export function More() {
         <Link to="/mi-pin" className={buttonClass.secondary}>
           {staff.has_pin ? 'Cambiar mi PIN' : 'Definir mi PIN'}
         </Link>
+        <Link to="/banos" className={buttonClass.secondary}>
+          Baños en vivo
+        </Link>
         {canManage(staff.roles) ? (
           <Link to="/ajustes" className={buttonClass.secondary}>
             Ajustes

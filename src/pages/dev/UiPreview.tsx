@@ -1,7 +1,9 @@
 // Solo en desarrollo (npm run dev): muestra el tablero con datos ficticios para revisar el
 // diseño sin sesión. Las acciones fallan porque no hay usuario; es solo para ver.
 import { useMemo, useState } from 'react';
+import { BathroomsLive } from '@/components/pass/BathroomsLive';
 import { GroupLive } from '@/components/pass/GroupLive';
+import type { BathroomsStatus } from '@/lib/live';
 import { PinPad } from '@/components/pass/PinPad';
 import { LiveBoard } from '@/pages/LiveBoard';
 import { ReportBody } from '@/pages/Reports';
@@ -38,7 +40,9 @@ const NAMES = [
 ];
 
 export function UiPreview() {
-  const [view, setView] = useState<'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes'>('turno');
+  const [view, setView] = useState<'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes' | 'baños'>(
+    'turno',
+  );
   const students: StudentRef[] = NAMES.map((full_name, i) => ({
     id: `s${i + 1}`,
     list_number: i + 1,
@@ -159,7 +163,7 @@ export function UiPreview() {
     <div className="min-h-screen bg-ground">
       <div className="flex flex-wrap gap-2 border-b border-line bg-surface p-3">
         <strong className="mr-2 self-center">Vista de prueba (datos ficticios)</strong>
-        {(['turno', 'libre', 'pin', 'prefectura', 'reportes'] as const).map((v) => (
+        {(['turno', 'libre', 'pin', 'prefectura', 'reportes', 'baños'] as const).map((v) => (
           <button
             key={v}
             type="button"
@@ -171,7 +175,18 @@ export function UiPreview() {
         ))}
       </div>
       <main className="mx-auto max-w-container px-4 py-5 sm:px-6">
-        {view === 'reportes' ? (
+        {view === 'baños' ? (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="flex flex-col gap-3">
+              <h2 className="m-0 font-display text-[22px] font-bold">Panel (salón desbloqueado)</h2>
+              <BathroomsLive variant="panel" ownGroup="2°B" preview={bathroomsPreview()} />
+            </div>
+            <div className="flex flex-col gap-3 rounded-card bg-dark p-5">
+              <h2 className="m-0 font-display text-[22px] font-bold text-white">Bloqueada</h2>
+              <BathroomsLive variant="dark" ownGroup="2°B" preview={bathroomsPreview()} />
+            </div>
+          </div>
+        ) : view === 'reportes' ? (
           <ReportBody report={reportPreview()} from="2026-10-12" to="2026-10-16" />
         ) : view === 'prefectura' ? (
           <StaffContext.Provider
@@ -394,6 +409,41 @@ function reportPreview(): Report {
         avg_minutes: 4,
         alerts: 0,
         top_subject: null,
+      },
+    ],
+  };
+}
+
+function bathroomsPreview(): BathroomsStatus {
+  const iso = (minAgo: number) => new Date(Date.now() - minAgo * 60_000).toISOString();
+  return {
+    now: new Date().toISOString(),
+    offsetMs: 0,
+    nurse: 2,
+    bathrooms: [
+      {
+        id: 'bath_h',
+        label: 'Baño hombres',
+        sex: 'H',
+        capacity: 1,
+        group_wait: 1,
+        occupants: [{ group_name: '2°B', status: 'out', since: iso(4.2) }],
+        queue: [
+          { group_name: '3°A', since: iso(3.1) },
+          { group_name: '1°C', since: iso(1.2) },
+        ],
+      },
+      {
+        id: 'bath_m',
+        label: 'Baño mujeres',
+        sex: 'M',
+        capacity: 3,
+        group_wait: 0,
+        occupants: [
+          { group_name: '1°A', status: 'out', since: iso(11.4) },
+          { group_name: '2°C', status: 'out', since: iso(2) },
+        ],
+        queue: [],
       },
     ],
   };

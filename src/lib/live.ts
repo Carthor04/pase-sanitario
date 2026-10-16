@@ -135,3 +135,32 @@ export function usePassAction() {
     onSettled: () => invalidateLive(queryClient),
   });
 }
+
+export type BathroomsStatus = {
+  now: string;
+  nurse: number;
+  offsetMs: number;
+  bathrooms: {
+    id: string;
+    label: string;
+    sex: 'H' | 'M';
+    capacity: number | null;
+    occupants: { group_name: string; status: 'called' | 'out'; since: string }[];
+    queue: { group_name: string; since: string }[];
+    group_wait: number;
+  }[];
+};
+
+/** Estado de todos los baños (solo grupos, sin nombres). Se refresca con Realtime. */
+export function useBathrooms() {
+  return useQuery({
+    queryKey: ['board', 'bathrooms'],
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('bathrooms_status');
+      if (error) throw error;
+      const s = data as unknown as Omit<BathroomsStatus, 'offsetMs'>;
+      return { ...s, offsetMs: new Date(s.now).getTime() - Date.now() } as BathroomsStatus;
+    },
+  });
+}

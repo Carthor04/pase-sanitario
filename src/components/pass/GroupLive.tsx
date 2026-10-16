@@ -57,6 +57,8 @@ type Props = {
   students: StudentRef[];
   /** Salón: captura rápida con teclado. */
   capture?: boolean;
+  /** Barra de baños al final (la compu del salón usa su propia columna de baños). */
+  bathroomBar?: boolean;
   /** Texto bajo el menú, p. ej. a nombre de quién quedan los pases. */
   footnote?: string;
 };
@@ -66,7 +68,14 @@ type Props = {
  * (Main/SalonTurno) y en el celular (MovilGrupo/MovilTurno): debajo de 640 px se acomoda
  * como la versión de celular.
  */
-export function GroupLive({ board, groupName, students, capture, footnote }: Props) {
+export function GroupLive({
+  board,
+  groupName,
+  students,
+  capture,
+  bathroomBar = true,
+  footnote,
+}: Props) {
   const now = useServerNow(board.offsetMs);
   const action = usePassAction();
   const [menuFor, setMenuFor] = useState<StudentRef | null>(null);
@@ -282,7 +291,7 @@ export function GroupLive({ board, groupName, students, capture, footnote }: Pro
         </ul>
       </section>
 
-      <BathroomBar bathrooms={board.bathrooms} now={now} />
+      {bathroomBar ? <BathroomBar bathrooms={board.bathrooms} now={now} /> : null}
 
       {menuFor ? (
         <PassMenu
