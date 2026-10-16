@@ -922,6 +922,7 @@ export type Database = {
         Args: { p_body: string; p_pass_id: string }
         Returns: undefined
       }
+      bathrooms_status: { Args: never; Returns: Json }
       cancel_pass: { Args: { p_pass_id: string }; Returns: Json }
       cede_turn: { Args: { p_pass_id: string }; Returns: Json }
       claim_device_pairing: { Args: { p_code: string }; Returns: Json }
@@ -969,6 +970,7 @@ export type Database = {
         Returns: undefined
       }
       group_board: { Args: { p_group_id: string }; Returns: Json }
+      group_schedule: { Args: { p_group_id: string }; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
       import_staff: { Args: { p_rows: Json }; Returns: Json }
@@ -993,11 +995,24 @@ export type Database = {
         }[]
       }
       nurse_today: { Args: never; Returns: Json }
+      pass_history: {
+        Args: {
+          p_from: string
+          p_group?: string
+          p_limit?: number
+          p_offset?: number
+          p_query?: string
+          p_to: string
+        }
+        Returns: Json
+      }
+      pass_timeline: { Args: { p_pass_id: string }; Returns: Json }
       push_config: { Args: never; Returns: Json }
       release_pass: {
         Args: { p_pass_id: string; p_reason: string }
         Returns: Json
       }
+      report_summary: { Args: { p_from: string; p_to: string }; Returns: Json }
       request_pass: {
         Args: { p_kind: string; p_student_id: string }
         Returns: Json
