@@ -250,3 +250,12 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - `settings.vapid_public_key` y `settings.whatsapp_enabled` (apagado: no se encolan mensajes de WhatsApp hasta tener el bot).
 - La regla "En la app" de `current_teacher` / `authorizing_teacher` filtra `my_alerts()`.
 - Detalle del envío en `docs/INTEGRATIONS.md` §1.
+
+## Ajustes hechos en la Fase 6 (2026-10-15)
+
+`20261015180000_reports.sql`:
+
+- Trigger en `destinations`: al cambiar capacidad, límite por grupo o fila, corre `advance()` en ese momento (subir la capacidad llama al siguiente formado).
+- Rangos válidos en `settings` (alerta 1–120 min, escalada 1–60, turno 1–15, autobloqueo 0–60, deshacer 3–60 s).
+- RPC de lectura en lugar de vistas `v_report_*`: `report_summary(desde, hasta)` (coordinación, dirección, admin: totales, alertas, fila máxima, mapa de calor por baño, por grupo y "a revisar" con los umbrales de `settings`), `pass_history(desde, hasta, búsqueda, grupo)` (prefectura, enfermería —solo pases de enfermería—, coordinación, dirección, admin), `pass_timeline(pase)` (bitácora con quién y desde dónde), `bathrooms_status()` (cualquier personal; solo nombres de grupo) y `group_schedule(grupo)`.
+- Pendiente: `export-sheets` (necesita la cuenta de servicio de Google; ver INTEGRATIONS §3).

@@ -21,6 +21,7 @@ vi.mock('@/lib/supabase', () => {
     select: () => query,
     order: () => query,
     eq: () => query,
+    single: () => query,
     then: (resolve: (v: unknown) => void) => resolve({ data: rows, error: null }),
   };
   return {
@@ -56,7 +57,7 @@ describe('Ajustes', () => {
         </StaffContext.Provider>
       </QueryClientProvider>,
     );
-    expect(screen.getByTestId('where')).toHaveTextContent('/ajustes/alumnos');
+    expect(screen.getByTestId('where')).toHaveTextContent('/ajustes/banos');
 
     fireEvent.click(screen.getByRole('link', { name: 'Personal y PIN' }));
     expect(screen.getByTestId('where')).toHaveTextContent(/^\/ajustes\/personal$/);

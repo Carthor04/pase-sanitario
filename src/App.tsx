@@ -3,6 +3,8 @@ import { Route, Routes } from 'react-router';
 import { RequireDevice, RequireStaff } from '@/components/auth/Gates';
 import { AppShell } from '@/components/layout/AppShell';
 import { Alerts } from '@/pages/Alerts';
+import { Bathrooms } from '@/pages/Bathrooms';
+import { History } from '@/pages/History';
 import { Home } from '@/pages/Home';
 import { LinkDevice } from '@/pages/LinkDevice';
 import { LiveBoard } from '@/pages/LiveBoard';
@@ -12,6 +14,7 @@ import { MyGroup } from '@/pages/MyGroup';
 import { MyPin } from '@/pages/MyPin';
 import { Nurse } from '@/pages/Nurse';
 import { Placeholder } from '@/pages/Placeholder';
+import { Reports } from '@/pages/Reports';
 import { SalonHome } from '@/pages/SalonHome';
 import { Settings } from '@/pages/settings/Settings';
 
@@ -49,12 +52,12 @@ export function App() {
           <Route path="mi-pin" element={<MyPin />} />
           <Route path="mas" element={<More />} />
           <Route path="ajustes/*" element={<Settings />} />
-          <Route path="banos" element={<Placeholder title="Baños" phase={3} />} />
+          <Route path="banos" element={<Bathrooms />} />
           <Route path="alertas" element={<Alerts />} />
           <Route path="en-vivo" element={<LiveBoard />} />
           <Route path="enfermeria" element={<Nurse />} />
-          <Route path="reportes" element={<Placeholder title="Reportes" phase={6} />} />
-          <Route path="historial" element={<Placeholder title="Historial" phase={6} />} />
+          <Route path="reportes" element={<Reports />} />
+          <Route path="historial" element={<History />} />
           <Route
             path="*"
             element={

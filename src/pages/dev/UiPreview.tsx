@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import { GroupLive } from '@/components/pass/GroupLive';
 import { PinPad } from '@/components/pass/PinPad';
 import { LiveBoard } from '@/pages/LiveBoard';
+import { ReportBody } from '@/pages/Reports';
+import type { Report } from '@/lib/reports';
 import type { LiveBoard as LiveData, LivePass } from '@/lib/monitor';
 import { StaffContext } from '@/lib/session';
 import type { Board, BoardPass, StudentRef } from '@/lib/board';
@@ -36,7 +38,7 @@ const NAMES = [
 ];
 
 export function UiPreview() {
-  const [view, setView] = useState<'turno' | 'libre' | 'pin' | 'prefectura'>('turno');
+  const [view, setView] = useState<'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes'>('turno');
   const students: StudentRef[] = NAMES.map((full_name, i) => ({
     id: `s${i + 1}`,
     list_number: i + 1,
@@ -157,7 +159,7 @@ export function UiPreview() {
     <div className="min-h-screen bg-ground">
       <div className="flex flex-wrap gap-2 border-b border-line bg-surface p-3">
         <strong className="mr-2 self-center">Vista de prueba (datos ficticios)</strong>
-        {(['turno', 'libre', 'pin', 'prefectura'] as const).map((v) => (
+        {(['turno', 'libre', 'pin', 'prefectura', 'reportes'] as const).map((v) => (
           <button
             key={v}
             type="button"
@@ -169,7 +171,9 @@ export function UiPreview() {
         ))}
       </div>
       <main className="mx-auto max-w-container px-4 py-5 sm:px-6">
-        {view === 'prefectura' ? (
+        {view === 'reportes' ? (
+          <ReportBody report={reportPreview()} from="2026-10-12" to="2026-10-16" />
+        ) : view === 'prefectura' ? (
           <StaffContext.Provider
             value={{
               kind: 'staff',
@@ -319,5 +323,78 @@ function livePreview(): LiveData {
       }),
     ],
     stats: { exits_today: 52, alerts_today: 2 },
+  };
+}
+
+function reportPreview(): Report {
+  const counts = [
+    [3, 6, 7, 11, 9, 7, 5],
+    [4, 7, 8, 13, 10, 8, 4],
+    [2, 5, 7, 12, 9, 6, 5],
+    [3, 6, 9, 12, 11, 7, 6],
+    [2, 5, 6, 10, 8, 6, 3],
+  ];
+  const groups = ['1°A', '1°B', '1°C', '2°A', '2°B', '2°C', '3°A', '3°B', '3°C'];
+  const exits = [24, 29, 31, 22, 38, 27, 35, 19, 23];
+  return {
+    from: '2026-10-12',
+    to: '2026-10-16',
+    thresholds: { alerts: 2, exits: 8 },
+    totals: {
+      exits: 248,
+      bathroom: 196,
+      nurse: 52,
+      avg_minutes: 5.9,
+      avg_minutes_h: 6.4,
+      avg_minutes_m: 5.1,
+    },
+    alerts: { count: 11, acknowledged_fast: 9, escalated: 2 },
+    max_queue: { size: 5, destination: 'Baño hombres', at: '2026-10-13T16:00:00Z' },
+    heatmap: counts.flatMap((row, d) =>
+      row.map((count, h) => ({ destination: 'bath_h', weekday: d + 1, hour: 7 + h, count })),
+    ),
+    queued_slots: [1, 2, 3, 4, 5].map((wd) => ({ destination: 'bath_h', weekday: wd, hour: 10 })),
+    by_group: groups.map((g, i) => ({
+      group_id: g,
+      group_name: g,
+      exits: exits[i]!,
+      avg_minutes: 4.7 + (i % 4) * 0.7,
+      alerts: [0, 1, 1, 0, 3, 1, 3, 0, 2][i]!,
+    })),
+    review: [
+      {
+        student_id: 'a',
+        full_name: 'Natalia Quiroz',
+        list_number: 17,
+        group_name: '2°B',
+        exits: 6,
+        nurse: 0,
+        avg_minutes: 9.8,
+        alerts: 3,
+        top_subject: 'Matemáticas',
+      },
+      {
+        student_id: 'b',
+        full_name: 'Raúl Herrera',
+        list_number: 9,
+        group_name: '3°A',
+        exits: 11,
+        nurse: 0,
+        avg_minutes: 6.1,
+        alerts: 0,
+        top_subject: 'Química',
+      },
+      {
+        student_id: 'c',
+        full_name: 'Iván Ruiz',
+        list_number: 21,
+        group_name: '3°C',
+        exits: 1,
+        nurse: 4,
+        avg_minutes: 4,
+        alerts: 0,
+        top_subject: null,
+      },
+    ],
   };
 }

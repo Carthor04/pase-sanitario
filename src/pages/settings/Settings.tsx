@@ -1,10 +1,12 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router';
-import { Card, Notice, PageTitle } from '@/components/ui/Page';
+import { Notice, PageTitle } from '@/components/ui/Page';
 import { canManage } from '@/lib/me';
 import { useStaff } from '@/lib/session';
 import { DevicesPanel } from './DevicesPanel';
 import { ImportPanel } from './ImportPanel';
 import { NotificationsPanel } from './NotificationsPanel';
+import { RulesPanel } from './RulesPanel';
+import { SchedulePanel } from './SchedulePanel';
 import { StaffPanel } from './StaffPanel';
 
 const TABS = [
@@ -15,15 +17,6 @@ const TABS = [
   { to: 'equipos', label: 'Salones y equipos' },
   { to: 'notificaciones', label: 'Notificaciones' },
 ];
-
-function Later({ title, phase }: { title: string; phase: number }) {
-  return (
-    <Card>
-      <span className="font-bold">{title}</span>
-      <span className="text-muted">Esta sección se construye en la Fase {phase}.</span>
-    </Card>
-  );
-}
 
 /** Configuración (SPEC §10). Solo coordinación, dirección y admin. */
 export function Settings() {
@@ -57,17 +50,9 @@ export function Settings() {
         ))}
       </nav>
       <Routes>
-        <Route index element={<Navigate to="/ajustes/alumnos" replace />} />
-        <Route path="banos" element={<Later title="Baños y reglas" phase={6} />} />
-        <Route
-          path="horarios"
-          element={
-            <div className="flex flex-col gap-4">
-              <ImportPanel kind="groups" title="Grupos" />
-              <ImportPanel kind="schedule" title="Horario" />
-            </div>
-          }
-        />
+        <Route index element={<Navigate to="/ajustes/banos" replace />} />
+        <Route path="banos" element={<RulesPanel />} />
+        <Route path="horarios" element={<SchedulePanel />} />
         <Route path="alumnos" element={<ImportPanel kind="students" title="Alumnos" />} />
         <Route
           path="personal"
@@ -80,7 +65,7 @@ export function Settings() {
         />
         <Route path="equipos" element={<DevicesPanel />} />
         <Route path="notificaciones" element={<NotificationsPanel />} />
-        <Route path="*" element={<Navigate to="/ajustes/alumnos" replace />} />
+        <Route path="*" element={<Navigate to="/ajustes/banos" replace />} />
       </Routes>
     </div>
   );
