@@ -31,6 +31,8 @@ const KIND_LABEL: Record<string, string> = {
   escalated: 'Escalada',
   acknowledged: 'Atendida',
   resolved: 'Resuelta',
+  turn: 'Turno',
+  returning: 'De regreso',
   test: 'Prueba',
 };
 
@@ -135,8 +137,9 @@ export function NotificationsPanel() {
         </div>
         <p className="m-0 text-[14px] text-muted">
           Se avisa al crear la alerta, si se escala (nadie la atiende), cuando alguien la atiende y
-          cuando se resuelve. WhatsApp llega en una fase posterior. La notificación solo llega a
-          quien la activó en su celular o computadora.
+          cuando se resuelve. A los maestros también se les avisa cuando a su alumno le toca el
+          turno y cuando sale de enfermería de regreso al salón. WhatsApp llega en una fase
+          posterior. La notificación solo llega a quien la activó en su celular o computadora.
         </p>
       </Card>
 
