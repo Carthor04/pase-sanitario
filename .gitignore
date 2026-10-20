@@ -14,3 +14,4 @@ supabase/.temp
 
 # Datos reales (nombres de alumnos menores): nunca al repo
 data/private/
+data/oficial/
