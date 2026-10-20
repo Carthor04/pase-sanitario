@@ -6,6 +6,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
 import { SessionProvider } from './components/auth/SessionProvider';
 import './index.css';
+import './lib/install'; // escucha beforeinstallprompt desde el arranque
 
 // La app instalada (sobre todo en iPhone) puede quedarse con una versión vieja: se busca
 // una nueva al volver a la app y cada 30 min; con autoUpdate se recarga sola al encontrarla.

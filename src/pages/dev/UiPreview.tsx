@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { BathroomsLive } from '@/components/pass/BathroomsLive';
 import { GroupLive } from '@/components/pass/GroupLive';
+import { InstallApp } from '@/components/InstallApp';
 import type { BathroomsStatus } from '@/lib/live';
 import { PinPad } from '@/components/pass/PinPad';
 import { LiveBoard } from '@/pages/LiveBoard';
@@ -40,9 +41,9 @@ const NAMES = [
 ];
 
 export function UiPreview() {
-  const [view, setView] = useState<'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes' | 'baños'>(
-    'turno',
-  );
+  const [view, setView] = useState<
+    'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes' | 'baños' | 'instalar'
+  >('turno');
   const students: StudentRef[] = NAMES.map((full_name, i) => ({
     id: `s${i + 1}`,
     list_number: i + 1,
@@ -163,19 +164,25 @@ export function UiPreview() {
     <div className="min-h-screen bg-ground">
       <div className="flex flex-wrap gap-2 border-b border-line bg-surface p-3">
         <strong className="mr-2 self-center">Vista de prueba (datos ficticios)</strong>
-        {(['turno', 'libre', 'pin', 'prefectura', 'reportes', 'baños'] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            onClick={() => setView(v)}
-            className={`min-h-touch rounded-btn border px-3 font-bold ${view === v ? 'border-accent text-accent' : 'border-line'}`}
-          >
-            {v}
-          </button>
-        ))}
+        {(['turno', 'libre', 'pin', 'prefectura', 'reportes', 'baños', 'instalar'] as const).map(
+          (v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={`min-h-touch rounded-btn border px-3 font-bold ${view === v ? 'border-accent text-accent' : 'border-line'}`}
+            >
+              {v}
+            </button>
+          ),
+        )}
       </div>
       <main className="mx-auto max-w-container px-4 py-5 sm:px-6">
-        {view === 'baños' ? (
+        {view === 'instalar' ? (
+          <div className="max-w-[480px]">
+            <InstallApp />
+          </div>
+        ) : view === 'baños' ? (
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="flex flex-col gap-3 lg:col-span-2">
               <h2 className="m-0 font-display text-[22px] font-bold">Personal (pantalla Baños)</h2>

@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
+import { InstallApp } from '@/components/InstallApp';
 import { PushSettings } from '@/components/PushSettings';
 import { Card, PageTitle } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
@@ -40,6 +41,7 @@ export function More() {
           Cerrar sesión
         </button>
       </Card>
+      <InstallApp />
       <PushSettings />
     </div>
   );
