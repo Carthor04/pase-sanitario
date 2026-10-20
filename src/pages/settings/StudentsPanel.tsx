@@ -3,6 +3,7 @@ import { useEffect, useId, useState, type FormEvent } from 'react';
 import { Card, Loading, Notice, SectionLabel } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
 import { useGroups } from '@/lib/queries';
+import { byName } from '@/lib/students';
 import { supabase } from '@/lib/supabase';
 
 type Row = { id: string; list_number: number; full_name: string; sex: 'H' | 'M'; active: boolean };
@@ -48,11 +49,9 @@ export function StudentsPanel() {
       const { data, error } = await supabase
         .from('students')
         .select('id, list_number, full_name, sex, active')
-        .eq('group_id', selected)
-        .order('list_number')
-        .order('full_name');
+        .eq('group_id', selected);
       if (error) throw error;
-      return data as Row[];
+      return (data as Row[]).sort(byName);
     },
   });
 

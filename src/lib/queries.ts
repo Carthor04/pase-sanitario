@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { byName } from './students';
 import { supabase } from './supabase';
 
 export type Student = {
@@ -17,10 +18,9 @@ export function useStudents(groupId: string | undefined) {
         .from('students')
         .select('id, list_number, full_name, sex')
         .eq('group_id', groupId!)
-        .eq('active', true)
-        .order('list_number');
+        .eq('active', true);
       if (error) throw error;
-      return data as Student[];
+      return (data as Student[]).sort(byName);
     },
   });
 }
