@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router';
+import { InstallApp } from '@/components/InstallApp';
 import { FullScreen, Loading, Notice } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
 import { readAuthError, signInWithGoogle, useMe, useSession } from '@/lib/session';
@@ -40,6 +41,7 @@ export function Login() {
           Vincular este equipo
         </Link>
       </div>
+      <InstallApp plain />
     </FullScreen>
   );
 }

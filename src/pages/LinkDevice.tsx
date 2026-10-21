@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router';
+import { InstallApp } from '@/components/InstallApp';
 import { DigitInput } from '@/components/ui/DigitInput';
 import { FullScreen, Loading, Notice } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
@@ -98,6 +99,7 @@ export function LinkDevice() {
       <Link to="/entrar" className="text-[15px] font-bold text-accent">
         Soy maestro: entrar con Google
       </Link>
+      <InstallApp plain />
     </FullScreen>
   );
 }
