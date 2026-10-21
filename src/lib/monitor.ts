@@ -89,7 +89,7 @@ const withOffset = <T extends { now: string }>(data: T) => ({
 export function useLiveBoard() {
   return useQuery({
     queryKey: ['live'],
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
     queryFn: async () => {
       const { data, error } = await supabase.rpc('live_board');
       if (error) throw error;
@@ -144,6 +144,50 @@ const timeFmt = new Intl.DateTimeFormat('es-MX', {
 export const hm = (iso: string | null | undefined) => (iso ? timeFmt.format(new Date(iso)) : '');
 
 /** "Sin atender", "Atiende Juan Pérez" o "Escalada · sin atender". */
+/**
+ * Pases en alerta para el monitor: los que ya tienen alerta en la BD y los que ya pasaron el
+ * tiempo aunque tick() (cada 30 s) todavía no la cree. Así la tarjeta, el sonido y "Yo lo
+ * atiendo" aparecen en cuanto se cumple el tiempo; atender crea la alerta si falta.
+ */
+export function overdueAlerts(
+  board: LiveBoard,
+  now: number,
+): (LivePass & { alert: NonNullable<PassAlert> })[] {
+  const limit = board.settings.alert_minutes * 60_000;
+  return board.passes.flatMap((p) => {
+    if (p.alert) return [{ ...p, alert: p.alert }];
+    const since =
+      p.status === 'out' ? p.started_at : p.status === 'returning' ? p.left_nurse_at : null;
+    if (!since || now - new Date(since).getTime() < limit) return [];
+    const created = new Date(new Date(since).getTime() + limit).toISOString();
+    return [
+      {
+        ...p,
+        alert: {
+          id: `pass:${p.id}`,
+          level: 1 as const,
+          created_at: created,
+          acknowledged_by_name: null,
+          acknowledged_at: null,
+        },
+      },
+    ];
+  });
+}
+
+/** Momento (ms) en que el siguiente pase cumple el tiempo de alerta, o null si no hay. */
+export function nextAlertAt(board: LiveBoard): number | null {
+  const limit = board.settings.alert_minutes * 60_000;
+  const times = board.passes
+    .filter((p) => !p.alert)
+    .map((p) =>
+      p.status === 'out' ? p.started_at : p.status === 'returning' ? p.left_nurse_at : null,
+    )
+    .filter((s): s is string => Boolean(s))
+    .map((s) => new Date(s).getTime() + limit);
+  return times.length ? Math.min(...times) : null;
+}
+
 export function alertStatusText(alert: NonNullable<PassAlert>): string {
   if (alert.acknowledged_by_name) return `${alert.acknowledged_by_name} va en camino`;
   return alert.level === 2 ? 'Escalada · sin atender' : 'Sin atender';

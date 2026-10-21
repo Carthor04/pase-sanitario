@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { Fragment, useEffect, useState } from 'react';
 import { AlertCard, ReleaseDialog } from '@/components/pass/AlertCard';
 import { Loading, Notice } from '@/components/ui/Page';
@@ -8,6 +9,8 @@ import { errorMessage, useLivePasses, usePassAction, useServerNow } from '@/lib/
 import {
   alertStatusText,
   hm,
+  nextAlertAt,
+  overdueAlerts,
   useAlertSound,
   useLiveBoard,
   type LiveBoard as Board,
@@ -57,10 +60,25 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
   const [tab, setTab] = useState(0);
   useAudioUnlock();
 
+  const queryClient = useQueryClient();
   const board = preview ?? live.data;
   const now = useServerNow(board?.offsetMs ?? 0);
-  const alerts = (board?.passes ?? []).filter((p) => p.alert);
-  useAlertSound(alerts.map((p) => ({ id: p.alert!.id, level: p.alert!.level })));
+  const alerts = board ? overdueAlerts(board, now) : [];
+  // Por pase (no por id de alerta): la alerta que crea tick() no vuelve a sonar.
+  useAlertSound(alerts.map((p) => ({ id: p.id, level: p.alert.level })));
+
+  // Respaldo de Realtime: vuelve a pedir el monitor cuando tick() ya debió crear la alerta
+  // del siguiente pase que cumple el tiempo (corre cada 30 s).
+  const nextAt = board && !preview ? nextAlertAt(board) : null;
+  useEffect(() => {
+    if (nextAt === null) return;
+    const wait = Math.max(5_000, nextAt + 35_000 - (Date.now() + (board?.offsetMs ?? 0)));
+    const id = window.setTimeout(
+      () => void queryClient.invalidateQueries({ queryKey: ['live'] }),
+      wait,
+    );
+    return () => window.clearTimeout(id);
+  }, [nextAt, board?.offsetMs, queryClient]);
 
   useEffect(() => {
     if (!error) return;
@@ -124,8 +142,8 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
           {alerts
             .sort(
               (a, b) =>
-                b.alert!.level - a.alert!.level ||
-                a.alert!.created_at.localeCompare(b.alert!.created_at),
+                b.alert.level - a.alert.level ||
+                a.alert.created_at.localeCompare(b.alert.created_at),
             )
             .map((p) => (
               <AlertCard
@@ -135,13 +153,11 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
                 place={destLabel(p.destination_id)}
                 startedAt={p.started_at}
                 periodSubject={p.period_subject}
-                alert={p.alert!}
+                alert={p.alert}
                 now={now}
                 busy={action.isPending}
                 onAcknowledge={
-                  caps.ack
-                    ? () => void run({ type: 'acknowledge', alertId: p.alert!.id })
-                    : undefined
+                  caps.ack ? () => void run({ type: 'acknowledge', passId: p.id }) : undefined
                 }
                 onRelease={caps.release ? () => setReleasing(p) : undefined}
                 onReturn={
@@ -190,7 +206,11 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
 
       {selected ? (
         <PersonDialog
-          pass={board.passes.find((p) => p.id === selected.id) ?? selected}
+          pass={
+            alerts.find((p) => p.id === selected.id) ??
+            board.passes.find((p) => p.id === selected.id) ??
+            selected
+          }
           place={destLabel(selected.destination_id)}
           now={now}
           busy={action.isPending}
@@ -199,8 +219,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
           isNurse={columns.find((d) => d.id === selected.destination_id)?.kind === 'nurse'}
           onAction={(type) => {
             if (type === 'release') setReleasing(selected);
-            else if (type === 'ack' && selected.alert)
-              void run({ type: 'acknowledge', alertId: selected.alert.id });
+            else if (type === 'ack') void run({ type: 'acknowledge', passId: selected.id });
             else if (type === 'arrived') void run({ type: 'arrived', passId: selected.id });
             else void run({ type: 'return', passId: selected.id });
           }}

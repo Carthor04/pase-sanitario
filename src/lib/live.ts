@@ -85,7 +85,7 @@ type Action =
       passId: string;
     }
   | { type: 'release'; passId: string; reason: string }
-  | { type: 'acknowledge'; alertId: string }
+  | { type: 'acknowledge'; passId: string }
   | { type: 'note'; passId: string; body: string };
 
 const RPC = {
@@ -126,7 +126,7 @@ export function usePassAction() {
                 p_reason: action.reason,
               })
             : action.type === 'acknowledge'
-              ? await supabase.rpc('acknowledge_alert', { p_alert_id: action.alertId })
+              ? await supabase.rpc('acknowledge_pass', { p_pass_id: action.passId })
               : action.type === 'note'
                 ? await supabase.rpc('add_nurse_note', {
                     p_pass_id: action.passId,
