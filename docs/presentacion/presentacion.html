@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<title>Pase Sanitario by Tellus · Presentación a Dirección General</title>
+<style>
+@font-face { font-family: 'Bricolage Grotesque'; font-weight: 700; src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Bricolage Grotesque'; font-weight: 600; src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 400; src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 700; src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible Mono'; font-weight: 600; src: url('../../node_modules/@fontsource/atkinson-hyperlegible-mono/files/atkinson-hyperlegible-mono-latin-600-normal.woff2') format('woff2'); }
+
+:root {
+  --ground: #F3F5F7; --surface: #FFFFFF; --line: #DCE2E8; --line-strong: #C5CED8;
+  --ink: #15212C; --muted: #52606D; --accent: #1D4E89; --accent-2: #2C6CB8;
+  --free-fg: #146C43; --free-bg: #E3F4EA;
+  --wait-fg: #8A4B00; --wait-bg: #FFF0D6; --wait-bd: #E79B2E;
+  --alert-fg: #A3221A; --alert-bg: #FDE9E7; --alert-bd: #C8372D;
+  --nurse-fg: #1F4F9C; --nurse-bg: #E6EEFB; --nurse-bd: #5B86C9;
+  --dark: #15212C;
+}
+@page { size: 11in 8.5in; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; color: var(--ink); background: #888; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 11in; height: 8.5in; position: relative; overflow: hidden; background: var(--ground); padding: 52px 64px 60px; page-break-after: always; break-after: page; display: flex; flex-direction: column; }
+.page:last-child { page-break-after: auto; break-after: auto; }
+@media screen { .page { margin: 24px auto; box-shadow: 0 6px 30px rgba(0,0,0,.25); } }
+
+h1, h2, h3 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 40px; line-height: 1.08; }
+h3 { font-size: 20px; line-height: 1.2; }
+p { margin: 0; }
+.mono { font-family: 'Atkinson Hyperlegible Mono', monospace; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kicker { font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.lead { font-size: 19px; color: var(--muted); line-height: 1.45; margin-top: 12px; max-width: 760px; }
+.muted { color: var(--muted); }
+
+/* Pie de página */
+.foot { position: absolute; left: 64px; right: 64px; bottom: 22px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); }
+.foot .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.logo { width: 22px; height: 22px; border-radius: 6px; background: var(--accent); color: #fff; display: inline-grid; place-items: center; }
+.logo svg { width: 55%; height: 55%; fill: currentColor; }
+
+/* Tarjetas */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 22px 24px; }
+.icon { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.i-accent { background: #E4ECF6; color: var(--accent); }
+.i-free { background: var(--free-bg); color: var(--free-fg); }
+.i-wait { background: var(--wait-bg); color: var(--wait-fg); }
+.i-alert { background: var(--alert-bg); color: var(--alert-fg); }
+.i-nurse { background: var(--nurse-bg); color: var(--nurse-fg); }
+.i-dark { background: var(--dark); color: #fff; }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 12px; font-size: 13px; font-weight: 700; }
+.c-free { background: var(--free-bg); color: var(--free-fg); }
+.c-wait { background: var(--wait-bg); color: var(--wait-fg); }
+.c-alert { background: var(--alert-bg); color: var(--alert-fg); }
+.c-nurse { background: var(--nurse-bg); color: var(--nurse-fg); }
+.c-dark { background: var(--dark); color: #fff; }
+.c-accent { background: #E4ECF6; color: var(--accent); }
+
+/* Capturas */
+.shot { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line-strong); background: #fff; box-shadow: 0 14px 40px rgba(21,33,44,.16); }
+.shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.phone { position: relative; border-radius: 30px; border: 7px solid var(--dark); overflow: hidden; background: #fff; box-shadow: 0 18px 44px rgba(21,33,44,.28); }
+.phone img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.tag { position: absolute; right: 10px; bottom: 10px; background: rgba(21,33,44,.82); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; letter-spacing: .02em; }
+.caption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+
+/* Listas de funciones */
+.feat { display: flex; gap: 14px; align-items: flex-start; }
+.feat .icon { width: 40px; height: 40px; border-radius: 10px; }
+.feat .icon svg { width: 21px; height: 21px; }
+.feat b { display: block; font-size: 17px; margin-bottom: 2px; }
+.feat span { font-size: 14.5px; color: var(--muted); line-height: 1.38; }
+
+/* Flujo */
+.flow { display: flex; align-items: stretch; gap: 0; }
+.step { flex: 1; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px 18px; position: relative; }
+.step .n { width: 30px; height: 30px; border-radius: 999px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+.step b { display: block; font-size: 17px; margin-bottom: 6px; }
+.step span { font-size: 14px; color: var(--muted); line-height: 1.38; }
+.arrow { width: 34px; flex: none; display: grid; place-items: center; color: var(--line-strong); }
+.arrow svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.placeholder { border: 2px dashed var(--line-strong); border-radius: 10px; background: repeating-linear-gradient(-45deg, #fff, #fff 8px, #F7F9FB 8px, #F7F9FB 16px); color: var(--muted); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- Íconos reutilizables -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-tellus" viewBox="0 0 636 766"><path d="M1 191 319 0l317 191v149L382 190v381l128-85V302l126 74v188L319 766l-65-40V190L1 340Z"/><path d="M1 376l126-74v184l97 61v158L0 564Z"/></symbol>
+    <symbol id="i-paper" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2a5 5 0 0 1 5.5 5.8"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5v.5"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M7 11V5.5a1.5 1.5 0 0 1 3 0V10M10 9.5V4a1.5 1.5 0 0 1 3 0v6M13 9.5V5.5a1.5 1.5 0 0 1 3 0V11M16 10.5a1.5 1.5 0 0 1 3 0V15a7 7 0 0 1-7 7h-1a7 7 0 0 1-5.6-2.8L3 16.5a1.6 1.6 0 0 1 2.4-2.1L7 16V11"/></symbol>
+    <symbol id="i-cross" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><circle cx="5" cy="7" r="2"/><circle cx="12" cy="7" r="2"/><circle cx="19" cy="7" r="2"/><path d="M3 17h18M15 14l3 3-3 3"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-6a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+    <symbol id="i-google" viewBox="0 0 24 24"><path d="M20.5 12.2c0-.6-.1-1.2-.2-1.7H12v3.3h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.6-3.9 2.6-6.5z"/><path d="M12 21c2.4 0 4.5-.8 5.9-2.2L15 16.5c-.8.5-1.8.9-3 .9a5.3 5.3 0 0 1-5-3.6H4v2.3A9 9 0 0 0 12 21z"/><path d="M7 13.8a5.4 5.4 0 0 1 0-3.5V8H4a9 9 0 0 0 0 8z"/><path d="M12 6.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 4 8l3 2.3a5.3 5.3 0 0 1 5-3.7z"/></symbol>
+    <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a5 5 0 0 1-.5-10A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/></symbol>
+    <symbol id="i-rfid" viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M18 8.5a5 5 0 0 1 0 7M20.5 6a8.5 8.5 0 0 1 0 12"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.8 7L3 21l2-5.6A8 8 0 1 1 21 12z"/></symbol>
+    <symbol id="i-sheet" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M10 9v12"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-parents" viewBox="0 0 24 24"><circle cx="8" cy="6" r="2.5"/><circle cx="16" cy="6" r="2.5"/><path d="M4 21v-6a4 4 0 0 1 8 0M12 15a4 4 0 0 1 8 0v6"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9.2-9.2A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 9.2 3.8C19.5 15.4 12 20 12 20z"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12l2 2 4-4M9 17h6"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M3 21h18"/><path d="M8 8h3M8 12h3M8 16h3"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/></symbol>
+    <symbol id="i-door" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 0 1 1-1h9v18M3 21h18M15 5h3a1 1 0 0 1 1 1v15"/><circle cx="12" cy="12" r=".8"/></symbol>
+  </defs>
+</svg>
+
+<!-- 1 · PORTADA -->
+<section class="page" style="background: var(--dark); color: #fff; padding: 0;">
+  <div style="position:absolute; inset:0; background: radial-gradient(900px 600px at 85% 30%, rgba(44,108,184,.55), transparent 60%), radial-gradient(500px 400px at 10% 100%, rgba(29,78,137,.5), transparent 70%);"></div>
+  <div style="position:relative; display:grid; grid-template-columns: 1.05fr 1fr; height:100%;">
+    <div style="padding: 70px 0 60px 72px; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span class="logo" style="width:46px; height:46px; border-radius:12px; background:#fff; color:var(--accent);"><svg><use href="#i-tellus"/></svg></span>
+        <span style="font-size:15px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#B9C8DA;">Instituto Oviedo · León, Gto.</span>
+      </div>
+      <div style="margin-top:auto;">
+        <h1 style="font-size:78px; line-height:.98;">Pase<br>Sanitario<span style="display:inline-flex; align-items:baseline; gap:6px; margin-left:14px; font-family:'Atkinson Hyperlegible', sans-serif; font-weight:400; font-size:17px; letter-spacing:0; color:#B9C8DA;">by <img src="data:image/png;base64,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" alt="Tellus" style="height:15px; position:relative; top:2px;"></span></h1>
+        <p style="font-size:26px; line-height:1.3; margin-top:22px; color:#DCE6F2; max-width:470px;">Control de salidas al baño</p>
+        <div style="display:flex; gap:10px; margin-top:30px; flex-wrap:wrap;">
+          <span class="chip" style="background:rgba(255,255,255,.12); color:#fff;">En tiempo real</span>
+          <span class="chip" style="background:rgba(255,255,255,.12); color:#fff;">Sin papel</span>
+          <span class="chip" style="background:rgba(255,255,255,.12); color:#fff;">Datos para decidir</span>
+        </div>
+      </div>
+      <div style="margin-top:auto; font-size:15px; color:#B9C8DA; line-height:1.55;">
+        Propuesta para la Dirección General<br>
+        Presenta: <b style="color:#fff;">Andrés Carrillo Torres</b> · Octubre de 2026
+      </div>
+    </div>
+    <div style="position:relative;">
+      <div class="shot" style="position:absolute; left:20px; top:120px; width:560px; height:390px; border:none; box-shadow: 0 30px 70px rgba(0,0,0,.45);">
+        <img src="../design/png/Salón · desbloqueada@1x.png" alt="">
+      </div>
+      <div class="phone" style="position:absolute; left:250px; top:300px; width:216px; height:440px; border-color:#0B131A; box-shadow: 0 30px 70px rgba(0,0,0,.5);">
+        <img src="../design/png/Celular · turno y alerta@1x.png" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · EL PROBLEMA -->
+<section class="page">
+  <div class="kicker">El problema</div>
+  <h2>Hoy, las salidas se controlan en papel</h2>
+  <p class="lead">Nadie sabe con certeza quién está fuera del salón, desde cuándo, ni si alguien necesita ayuda.</p>
+
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-top:40px;">
+    <div class="card" style="padding:32px 28px; min-height:300px;">
+      <div class="icon i-wait"><svg><use href="#i-paper"/></svg></div>
+      <h3 style="margin-top:20px; font-size:23px;">Control en papel</h3>
+      <p class="muted" style="margin-top:10px; font-size:16px; line-height:1.45;">Libretas o gafetes por salón. No hay una vista común ni registro confiable.</p>
+    </div>
+    <div class="card" style="padding:32px 28px; min-height:300px;">
+      <div class="icon i-alert"><svg><use href="#i-clock"/></svg></div>
+      <h3 style="margin-top:20px; font-size:23px;">Mucho tiempo fuera</h3>
+      <p class="muted" style="margin-top:10px; font-size:16px; line-height:1.45;">Si un alumno tarda demasiado, nadie se entera a tiempo. Pueden salir varios del mismo grupo a la vez.</p>
+    </div>
+    <div class="card" style="padding:32px 28px; min-height:300px;">
+      <div class="icon i-accent"><svg><use href="#i-chart"/></svg></div>
+      <h3 style="margin-top:20px; font-size:23px;">Sin datos</h3>
+      <p class="muted" style="margin-top:10px; font-size:16px; line-height:1.45;">No se conocen las horas pico, los grupos con más salidas ni los alumnos que requieren atención.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:auto; margin-bottom:28px; background: var(--accent); color:#fff; border-radius:18px; padding:30px 36px; display:flex; align-items:center; gap:24px;">
+    <div class="icon" style="background:rgba(255,255,255,.15); color:#fff; width:56px; height:56px;"><svg style="width:28px;height:28px"><use href="#i-check"/></svg></div>
+    <div>
+      <div style="font-size:14px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:#C9D8EA;">Lo que necesitamos</div>
+      <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:27px; margin-top:4px;">Saber en todo momento quién está fuera, cuánto tiempo, y actuar a tiempo.</div>
+    </div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>2</span></div>
+</section>
+
+<!-- 3 · CÓMO FUNCIONA -->
+<section class="page">
+  <div class="kicker">Cómo funciona</div>
+  <h2>El maestro opera. El alumno no toca nada.</h2>
+  <p class="lead">Un toque para dar el permiso. El sistema decide si hay lugar, forma la fila y lleva el tiempo.</p>
+
+  <div class="flow" style="margin-top:32px;">
+    <div class="step"><div class="n">1</div><b>El alumno pide permiso</b><span>De palabra, como siempre. No usa ningún equipo.</span></div>
+    <div class="arrow"><svg><use href="#i-arrow"/></svg></div>
+    <div class="step"><div class="n">2</div><b>El maestro toca su nombre</b><span>El baño de hombres o de mujeres se asigna solo, según el alumno.</span></div>
+    <div class="arrow"><svg><use href="#i-arrow"/></svg></div>
+    <div class="step"><div class="n">3</div><b>El sistema decide</b><span>Si hay lugar, sale de inmediato; si no, queda en la fila y se le avisa cuando sea su turno.</span></div>
+    <div class="arrow"><svg><use href="#i-arrow"/></svg></div>
+    <div class="step"><div class="n">4</div><b>Regresa al salón</b><span>El maestro marca el regreso y el lugar pasa al siguiente.</span></div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; margin-top:26px;">
+    <div class="card" style="display:flex; gap:16px;">
+      <div class="icon i-dark"><svg><use href="#i-monitor"/></svg></div>
+      <div><h3>Computadora del salón</h3><p class="muted" style="font-size:14.5px; margin-top:6px; line-height:1.4;">Se desbloquea con el PIN de 4 dígitos del maestro y se bloquea sola al terminar la clase.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:16px;">
+      <div class="icon i-accent"><svg><use href="#i-phone"/></svg></div>
+      <div><h3>Celular</h3><p class="muted" style="font-size:14.5px; margin-top:6px; line-height:1.4;">Maestros, prefectura y coordinación. Se instala como app y recibe avisos.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:16px;">
+      <div class="icon i-nurse"><svg><use href="#i-tablet"/></svg></div>
+      <div><h3>Tablet</h3><p class="muted" style="font-size:14.5px; margin-top:6px; line-height:1.4;">Monitor en vivo para prefectura: baños, filas y alertas en una sola pantalla.</p></div>
+    </div>
+  </div>
+
+  <div style="margin-top:auto; margin-bottom:28px; display:flex; align-items:center; gap:18px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 24px;">
+    <div class="icon i-free"><svg><use href="#i-google"/></svg></div>
+    <div style="font-size:17px;"><b>Entrada con la cuenta de Google institucional.</b> <span class="muted">Sin contraseñas nuevas. Solo entra el personal dado de alta por la escuela.</span></div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>3</span></div>
+</section>
+
+<!-- 4 · REGLAS Y ALERTAS -->
+<section class="page">
+  <div class="kicker">Funciones · Reglas claras</div>
+  <h2>Cupo, fila y alertas, sin discusiones</h2>
+  <p class="lead">Las reglas las aplica el sistema por igual en todos los salones. Coordinación puede ajustar los valores.</p>
+
+  <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:16px; margin-top:30px;">
+    <div class="card"><div class="muted" style="font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;">Baño hombres</div><div class="mono" style="font-size:44px; margin-top:6px;">1</div><div class="muted" style="font-size:14px;">alumno dentro a la vez</div></div>
+    <div class="card"><div class="muted" style="font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;">Baño mujeres</div><div class="mono" style="font-size:44px; margin-top:6px;">3</div><div class="muted" style="font-size:14px;">alumnas dentro a la vez</div></div>
+    <div class="card"><div class="muted" style="font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;">Por grupo</div><div class="mono" style="font-size:44px; margin-top:6px;">1+1</div><div class="muted" style="font-size:14px;">un niño y una niña fuera por grupo</div></div>
+    <div class="card"><div class="muted" style="font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;">Alerta</div><div class="mono" style="font-size:44px; margin-top:6px; color:var(--alert-fg);">10<span style="font-size:22px;"> min</span></div><div class="muted" style="font-size:14px;">fuera del salón</div></div>
+  </div>
+
+  <h3 style="margin-top:30px; font-size:18px;" class="muted">Así avanza un pase de baño</h3>
+  <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+    <span class="chip c-wait" style="font-size:15px; padding:9px 16px;">Espera de su grupo</span>
+    <svg class="arrow" style="width:20px;height:20px;color:var(--line-strong);fill:none;stroke:currentColor;stroke-width:2.5"><use href="#i-arrow"/></svg>
+    <span class="chip c-wait" style="font-size:15px; padding:9px 16px;">En fila</span>
+    <svg style="width:20px;height:20px;color:var(--line-strong);fill:none;stroke:currentColor;stroke-width:2.5"><use href="#i-arrow"/></svg>
+    <span class="chip" style="font-size:15px; padding:9px 16px; background:var(--wait-bd); color:#fff;">Su turno · 2 min para confirmar</span>
+    <svg style="width:20px;height:20px;color:var(--line-strong);fill:none;stroke:currentColor;stroke-width:2.5"><use href="#i-arrow"/></svg>
+    <span class="chip c-dark" style="font-size:15px; padding:9px 16px;">Fuera · cronómetro</span>
+    <svg style="width:20px;height:20px;color:var(--line-strong);fill:none;stroke:currentColor;stroke-width:2.5"><use href="#i-arrow"/></svg>
+    <span class="chip c-free" style="font-size:15px; padding:9px 16px;">Regresó</span>
+  </div>
+
+  <div class="card" style="margin-top:26px; border-color: var(--alert-bd); background: linear-gradient(90deg, var(--alert-bg), #fff 70%);">
+    <div style="display:grid; grid-template-columns: 1fr 34px 1fr 34px 1fr; align-items:center;">
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div class="icon i-alert"><svg><use href="#i-alert"/></svg></div>
+        <div><b style="font-size:17px;">10 min fuera → alerta</b><div class="muted" style="font-size:14px; margin-top:2px;">Al maestro a cargo, prefectura, coordinación y dirección</div></div>
+      </div>
+      <div class="arrow"><svg><use href="#i-arrow"/></svg></div>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div class="icon" style="background:var(--alert-bd); color:#fff;"><svg><use href="#i-bell"/></svg></div>
+        <div><b style="font-size:17px;">+5 min sin atender → escala</b><div class="muted" style="font-size:14px; margin-top:2px;">Se reenvía con prioridad alta</div></div>
+      </div>
+      <div class="arrow"><svg><use href="#i-arrow"/></svg></div>
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div class="icon i-free"><svg><use href="#i-hand"/></svg></div>
+        <div><b style="font-size:17px;">“Yo lo atiendo”</b><div class="muted" style="font-size:14px; margin-top:2px;">Queda registrado quién lo tomó y todos lo ven</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:auto; margin-bottom:28px; display:flex; align-items:center; gap:18px; background:#fff; border:1px solid var(--line); border-radius:16px; padding:18px 24px;">
+    <div class="icon i-accent"><svg><use href="#i-grid"/></svg></div>
+    <div style="font-size:16px;"><b>Todo se ajusta desde Configuración, sin programar:</b> <span class="muted">lugares por baño, minutos para la alerta y el escalamiento, tiempo para confirmar el turno y bloqueo automático del salón.</span></div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>4</span></div>
+</section>
+
+<!-- 5 · SALÓN Y CELULAR -->
+<section class="page">
+  <div class="kicker">Funciones · En el salón y en el celular</div>
+  <h2>Todo el grupo en una sola pantalla</h2>
+  <div style="display:grid; grid-template-columns: 1fr 300px; gap:34px; margin-top:26px; flex:1; min-height:0;">
+    <div style="position:relative;">
+      <div class="shot" style="height:420px;"><img src="../design/png/Salón · desbloqueada@1x.png" alt=""><span class="tag" style="right:auto; left:10px;">Datos de ejemplo</span></div>
+      <div class="phone" style="position:absolute; right:-24px; top:150px; width:190px; height:390px;"><img src="../design/png/Celular · turno y alerta@1x.png" alt=""></div>
+      <p class="caption" style="max-width:410px;">Computadora del salón desbloqueada y, al frente, el celular del maestro con el turno y una alerta.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:20px; padding-top:6px;">
+      <div class="feat"><div class="icon i-accent"><svg><use href="#i-grid"/></svg></div><div><b>Cupo por baño y por grupo</b><span>El sistema sabe quién puede salir; el maestro no lleva la cuenta.</span></div></div>
+      <div class="feat"><div class="icon i-wait"><svg><use href="#i-queue"/></svg></div><div><b>Fila con turnos</b><span>Aviso con sonido cuando le toca. Confirma o cede el turno.</span></div></div>
+      <div class="feat"><div class="icon i-free"><svg><use href="#i-list"/></svg></div><div><b>Lista con salidas del día</b><span>Cada alumno muestra cuántas veces ha salido hoy.</span></div></div>
+      <div class="feat"><div class="icon i-nurse"><svg><use href="#i-bell"/></svg></div><div><b>Notificaciones push</b><span>Alertas en el celular aunque la app esté cerrada.</span></div></div>
+      <div class="feat"><div class="icon i-dark"><svg><use href="#i-undo"/></svg></div><div><b>Deshacer en 10 s</b><span>Un toque equivocado se corrige sin perder el registro.</span></div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>5</span></div>
+</section>
+
+<!-- 6 · PREFECTURA -->
+<section class="page">
+  <div class="kicker">Funciones · Prefectura</div>
+  <h2>Los baños, en tiempo real</h2>
+  <div style="display:grid; grid-template-columns: 1fr 250px; gap:34px; margin-top:26px;">
+    <div>
+      <div class="shot" style="height:376px;"><img src="../design/png/Prefectura · monitor en vivo@1x.png" alt="" style="height:auto; object-fit:initial;"><span class="tag">Datos de ejemplo</span></div>
+      <p class="caption">Monitor de prefectura: alertas arriba, quién está dentro de cada baño y quién espera en la fila.</p>
+    </div>
+    <div>
+      <div class="phone" style="width:220px; height:376px;"><img src="../design/png/Celular · prefectura@2x.png" alt=""></div>
+      <p class="caption">Prefectura en el celular · datos de ejemplo.</p>
+    </div>
+  </div>
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-top:auto; margin-bottom:26px;">
+    <div class="feat"><div class="icon i-dark"><svg><use href="#i-monitor"/></svg></div><div><b>Pantalla de baños en vivo</b><span>Ocupación, filas y cronómetros para todo el personal.</span></div></div>
+    <div class="feat"><div class="icon i-alert"><svg><use href="#i-hand"/></svg></div><div><b>Alertas que se atienden</b><span>“Yo lo atiendo”, liberar lugar con motivo y escalamiento.</span></div></div>
+    <div class="feat"><div class="icon i-nurse"><svg><use href="#i-tablet"/></svg></div><div><b>En la tablet o el celular</b><span>Prefectura recorre los pasillos con la misma vista en la mano.</span></div></div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>6</span></div>
+</section>
+
+<!-- 7 · REPORTES Y CONTROL -->
+<section class="page">
+  <div class="kicker">Funciones · Información para decidir</div>
+  <h2>Reportes que se leen de un vistazo</h2>
+  <div style="display:grid; grid-template-columns: 1fr 330px; gap:32px; margin-top:24px; flex:1;">
+    <div>
+      <div class="shot" style="height:500px;"><img src="../design/png/Coordinación y Dirección · reportes@2x.png" alt=""><span class="tag">Datos de ejemplo</span></div>
+      <p class="caption">Reportes de coordinación y dirección: resumen, mapa de calor por hora, por grupo y alumnos a revisar.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:19px; padding-top:4px;">
+      <div class="feat"><div class="icon i-accent"><svg><use href="#i-chart"/></svg></div><div><b>Mapa de calor y por grupo</b><span>Horas pico por baño y comparación entre grupos.</span></div></div>
+      <div class="feat"><div class="icon i-alert"><svg><use href="#i-users"/></svg></div><div><b>Alumnos a revisar</b><span>Muchas salidas o alertas repetidas. Al tocar, se ve el detalle.</span></div></div>
+      <div class="feat"><div class="icon i-free"><svg><use href="#i-calendar"/></svg></div><div><b>Horarios y docentes</b><span>Quién está “en clase ahora” en cada grupo.</span></div></div>
+      <div class="feat"><div class="icon i-wait"><svg><use href="#i-moon"/></svg></div><div><b>Cierre automático</b><span>Los pases olvidados se cierran al terminar la última clase.</span></div></div>
+      <div class="feat"><div class="icon i-dark"><svg><use href="#i-book"/></svg></div><div><b>Bitácora que no se borra</b><span>Cada cambio queda registrado: quién, cuándo y desde qué equipo.</span></div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>7</span></div>
+</section>
+
+<!-- 8 · PRIVACIDAD Y SEGURIDAD -->
+<section class="page">
+  <div class="kicker">Privacidad y seguridad</div>
+  <h2>Datos de menores, protegidos desde el diseño</h2>
+  <p class="lead">El sistema maneja nombres de alumnos. Por eso cada regla de acceso vive en la base de datos, no en la pantalla.</p>
+
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:18px; margin-top:30px;">
+    <div class="card"><div class="icon i-accent"><svg><use href="#i-lock"/></svg></div><h3 style="margin-top:16px;">Solo personal autenticado</h3><p class="muted" style="font-size:15px; margin-top:8px; line-height:1.42;">Cuenta institucional de Google y alta previa por la escuela. Nadie más ve nombres.</p></div>
+    <div class="card"><div class="icon i-free"><svg><use href="#i-users"/></svg></div><h3 style="margin-top:16px;">Permisos por rol</h3><p class="muted" style="font-size:15px; margin-top:8px; line-height:1.42;">Maestro, prefectura, coordinación y dirección ven solo lo que necesitan.</p></div>
+    <div class="card"><div class="icon i-dark"><svg><use href="#i-monitor"/></svg></div><h3 style="margin-top:16px;">Sin pantallas públicas</h3><p class="muted" style="font-size:15px; margin-top:8px; line-height:1.42;">La computadora del salón solo ve a su grupo; de los demás, solo el nombre del grupo.</p></div>
+    <div class="card"><div class="icon i-wait"><svg><use href="#i-book"/></svg></div><h3 style="margin-top:16px;">Nada se borra</h3><p class="muted" style="font-size:15px; margin-top:8px; line-height:1.42;">Corregir es registrar un cambio nuevo. La bitácora completa se conserva.</p></div>
+    <div class="card"><div class="icon i-nurse"><svg><use href="#i-shield"/></svg></div><h3 style="margin-top:16px;">Seguridad en cada tabla</h3><p class="muted" style="font-size:15px; margin-top:8px; line-height:1.42;">Reglas de acceso por fila en la base de datos; PIN con límite de intentos.</p></div>
+    <div class="card"><div class="icon i-accent"><svg><use href="#i-db"/></svg></div><h3 style="margin-top:16px;">Los datos son de la escuela</h3><p class="muted" style="font-size:15px; margin-top:8px; line-height:1.42;">Se pueden respaldar y exportar en cualquier momento, y se usan solo para este fin.</p></div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>8</span></div>
+</section>
+
+<!-- 9 · PRUEBA PILOTO -->
+<section class="page">
+  <div class="kicker">Prueba piloto</div>
+  <h2>Probar en secundaria antes de crecer</h2>
+
+  <div style="display:grid; grid-template-columns: 340px 1fr; gap:26px; margin-top:28px; flex:1;">
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="card" style="background:var(--accent); color:#fff; border:none;">
+        <div style="font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#C9D8EA;">Alcance</div>
+        <div class="mono" style="font-size:56px; line-height:1; margin-top:10px;">9</div>
+        <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:22px;">grupos de secundaria</div>
+        <div style="font-size:15px; color:#DCE6F2; margin-top:8px; line-height:1.4;">1°, 2° y 3° · A, B y C. Solo pase de baños, con computadora en cada salón y celulares del personal.</div>
+      </div>
+      <div class="card">
+        <div class="muted" style="font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;">Fechas</div>
+        <div style="display:grid; grid-template-columns: 100px 1fr; gap:10px 12px; align-items:center; margin-top:12px; font-size:15px;">
+          <span>Inicio</span><div class="placeholder" style="height:34px;">Por definir</div>
+          <span>Duración</span><div class="placeholder" style="height:34px;">___ semanas</div>
+          <span>Revisión</span><div class="placeholder" style="height:34px;">Por definir</div>
+        </div>
+      </div>
+      <div class="card" style="flex:1;">
+        <div class="muted" style="font-size:13px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;">Participan</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">
+          <span class="chip c-accent">Maestros</span><span class="chip c-wait">Prefectura</span><span class="chip c-free">Coordinación</span><span class="chip c-dark">Dirección</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:22px 26px; display:flex; flex-direction:column;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Qué se medirá</h3>
+        <span class="chip c-wait">Resultados al terminar el piloto</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 190px; gap:0; margin-top:14px; font-size:15.5px;">
+        <div style="padding:11px 0; border-bottom:1px solid var(--line);"><b>Salidas registradas</b> <span class="muted">por día y por grupo</span></div><div style="padding:7px 0; border-bottom:1px solid var(--line);"><div class="placeholder" style="height:32px;">Resultado</div></div>
+        <div style="padding:11px 0; border-bottom:1px solid var(--line);"><b>Tiempo promedio fuera</b> <span class="muted">por baño y por grupo</span></div><div style="padding:7px 0; border-bottom:1px solid var(--line);"><div class="placeholder" style="height:32px;">Resultado</div></div>
+        <div style="padding:11px 0; border-bottom:1px solid var(--line);"><b>Alertas de 10 min</b> <span class="muted">y tiempo en atenderlas</span></div><div style="padding:7px 0; border-bottom:1px solid var(--line);"><div class="placeholder" style="height:32px;">Resultado</div></div>
+        <div style="padding:11px 0; border-bottom:1px solid var(--line);"><b>Horas pico y fila máxima</b></div><div style="padding:7px 0; border-bottom:1px solid var(--line);"><div class="placeholder" style="height:32px;">Resultado</div></div>
+        <div style="padding:11px 0; border-bottom:1px solid var(--line);"><b>Pases olvidados</b> <span class="muted">cerrados en automático</span></div><div style="padding:7px 0; border-bottom:1px solid var(--line);"><div class="placeholder" style="height:32px;">Resultado</div></div>
+        <div style="padding:11px 0; border-bottom:1px solid var(--line);"><b>Uso por los maestros</b> <span class="muted">salones que lo usan a diario</span></div><div style="padding:7px 0; border-bottom:1px solid var(--line);"><div class="placeholder" style="height:32px;">Resultado</div></div>
+        <div style="padding:11px 0;"><b>Opinión del personal</b> <span class="muted">encuesta breve al cierre</span></div><div style="padding:7px 0;"><div class="placeholder" style="height:32px;">Resultado</div></div>
+      </div>
+      <div style="margin-top:18px; display:flex; gap:14px; align-items:center;">
+        <div class="icon i-free" style="width:40px; height:40px;"><svg style="width:21px;height:21px"><use href="#i-check"/></svg></div>
+        <div style="flex:1;"><b style="font-size:16px;">Criterio para pasar a la Fase 2</b><div class="placeholder" style="height:38px; margin-top:6px;">A acordar con Dirección antes de iniciar</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="height:26px;"></div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>9</span></div>
+</section>
+
+<!-- 10 · VISIÓN -->
+<section class="page">
+  <div class="kicker">Fase 2 · Visión a gran escala</div>
+  <h2>De un piloto a la plataforma de la escuela</h2>
+  <p class="lead">Cada etapa se decide con los resultados de la anterior. Sin fechas comprometidas.</p>
+
+  <div style="position:relative; margin-top:34px;">
+    <div style="position:absolute; left:0; right:0; top:19px; height:4px; background: linear-gradient(90deg, var(--accent), var(--line-strong)); border-radius:4px;"></div>
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:18px; position:relative;">
+      <div>
+        <div style="width:42px; height:42px; border-radius:999px; background:var(--accent); color:#fff; display:grid; place-items:center; font-weight:700; font-size:18px; border:4px solid var(--ground);">1</div>
+        <div class="card" style="margin-top:16px; border-color:var(--accent); border-width:2px; height:430px;">
+          <span class="chip c-accent">Ahora</span>
+          <h3 style="margin-top:12px;">Piloto en secundaria</h3>
+          <ul style="margin:12px 0 0; padding-left:18px; font-size:14.5px; line-height:1.55; color:var(--muted);">
+            <li>9 grupos</li><li>Pase de baños</li><li>Alertas, push y reportes</li><li>App instalable en el celular</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div style="width:42px; height:42px; border-radius:999px; background:var(--accent-2); color:#fff; display:grid; place-items:center; font-weight:700; font-size:18px; border:4px solid var(--ground);">2</div>
+        <div class="card" style="margin-top:16px; height:430px;">
+          <span class="chip c-free">Ampliar</span>
+          <h3 style="margin-top:12px;">Enfermería y datos</h3>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+            <div class="feat"><div class="icon i-free" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-cross"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">Enfermería</b>en camino, en atención y de regreso</span></div>
+            <div class="feat"><div class="icon i-free" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-sheet"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">Google Sheets</b>exportación diaria y a demanda</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="width:42px; height:42px; border-radius:999px; background:#5B86C9; color:#fff; display:grid; place-items:center; font-weight:700; font-size:18px; border:4px solid var(--ground);">3</div>
+        <div class="card" style="margin-top:16px; height:430px;">
+          <span class="chip c-nurse">Crecer</span>
+          <h3 style="margin-top:12px;">Toda la escuela</h3>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+            <div class="feat"><div class="icon i-nurse" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-home"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">Primaria y preparatoria</b>misma app, reglas por nivel</span></div>
+            <div class="feat"><div class="icon i-nurse" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-users"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">Más departamentos</b>psicopedagogía, conducta, cafetería, administración y más (siguiente página)</span></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="width:42px; height:42px; border-radius:999px; background:var(--line-strong); color:var(--ink); display:grid; place-items:center; font-weight:700; font-size:18px; border:4px solid var(--ground);">4</div>
+        <div class="card" style="margin-top:16px; height:430px;">
+          <span class="chip c-wait">Explorar</span>
+          <h3 style="margin-top:12px;">Automatizar</h3>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+            <div class="feat"><div class="icon i-wait" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-rfid"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">Lectores RFID/UHF</b>registro automático al salir y regresar</span></div>
+            <div class="feat"><div class="icon i-wait" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-phone"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">App de la escuela</b>hoy instalable; después en tiendas</span></div>
+            <div class="feat"><div class="icon i-wait" style="width:34px;height:34px;"><svg style="width:18px;height:18px"><use href="#i-parents"/></svg></div><span style="font-size:14.5px;"><b style="font-size:15px; color:var(--ink);">Avisos a padres</b>a evaluar con privacidad</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>10</span></div>
+</section>
+
+<!-- 11 · DEPARTAMENTOS -->
+<section class="page">
+  <div class="kicker">Fase 2 · A dónde puede crecer</div>
+  <h2>Un mismo sistema para toda la escuela</h2>
+  <p class="lead">Cada departamento usa la misma base: quién sale, a dónde va, cuánto tiempo tarda y quién lo autorizó.</p>
+
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:14px; margin-top:26px;">
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px; border-color:var(--nurse-bd); border-width:2px;">
+      <div class="icon i-nurse"><svg><use href="#i-cross"/></svg></div>
+      <div><div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><h3 style="font-size:18px;">Enfermería</h3><span class="chip c-nurse" style="font-size:11px; padding:2px 8px;">Ya desarrollado</span></div><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">En camino, en atención y de regreso, con notas internas.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-accent"><svg><use href="#i-heart"/></svg></div>
+      <div><h3 style="font-size:18px;">Psicopedagogía</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Citas y salidas del salón para atención, con seguimiento por alumno.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-alert"><svg><use href="#i-clipboard"/></svg></div>
+      <div><h3 style="font-size:18px;">Conducta</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Reportes de incidencias y su seguimiento por alumno y grupo.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-wait"><svg><use href="#i-cup"/></svg></div>
+      <div><h3 style="font-size:18px;">Cafetería</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Salidas a cafetería fuera del recreo, con cupo y tiempo.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-dark"><svg><use href="#i-building"/></svg></div>
+      <div><h3 style="font-size:18px;">Direcciones</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Tablero y reportes de cada nivel: primaria, secundaria y preparatoria.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-free"><svg><use href="#i-briefcase"/></svg></div>
+      <div><h3 style="font-size:18px;">Administración</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Permisos de salida anticipada y reportes generales de la escuela.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-wait"><svg><use href="#i-shield"/></svg></div>
+      <div><h3 style="font-size:18px;">Prefectura</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Pasillos, retardos entre clases y alumnos fuera del salón.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-accent"><svg><use href="#i-book"/></svg></div>
+      <div><h3 style="font-size:18px;">Biblioteca</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Visitas durante la clase, con hora de salida y regreso.</p></div>
+    </div>
+    <div class="card" style="display:flex; gap:14px; padding:18px 20px;">
+      <div class="icon i-dark"><svg><use href="#i-door"/></svg></div>
+      <div><h3 style="font-size:18px;">Acceso y retardos</h3><p class="muted" style="font-size:14px; margin-top:4px; line-height:1.38;">Entrada a la escuela y retardos; después, con lectores RFID.</p></div>
+    </div>
+  </div>
+
+  <div style="margin-top:auto; margin-bottom:28px; display:flex; align-items:center; gap:18px; background:var(--accent); color:#fff; border-radius:16px; padding:18px 24px;">
+    <div class="icon" style="background:rgba(255,255,255,.15); color:#fff;"><svg><use href="#i-check"/></svg></div>
+    <div style="font-size:16px;"><b>Se agregan uno por uno, cuando la escuela lo decida.</b> <span style="color:#DCE6F2;">Mismos usuarios, mismos permisos por rol y la misma bitácora que no se borra.</span></div>
+  </div>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>11</span></div>
+</section>
+
+<!-- 12 · CIERRE -->
+<section class="page" style="background: var(--dark); color:#fff;">
+  <div style="position:absolute; inset:0; background: radial-gradient(700px 500px at 90% 10%, rgba(44,108,184,.45), transparent 60%);"></div>
+  <div style="position:relative; display:grid; grid-template-columns: 1.2fr 1fr; gap:48px; height:100%;">
+    <div style="display:flex; flex-direction:column; justify-content:center;">
+      <div class="kicker" style="color:#9DB8D9;">Siguientes pasos</div>
+      <h2 style="font-size:46px;">Lo que necesitamos para arrancar</h2>
+      <div style="display:flex; flex-direction:column; gap:16px; margin-top:34px;">
+        <div style="display:flex; gap:16px; align-items:flex-start;"><span class="mono" style="width:38px; height:38px; flex:none; border-radius:999px; background:#fff; color:var(--accent); display:grid; place-items:center; font-size:17px;">1</span><div><b style="font-size:19px;">Aprobar el piloto y sus fechas</b><div style="color:#B9C8DA; font-size:15px; margin-top:2px;">Inicio, duración y fecha de revisión.</div></div></div>
+        <div style="display:flex; gap:16px; align-items:flex-start;"><span class="mono" style="width:38px; height:38px; flex:none; border-radius:999px; background:#fff; color:var(--accent); display:grid; place-items:center; font-size:17px;">2</span><div><b style="font-size:19px;">Entregar las listas oficiales</b><div style="color:#B9C8DA; font-size:15px; margin-top:2px;">Grupos, alumnos, personal con correo institucional y horarios.</div></div></div>
+        <div style="display:flex; gap:16px; align-items:flex-start;"><span class="mono" style="width:38px; height:38px; flex:none; border-radius:999px; background:#fff; color:var(--accent); display:grid; place-items:center; font-size:17px;">3</span><div><b style="font-size:19px;">Preparar salones y personal</b><div style="color:#B9C8DA; font-size:15px; margin-top:2px;">Vincular las computadoras, PIN de cada maestro y una sesión breve de capacitación.</div></div></div>
+        <div style="display:flex; gap:16px; align-items:flex-start;"><span class="mono" style="width:38px; height:38px; flex:none; border-radius:999px; background:#fff; color:var(--accent); display:grid; place-items:center; font-size:17px;">4</span><div><b style="font-size:19px;">Evaluar y decidir la Fase 2</b><div style="color:#B9C8DA; font-size:15px; margin-top:2px;">Con los resultados medidos durante el piloto.</div></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; justify-content:center;">
+      <div style="background:#fff; color:var(--ink); border-radius:20px; padding:34px 34px;">
+        <div class="kicker">Contacto</div>
+        <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:30px; line-height:1.1;">Andrés Carrillo Torres</div>
+        <div class="muted" style="font-size:15px; margin-top:4px;">Desarrollo y soporte de Pase Sanitario</div>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:24px; font-size:16px;">
+          <div style="display:flex; gap:12px; align-items:center;"><div class="icon i-accent" style="width:38px;height:38px;"><svg style="width:20px;height:20px"><use href="#i-mail"/></svg></div>saelcarrillot@institutooviedo.edu.mx</div>
+          <div style="display:flex; gap:12px; align-items:center;"><div class="icon i-accent" style="width:38px;height:38px;"><svg style="width:20px;height:20px"><use href="#i-link"/></svg></div>pase-oviedo.vercel.app</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; margin-top:28px; color:#B9C8DA;">
+        <span class="logo" style="width:34px; height:34px; border-radius:9px; background:#fff; color:var(--accent);"><svg><use href="#i-tellus"/></svg></span>
+        <span style="font-size:15px; line-height:1.35;"><b style="color:#fff;">Pase Sanitario</b> by Tellus<br>Instituto Oviedo · León, Gto.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 · COSTOS -->
+<section class="page">
+  <div class="kicker">Costos</div>
+  <h2>Un solo pago para arrancar</h2>
+  <p class="lead">El pase de baños no tiene mensualidad. Solo si el proyecto crece se agrega un costo mensual de administración.</p>
+
+  <div style="display:grid; grid-template-columns: 1.15fr 1fr; gap:24px; margin-top:32px;">
+    <div class="card" style="padding:34px 36px; background:var(--dark); color:#fff; border:none; display:flex; flex-direction:column;">
+      <div style="display:flex; gap:14px; align-items:center;">
+        <div class="icon" style="background:rgba(255,255,255,.12); color:#fff;"><svg><use href="#i-check"/></svg></div>
+        <div><div style="font-weight:700; font-size:18px;">Implementación del pase de baños</div><div style="color:#B9C8DA; font-size:14px;">Pago único</div></div>
+      </div>
+      <div style="display:flex; align-items:baseline; gap:12px; margin-top:30px;">
+        <span style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:84px; line-height:1; letter-spacing:-0.02em;">$2,000</span>
+        <span style="font-size:22px; color:#DCE6F2;">MXN + IVA</span>
+      </div>
+      <p style="color:#B9C8DA; font-size:15px; margin-top:16px; line-height:1.5;">Puesta en marcha: carga de grupos, alumnos, personal y horarios, vinculación de las computadoras de los salones y capacitación.</p>
+      <div style="margin-top:auto; padding-top:22px; display:flex; align-items:center; gap:12px; border-top:1px solid rgba(255,255,255,.14);">
+        <span class="mono" style="font-size:30px; color:#7FD3A6;">$0</span>
+        <span style="font-size:16px; color:#DCE6F2;">al mes para operar el pase de baños</span>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="card" style="display:flex; gap:16px; align-items:center;">
+        <div class="icon i-free"><svg><use href="#i-cloud"/></svg></div>
+        <div style="flex:1;"><b style="font-size:17px;">Servidor y publicación</b><div class="muted" style="font-size:14px;">Planes gratuitos de los proveedores, suficientes para el pase de baños</div></div>
+        <span class="mono" style="font-size:28px; color:var(--free-fg);">$0</span>
+      </div>
+      <div class="card" style="display:flex; gap:16px; align-items:center;">
+        <div class="icon i-accent"><svg><use href="#i-phone"/></svg></div>
+        <div style="flex:1;"><b style="font-size:17px;">Equipos</b><div class="muted" style="font-size:14px;">Usa las computadoras de los salones y celulares que ya existen</div></div>
+        <span class="mono" style="font-size:28px; color:var(--free-fg);">$0</span>
+      </div>
+      <div class="card" style="flex:1; border-color:var(--wait-bd); background:linear-gradient(180deg, var(--wait-bg), #fff 75%);">
+        <div style="display:flex; gap:14px; align-items:center;">
+          <div class="icon i-wait"><svg><use href="#i-chart"/></svg></div>
+          <div><b style="font-size:17px;">Si el proyecto escala</b><div class="muted" style="font-size:14px;">Más niveles, departamentos o módulos</div></div>
+        </div>
+        <div style="display:flex; align-items:baseline; gap:10px; margin-top:16px;">
+          <span class="mono" style="font-size:40px; color:var(--wait-fg);">≈ $100</span>
+          <span style="font-size:17px; color:var(--wait-fg); font-weight:700;">USD / mes</span>
+        </div>
+        <p class="muted" style="font-size:14px; margin-top:6px; line-height:1.45;">Costos de administración: servidor de mayor capacidad, respaldos y soporte.</p>
+      </div>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:auto; margin-bottom:28px; font-size:13px;">El costo mensual al escalar es aproximado, en dólares; el monto en pesos depende del tipo de cambio.</p>
+  <div class="foot"><span class="brand"><span class="logo"><svg><use href="#i-tellus"/></svg></span><span>Pase Sanitario <span style="font-weight:400;">by Tellus</span></span></span><span>13</span></div>
+</section>
+
+</body>
+</html>
