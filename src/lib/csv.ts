@@ -3,13 +3,14 @@
 
 export type CsvRow = Record<string, string> & { _row: number };
 
-export type ImportKind = 'groups' | 'students' | 'staff' | 'schedule';
+export type ImportKind = 'groups' | 'students' | 'staff' | 'schedule' | 'sections';
 
 export const TEMPLATE_HEADERS: Record<ImportKind, string[]> = {
   groups: ['grupo', 'salon', 'orden'],
   students: ['grupo', 'numero_lista', 'nombre_completo', 'sexo'],
   staff: ['nombre_completo', 'correo', 'roles', 'whatsapp'],
   schedule: ['grupo', 'dia', 'inicio', 'fin', 'materia', 'correo_maestro'],
+  sections: ['salon_grupo', 'materia', 'grupo', 'numero_lista'],
 };
 
 // Columnas que pueden faltar en el archivo (se toman como vacías).
@@ -18,6 +19,7 @@ const OPTIONAL_HEADERS: Record<ImportKind, string[]> = {
   students: [],
   staff: ['whatsapp'],
   schedule: ['correo_maestro'],
+  sections: [],
 };
 
 function detectDelimiter(firstLine: string): ',' | ';' {

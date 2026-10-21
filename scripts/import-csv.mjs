@@ -1,6 +1,6 @@
 // Importa un CSV de plantilla (data/templates/) en la BD vinculada con la MISMA lógica que
 // Configuración → importar: el lector de src/lib/csv.ts y la RPC import_* como un usuario admin.
-//   node scripts/import-csv.mjs <groups|students|staff|schedule> <archivo.csv> --como <correo> [--aplicar]
+//   node scripts/import-csv.mjs <groups|students|staff|schedule|sections> <archivo.csv> --como <correo> [--aplicar]
 // Sin --aplicar es simulacro: llama la RPC dentro de una transacción y la revierte.
 import { readFileSync } from 'node:fs';
 import pg from 'pg';
@@ -12,6 +12,7 @@ const RPC = {
   students: 'import_students',
   staff: 'import_staff',
   schedule: 'import_schedule',
+  sections: 'import_sections',
 };
 const [kind, file] = process.argv.slice(2);
 const asArg = process.argv.indexOf('--como');
@@ -19,7 +20,7 @@ const email = asArg > 0 ? process.argv[asArg + 1] : undefined;
 const apply = process.argv.includes('--aplicar');
 if (!RPC[kind] || !file || !email) {
   console.error(
-    'Uso: node scripts/import-csv.mjs <groups|students|staff|schedule> <archivo.csv> --como <correo> [--aplicar]',
+    'Uso: node scripts/import-csv.mjs <groups|students|staff|schedule|sections> <archivo.csv> --como <correo> [--aplicar]',
   );
   process.exit(1);
 }

@@ -90,6 +90,72 @@ export type Database = {
           },
         ]
       }
+      class_section_students: {
+        Row: {
+          section_id: string
+          student_id: string
+        }
+        Insert: {
+          section_id: string
+          student_id: string
+        }
+        Update: {
+          section_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_section_students_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "class_sections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_section_students_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_sections: {
+        Row: {
+          created_at: string
+          id: string
+          room_group_id: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          room_group_id: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          room_group_id?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_sections_room_group_id_fkey"
+            columns: ["room_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_sections_room_group_id_fkey"
+            columns: ["room_group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
+          },
+        ]
+      }
       destinations: {
         Row: {
           capacity: number | null
@@ -495,6 +561,7 @@ export type Database = {
           queue_ts: string | null
           release_reason: string | null
           requested_at: string
+          room_group_id: string | null
           source: string
           started_at: string | null
           status: Database["public"]["Enums"]["pass_status"]
@@ -516,6 +583,7 @@ export type Database = {
           queue_ts?: string | null
           release_reason?: string | null
           requested_at?: string
+          room_group_id?: string | null
           source?: string
           started_at?: string | null
           status: Database["public"]["Enums"]["pass_status"]
@@ -537,6 +605,7 @@ export type Database = {
           queue_ts?: string | null
           release_reason?: string | null
           requested_at?: string
+          room_group_id?: string | null
           source?: string
           started_at?: string | null
           status?: Database["public"]["Enums"]["pass_status"]
@@ -584,6 +653,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "staff"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_room_group_id_fkey"
+            columns: ["room_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "passes_room_group_id_fkey"
+            columns: ["room_group_id"]
+            isOneToOne: false
+            referencedRelation: "v_current_class"
+            referencedColumns: ["group_id"]
           },
           {
             foreignKeyName: "passes_student_id_fkey"
@@ -927,6 +1010,7 @@ export type Database = {
     }
     Functions: {
       acknowledge_alert: { Args: { p_alert_id: string }; Returns: Json }
+      acknowledge_pass: { Args: { p_pass_id: string }; Returns: Json }
       add_nurse_note: {
         Args: { p_body: string; p_pass_id: string }
         Returns: undefined
@@ -984,6 +1068,7 @@ export type Database = {
       group_today_counts: { Args: { p_group_id: string }; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
+      import_sections: { Args: { p_rows: Json }; Returns: Json }
       import_staff: { Args: { p_rows: Json }; Returns: Json }
       import_students: { Args: { p_rows: Json }; Returns: Json }
       live_board: { Args: never; Returns: Json }
@@ -1042,6 +1127,7 @@ export type Database = {
         Returns: Json
       }
       revoke_device: { Args: { p_device_id: string }; Returns: undefined }
+      room_roster: { Args: { p_group_id: string }; Returns: Json }
       save_push_subscription: {
         Args: {
           p_auth: string

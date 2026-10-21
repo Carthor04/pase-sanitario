@@ -9,11 +9,12 @@ import alumnosUrl from '../../../data/templates/alumnos.csv?url';
 import gruposUrl from '../../../data/templates/grupos.csv?url';
 import horarioUrl from '../../../data/templates/horario.csv?url';
 import personalUrl from '../../../data/templates/personal.csv?url';
+import seccionesUrl from '../../../data/templates/secciones.csv?url';
 
 const CONFIG: Record<
   ImportKind,
   {
-    rpc: 'import_groups' | 'import_students' | 'import_staff' | 'import_schedule';
+    rpc: 'import_groups' | 'import_students' | 'import_staff' | 'import_schedule' | 'import_sections';
     template: string;
     file: string;
     help: string;
@@ -48,6 +49,13 @@ const CONFIG: Record<
     help: 'Reemplaza el horario completo de cada grupo que venga en el archivo. Días de lunes a viernes, horas HH:MM.',
     invalidates: ['my_groups', 'current_class'],
   },
+  sections: {
+    rpc: 'import_sections',
+    template: seccionesUrl,
+    file: 'secciones.csv',
+    help: 'Clases por nivel (como Inglés): en salon_grupo va el grupo cuyo salón se usa y en materia la misma materia del horario de ese salón (ej. Inglés básico). Reemplaza la lista de cada clase que venga en el archivo.',
+    invalidates: ['roster'],
+  },
 };
 
 type RowError = { row: number; message: string };
@@ -60,6 +68,8 @@ const SUMMARY_LABELS: Record<string, string> = {
   deactivated: 'dados de baja',
   replaced: 'clases reemplazadas',
   groups: 'grupos',
+  sections: 'clases',
+  students: 'alumnos',
 };
 
 export function ImportPanel({ kind, title }: { kind: ImportKind; title: string }) {

@@ -77,6 +77,7 @@ export function SchedulePanel() {
       </Card>
       <ImportPanel kind="groups" title="Importar grupos" />
       <ImportPanel kind="schedule" title="Importar horario" />
+      <ImportPanel kind="sections" title="Importar clases por nivel (Inglés)" />
     </div>
   );
 }
