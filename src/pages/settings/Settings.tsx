@@ -11,14 +11,15 @@ import { StaffPanel } from './StaffPanel';
 import { StudentsPanel } from './StudentsPanel';
 import { TeachersPanel } from './TeachersPanel';
 
+// Coordinación y dirección ven las cuatro primeras; el resto es solo para admin.
 const TABS = [
-  { to: 'banos', label: 'Baños y reglas' },
-  { to: 'horarios', label: 'Horarios' },
-  { to: 'docentes', label: 'Docentes' },
-  { to: 'alumnos', label: 'Alumnos' },
-  { to: 'personal', label: 'Personal y PIN' },
-  { to: 'equipos', label: 'Salones y equipos' },
-  { to: 'notificaciones', label: 'Notificaciones' },
+  { to: 'banos', label: 'Baños y reglas', adminOnly: false },
+  { to: 'horarios', label: 'Horarios', adminOnly: false },
+  { to: 'docentes', label: 'Docentes', adminOnly: false },
+  { to: 'alumnos', label: 'Alumnos', adminOnly: false },
+  { to: 'personal', label: 'Personal y PIN', adminOnly: true },
+  { to: 'equipos', label: 'Salones y equipos', adminOnly: true },
+  { to: 'notificaciones', label: 'Notificaciones', adminOnly: true },
 ];
 
 /** Configuración (SPEC §10). Solo coordinación, dirección y admin. */
@@ -33,11 +34,14 @@ export function Settings() {
     );
   }
 
+  const isAdmin = staff.roles.includes('admin');
+  const tabs = TABS.filter((t) => isAdmin || !t.adminOnly);
+
   return (
     <div className="flex flex-col gap-4">
       <PageTitle>Configuración</PageTitle>
       <nav aria-label="Ajustes" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <NavLink
             key={t.to}
             to={`/ajustes/${t.to}`}
@@ -66,17 +70,21 @@ export function Settings() {
             </div>
           }
         />
-        <Route
-          path="personal"
-          element={
-            <div className="flex flex-col gap-4">
-              <ImportPanel kind="staff" title="Importar personal" />
-              <StaffPanel />
-            </div>
-          }
-        />
-        <Route path="equipos" element={<DevicesPanel />} />
-        <Route path="notificaciones" element={<NotificationsPanel />} />
+        {isAdmin ? (
+          <>
+            <Route
+              path="personal"
+              element={
+                <div className="flex flex-col gap-4">
+                  <ImportPanel kind="staff" title="Importar personal" />
+                  <StaffPanel />
+                </div>
+              }
+            />
+            <Route path="equipos" element={<DevicesPanel />} />
+            <Route path="notificaciones" element={<NotificationsPanel />} />
+          </>
+        ) : null}
         <Route path="*" element={<Navigate to="/ajustes/banos" replace />} />
       </Routes>
     </div>

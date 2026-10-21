@@ -13,9 +13,9 @@ export const ROLE_LABELS: Record<Role, string> = {
 export type NavItem = { to: string; label: string };
 
 const ITEMS = {
+  enVivo: { to: '/en-vivo', label: 'En vivo' },
   grupo: { to: '/grupo', label: 'Mi grupo' },
   hoy: { to: '/enfermeria', label: 'Enfermería' },
-  enVivo: { to: '/en-vivo', label: 'En vivo' },
   banos: { to: '/banos', label: 'Baños' },
   alertas: { to: '/alertas', label: 'Alertas' },
   reportes: { to: '/reportes', label: 'Reportes' },
@@ -29,9 +29,10 @@ type ItemKey = keyof typeof ITEMS;
 // Navegación inferior por rol (SPEC §6).
 export const navByRole: Record<Role, ItemKey[]> = {
   teacher: ['grupo', 'banos', 'alertas', 'perfil'],
-  prefect: ['enVivo', 'historial', 'perfil'],
+  // Prefectura y coordinación también autorizan salidas desde "Mi grupo".
+  prefect: ['enVivo', 'grupo', 'historial', 'perfil'],
   nurse: ['hoy', 'historial'],
-  coordinator: ['enVivo', 'reportes', 'historial', 'ajustes'],
+  coordinator: ['enVivo', 'grupo', 'reportes', 'historial', 'ajustes'],
   director: ['enVivo', 'reportes', 'historial', 'ajustes'],
   admin: ['enVivo', 'reportes', 'historial', 'ajustes'],
 };

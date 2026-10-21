@@ -7,20 +7,25 @@ describe('navForRoles', () => {
     expect(labels(['teacher'])).toEqual(['Mi grupo', 'Baños', 'Alertas', 'Perfil']);
   });
   it('prefectura', () => {
-    expect(labels(['prefect'])).toEqual(['En vivo', 'Historial', 'Perfil']);
+    expect(labels(['prefect'])).toEqual(['En vivo', 'Mi grupo', 'Historial', 'Perfil']);
   });
   it('enfermería', () => {
     expect(labels(['nurse'])).toEqual(['Enfermería', 'Historial']);
   });
   it('coordinación y dirección', () => {
-    const expected = ['En vivo', 'Reportes', 'Historial', 'Ajustes'];
-    expect(labels(['coordinator'])).toEqual(expected);
-    expect(labels(['director'])).toEqual(expected);
+    expect(labels(['coordinator'])).toEqual([
+      'En vivo',
+      'Mi grupo',
+      'Reportes',
+      'Historial',
+      'Ajustes',
+    ]);
+    expect(labels(['director'])).toEqual(['En vivo', 'Reportes', 'Historial', 'Ajustes']);
   });
   it('coordinadora que también da clase: une sin duplicar y sin pasar de 5', () => {
     expect(labels(['coordinator', 'teacher'])).toEqual([
-      'Mi grupo',
       'En vivo',
+      'Mi grupo',
       'Reportes',
       'Historial',
       'Ajustes',
