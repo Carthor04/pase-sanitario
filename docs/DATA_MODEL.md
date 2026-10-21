@@ -1,6 +1,6 @@
 # Modelo de datos (Supabase / Postgres)
 
-Esquema de referencia. Claude Code puede ajustarlo si encuentra un problema, pero debe explicar el cambio.
+Esquema de referencia. Se puede ajustar si se encuentra un problema; cada cambio se explica en este documento.
 
 ## Tablas
 

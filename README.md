@@ -1,6 +1,6 @@
 # Pase Sanitario
 
-PWA para controlar salidas de alumnos al baño y a enfermería. Contexto, reglas y plan en [CLAUDE.md](CLAUDE.md) y [docs/](docs/).
+PWA para controlar salidas de alumnos al baño y a enfermería. Contexto, reglas y plan en [docs/CONTEXTO.md](docs/CONTEXTO.md) y [docs/](docs/).
 
 ## Arranque
 

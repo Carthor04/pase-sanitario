@@ -1,4 +1,4 @@
-// Prueba de concurrencia (CLAUDE.md, regla 1): dos maestros piden el último lugar del baño
+// Prueba de concurrencia (docs/CONTEXTO.md, regla 1): dos maestros piden el último lugar del baño
 // de hombres al mismo tiempo, desde dos conexiones distintas. Solo uno debe salir.
 //
 // A diferencia de supabase/tests/*.sql, aquí las transacciones SÍ se confirman (es la
