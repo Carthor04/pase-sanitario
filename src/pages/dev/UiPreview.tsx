@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { BathroomsLive } from '@/components/pass/BathroomsLive';
 import { GroupLive } from '@/components/pass/GroupLive';
 import { InstallApp } from '@/components/InstallApp';
+import { DeviceMenu } from '@/components/pass/DeviceMenu';
 import type { BathroomsStatus } from '@/lib/live';
 import { PinPad } from '@/components/pass/PinPad';
 import { LiveBoard } from '@/pages/LiveBoard';
@@ -179,8 +180,11 @@ export function UiPreview() {
       </div>
       <main className="mx-auto max-w-container px-4 py-5 sm:px-6">
         {view === 'instalar' ? (
-          <div className="max-w-[480px]">
+          <div className="flex max-w-[480px] flex-col gap-3">
             <InstallApp />
+            <div className="flex items-center gap-2">
+              Menú del equipo: <DeviceMenu />
+            </div>
           </div>
         ) : view === 'baños' ? (
           <div className="grid gap-6 lg:grid-cols-2">

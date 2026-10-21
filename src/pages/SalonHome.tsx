@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { BrandMark } from '@/components/layout/BrandMark';
 import { BathroomsLive } from '@/components/pass/BathroomsLive';
+import { DeviceMenu } from '@/components/pass/DeviceMenu';
 import { GroupLive } from '@/components/pass/GroupLive';
 import { PinPad } from '@/components/pass/PinPad';
 import { Loading, Notice } from '@/components/ui/Page';
@@ -127,6 +128,7 @@ export function SalonHome() {
             {room ? ` · ${room}` : ''}
           </span>
           <span className="ml-auto font-mono text-[24px] font-semibold tabular-nums">{clock}</span>
+          <DeviceMenu dark />
         </header>
         <main className="mx-auto flex w-full max-w-[980px] flex-1 flex-col items-center justify-center gap-8 px-4 py-6 lg:flex-row lg:items-start lg:gap-8">
           <section
@@ -205,6 +207,7 @@ export function SalonHome() {
             <LockIcon />
             Bloquear
           </button>
+          <DeviceMenu />
         </div>
       </header>
       <main className="mx-auto grid w-full max-w-[1600px] flex-1 gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_320px]">

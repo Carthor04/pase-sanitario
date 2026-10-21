@@ -13,8 +13,11 @@ const STATE_TEXT: Record<PushState, string> = {
   'ios-install': 'Primero instala la app',
 };
 
-/** Activar notificaciones push en este celular o computadora (Perfil / Ajustes). */
-export function PushSettings() {
+/**
+ * Activar notificaciones push en este celular o computadora (Perfil / Ajustes). En la
+ * computadora del salón (`device`) los avisos son los de los alumnos de ese salón.
+ */
+export function PushSettings({ device = false }: { device?: boolean }) {
   const [state, setState] = useState<PushState | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
@@ -60,8 +63,9 @@ export function PushSettings() {
         ) : null}
       </div>
       <p className="m-0 text-[15px] text-muted">
-        Recibe las alertas de 10 minutos aunque la app esté cerrada. Se activa en cada celular o
-        computadora por separado.
+        {device
+          ? 'Esta computadora recibe los avisos de turno, las alertas y los regresos de enfermería de los alumnos de este salón, aunque la app esté minimizada.'
+          : 'Recibe las alertas de 10 minutos aunque la app esté cerrada. Se activa en cada celular o computadora por separado.'}
       </p>
 
       {state === 'ios-install' ? (
