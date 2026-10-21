@@ -125,6 +125,12 @@ describe('bathroomHint', () => {
     expect(slotPass(b.passes, 'M')).toBeUndefined();
   });
 
+  it('en una clase por nivel solo cuenta el lugar del grupo del alumno', () => {
+    const b = board([pass({ group_name: '1°B' })]);
+    expect(bathroomHint({ ...jorge, group_name: '1°A' }, b).tone).not.toBe('wait');
+    expect(bathroomHint({ ...jorge, group_name: '1°B' }, b).tone).toBe('wait');
+  });
+
   it('entra directo si hay lugar y no hay fila', () => {
     const b = board([], {
       bathrooms: [

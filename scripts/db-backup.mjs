@@ -17,7 +17,10 @@ const outDir =
 if (outDir.startsWith(root)) throw new Error('El respaldo no puede quedar dentro del repo.');
 mkdirSync(outDir, { recursive: true });
 
-const c = new pg.Client({ connectionString: connectionString(), ssl: { rejectUnauthorized: false } });
+const c = new pg.Client({
+  connectionString: connectionString(),
+  ssl: { rejectUnauthorized: false },
+});
 await c.connect();
 
 // Orden por llaves foráneas: primero las tablas de las que dependen las demás.

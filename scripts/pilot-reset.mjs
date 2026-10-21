@@ -48,10 +48,17 @@ const STEPS = [
     'delete from public.staff_pins p using public.staff s where s.id = p.staff_id and not lower(s.email) = any ($1)',
     [KEEP_STAFF],
   ],
-  ['staff (personal de ejemplo)', 'delete from public.staff where not lower(email) = any ($1)', [KEEP_STAFF]],
+  [
+    'staff (personal de ejemplo)',
+    'delete from public.staff where not lower(email) = any ($1)',
+    [KEEP_STAFF],
+  ],
 ];
 
-const c = new pg.Client({ connectionString: connectionString(), ssl: { rejectUnauthorized: false } });
+const c = new pg.Client({
+  connectionString: connectionString(),
+  ssl: { rejectUnauthorized: false },
+});
 await c.connect();
 await c.query('begin');
 try {
@@ -59,11 +66,14 @@ try {
     'select email from public.staff where lower(email) = any ($1)',
     [KEEP_STAFF],
   );
-  if (kept.length !== KEEP_STAFF.length) throw new Error('No encuentro a todo el personal que se conserva.');
-  const { rows: keptGroups } = await c.query('select name from public.groups where name = any ($1)', [
-    KEEP_GROUPS,
-  ]);
-  if (keptGroups.length !== KEEP_GROUPS.length) throw new Error('No encuentro los grupos que se conservan.');
+  if (kept.length !== KEEP_STAFF.length)
+    throw new Error('No encuentro a todo el personal que se conserva.');
+  const { rows: keptGroups } = await c.query(
+    'select name from public.groups where name = any ($1)',
+    [KEEP_GROUPS],
+  );
+  if (keptGroups.length !== KEEP_GROUPS.length)
+    throw new Error('No encuentro los grupos que se conservan.');
 
   const result = [];
   for (const [label, sql, params] of STEPS) {
@@ -85,7 +95,11 @@ try {
   console.log('Queda:', left[0]);
 
   await c.query(apply ? 'commit' : 'rollback');
-  console.log(apply ? 'APLICADO (COMMIT).' : 'Simulacro: nada cambió (ROLLBACK). Usa --aplicar para confirmar.');
+  console.log(
+    apply
+      ? 'APLICADO (COMMIT).'
+      : 'Simulacro: nada cambió (ROLLBACK). Usa --aplicar para confirmar.',
+  );
 } catch (e) {
   await c.query('rollback');
   throw e;

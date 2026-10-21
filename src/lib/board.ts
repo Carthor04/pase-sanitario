@@ -11,6 +11,8 @@ export type BoardPass = {
   list_number: number;
   full_name: string;
   sex: Sex;
+  /** Grupo del alumno (en una clase por nivel el salón mezcla grupos). */
+  group_name?: string;
   status: ActiveStatus;
   destination_id: string;
   destination_kind: 'bathroom' | 'nurse';
@@ -129,11 +131,12 @@ export const isOverdue = (p: BoardPass, now: number, s: BoardSettings) =>
 // ---------------------------------------------------------------------------
 
 /** El pase que ocupa el lugar del grupo para ese sexo (en fila, con turno o fuera). */
-export function slotPass(passes: BoardPass[], sex: Sex): BoardPass | undefined {
+export function slotPass(passes: BoardPass[], sex: Sex, groupName?: string): BoardPass | undefined {
   return passes.find(
     (p) =>
       p.destination_kind === 'bathroom' &&
       p.sex === sex &&
+      (!groupName || p.group_name === groupName) &&
       (p.status === 'out' || p.status === 'called' || p.status === 'queued'),
   );
 }
@@ -213,7 +216,8 @@ export function bathroomHint(
   }
   const bath = bathroomFor(board, student.sex);
   if (!bath) return { text: 'No hay baño configurado', tone: 'blocked' };
-  const holder = slotPass(board.passes, student.sex);
+  // El lugar del grupo es por grupo del alumno, también en una clase por nivel.
+  const holder = slotPass(board.passes, student.sex, student.group_name);
   if (holder) {
     const who = `${holder.full_name} (#${holder.list_number})`;
     return holder.status === 'out'

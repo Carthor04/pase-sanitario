@@ -20,6 +20,8 @@ const CONFIG: Record<
     file: string;
     help: string;
     invalidates: string[];
+    /** Nombres propios de este importador para el resumen. */
+    labels?: Record<string, string>;
   }
 > = {
   groups: {
@@ -56,6 +58,7 @@ const CONFIG: Record<
     file: 'secciones.csv',
     help: 'Clases por nivel (como Inglés): en salon_grupo va el grupo cuyo salón se usa y en materia la misma materia del horario de ese salón (ej. Inglés básico). Reemplaza la lista de cada clase que venga en el archivo.',
     invalidates: ['roster'],
+    labels: { replaced: 'quitados de las listas anteriores' },
   },
 };
 
@@ -159,7 +162,7 @@ export function ImportPanel({ kind, title }: { kind: ImportKind; title: string }
         <Notice tone="ok">
           Importación lista:{' '}
           {Object.entries(result.summary)
-            .map(([k, v]) => `${v} ${SUMMARY_LABELS[k] ?? k}`)
+            .map(([k, v]) => `${v} ${cfg.labels?.[k] ?? SUMMARY_LABELS[k] ?? k}`)
             .join(' · ')}
           .
         </Notice>

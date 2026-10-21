@@ -56,7 +56,7 @@ export function Alerts() {
             to={`/grupo?g=${a.group_id}`}
             className="self-end text-[14px] font-bold text-accent"
           >
-            Ver {a.group_name}
+            Ver lista del salón
           </Link>
         </div>
       ))}
