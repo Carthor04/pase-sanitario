@@ -58,7 +58,29 @@ export type Board = {
 
 export const parseBoard = (raw: Json) => raw as unknown as Board;
 
-export type StudentRef = { id: string; list_number: number; full_name: string; sex: Sex };
+export type StudentRef = {
+  id: string;
+  list_number: number;
+  full_name: string;
+  sex: Sex;
+  /** Solo en clases por nivel: el grupo del alumno. */
+  group_name?: string;
+};
+
+/**
+ * En una clase por nivel la lista se numera aparte; los pases del tablero usan el número de
+ * esa lista para que coincida con lo que el maestro ve y teclea.
+ */
+export function withListNumbers<B extends Board>(board: B, students: StudentRef[]): B {
+  const num = new Map(students.map((s) => [s.id, s.list_number]));
+  return {
+    ...board,
+    passes: board.passes.map((p) => ({
+      ...p,
+      list_number: num.get(p.student_id) ?? p.list_number,
+    })),
+  };
+}
 
 // ---------------------------------------------------------------------------
 // Tiempo

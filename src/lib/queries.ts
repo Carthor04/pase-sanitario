@@ -7,20 +7,44 @@ export type Student = {
   list_number: number;
   full_name: string;
   sex: 'H' | 'M';
+  /** Solo en clases por nivel: el grupo del alumno (la lista mezcla grupos). */
+  group_name?: string;
 };
 
-export function useStudents(groupId: string | undefined) {
+export type RosterSection = { id: string; subject: string; teacher_name: string | null };
+export type Roster = { section: RosterSection | null; students: Student[] };
+
+type RawRoster = {
+  section: RosterSection | null;
+  students: (Student & { group_name: string })[];
+};
+
+/**
+ * Lista del salón según la hora: la del grupo o, en una clase por nivel (Inglés), la de los
+ * alumnos de ese nivel. En la clase por nivel los números van del 1 en orden alfabético (los
+ * números de lista se repiten entre grupos) y cada alumno lleva su grupo.
+ */
+export function useRoster(groupId: string | undefined) {
   return useQuery({
-    queryKey: ['students', groupId],
+    queryKey: ['roster', groupId],
     enabled: Boolean(groupId),
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('students')
-        .select('id, list_number, full_name, sex')
-        .eq('group_id', groupId!)
-        .eq('active', true);
+    refetchInterval: 60_000, // la lista cambia al empezar y terminar la clase por nivel
+    queryFn: async (): Promise<Roster> => {
+      const { data, error } = await supabase.rpc('room_roster', { p_group_id: groupId! });
       if (error) throw error;
-      return (data as Student[]).sort(byName);
+      const raw = data as unknown as RawRoster;
+      const sorted = [...raw.students].sort(byName);
+      return {
+        section: raw.section,
+        students: raw.section
+          ? sorted.map((s, i) => ({ ...s, list_number: i + 1 }))
+          : sorted.map(({ id, list_number, full_name, sex }) => ({
+              id,
+              list_number,
+              full_name,
+              sex,
+            })),
+      };
     },
   });
 }

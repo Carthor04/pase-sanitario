@@ -4,7 +4,7 @@ import { buttonClass } from '@/components/ui/styles';
 import { getInstallState, promptInstall, subscribeInstall, type InstallState } from '@/lib/install';
 
 /**
- * Instalar la app en la pantalla de inicio (Más). No se muestra si ya está instalada. Si se
+ * Instalar la app en la pantalla de inicio (Perfil). No se muestra si ya está instalada. Si se
  * cancela el diálogo del navegador, el botón se cambia por los pasos desde el menú ⋮.
  */
 export function InstallApp() {

@@ -302,6 +302,11 @@ export function GroupLive({
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="break-words text-[17px] font-bold leading-tight">
                       {st.full_name}
+                      {st.group_name ? (
+                        <span className="ml-2 text-[14px] font-bold text-muted">
+                          {st.group_name}
+                        </span>
+                      ) : null}
                     </span>
                     {todayText ? (
                       <span

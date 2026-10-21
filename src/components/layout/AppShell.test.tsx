@@ -48,7 +48,7 @@ describe('AppShell', () => {
     const navs = screen.getAllByRole('navigation', { name: 'Secciones' });
     expect(navs).toHaveLength(2); // encabezado (escritorio) y barra inferior (celular)
     for (const nav of navs) {
-      expect(linkLabels(nav)).toEqual(['Mi grupo', 'Baños', 'Alertas', 'Más']);
+      expect(linkLabels(nav)).toEqual(['Mi grupo', 'Baños', 'Alertas', 'Perfil']);
     }
   });
 

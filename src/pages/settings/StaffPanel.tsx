@@ -115,8 +115,8 @@ export function StaffPanel() {
         </label>
       </div>
       <p className="m-0 text-[15px] text-muted">
-        Cada persona define su PIN en Más → Mi PIN. Desde aquí puedes asignarlo o quitarlo. Los PIN
-        son únicos: si alguien ya lo usa, se pide otro.
+        Cada persona define su PIN en Perfil → Mi PIN. Desde aquí puedes asignarlo o quitarlo. Los
+        PIN son únicos: si alguien ya lo usa, se pide otro.
       </p>
       {staff.isPending ? <Loading /> : null}
       {staff.isError ? <Notice tone="error">No se pudo cargar el personal.</Notice> : null}

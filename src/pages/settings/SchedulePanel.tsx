@@ -6,7 +6,7 @@ import { hhmm, useGroups } from '@/lib/queries';
 import { useCurrentClasses } from '@/lib/schedule';
 import { supabase } from '@/lib/supabase';
 import { ImportPanel } from './ImportPanel';
-import { WeekGrid } from './WeekGrid';
+import { WeekGrid } from '@/components/schedule/WeekGrid';
 
 type Entry = {
   weekday: number;

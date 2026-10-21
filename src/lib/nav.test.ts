@@ -4,10 +4,10 @@ const labels = (roles: Parameters<typeof navForRoles>[0]) => navForRoles(roles).
 
 describe('navForRoles', () => {
   it('maestro', () => {
-    expect(labels(['teacher'])).toEqual(['Mi grupo', 'Baños', 'Alertas', 'Más']);
+    expect(labels(['teacher'])).toEqual(['Mi grupo', 'Baños', 'Alertas', 'Perfil']);
   });
   it('prefectura', () => {
-    expect(labels(['prefect'])).toEqual(['En vivo', 'Historial', 'Más']);
+    expect(labels(['prefect'])).toEqual(['En vivo', 'Historial', 'Perfil']);
   });
   it('enfermería', () => {
     expect(labels(['nurse'])).toEqual(['Enfermería', 'Historial']);

@@ -2,18 +2,20 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router';
 import { InstallApp } from '@/components/InstallApp';
 import { PushSettings } from '@/components/PushSettings';
+import { MySchedule } from '@/components/schedule/MySchedule';
 import { Card, PageTitle } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
 import { canManage } from '@/lib/me';
 import { ROLE_LABELS } from '@/lib/nav';
 import { signOut, useStaff } from '@/lib/session';
 
-export function More() {
+/** Perfil: datos de la persona, su horario (si da clases), PIN, instalar la app y avisos. */
+export function Profile() {
   const staff = useStaff();
   const queryClient = useQueryClient();
   return (
-    <div className="flex max-w-[480px] flex-col gap-4">
-      <PageTitle>Más</PageTitle>
+    <div className="flex max-w-[560px] flex-col gap-4">
+      <PageTitle>Perfil</PageTitle>
       <Card>
         <div className="flex flex-col">
           <span className="text-[17px] font-bold">{staff.full_name}</span>
@@ -24,9 +26,6 @@ export function More() {
         </div>
         <Link to="/mi-pin" className={buttonClass.secondary}>
           {staff.has_pin ? 'Cambiar mi PIN' : 'Definir mi PIN'}
-        </Link>
-        <Link to="/banos" className={buttonClass.secondary}>
-          Baños en vivo
         </Link>
         {canManage(staff.roles) ? (
           <Link to="/ajustes" className={buttonClass.secondary}>
@@ -41,6 +40,9 @@ export function More() {
           Cerrar sesión
         </button>
       </Card>
+      {staff.roles.includes('teacher') ? (
+        <MySchedule staffId={staff.id} name={staff.full_name} />
+      ) : null}
       <InstallApp />
       <PushSettings />
     </div>

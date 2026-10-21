@@ -14,7 +14,8 @@ import seccionesUrl from '../../../data/templates/secciones.csv?url';
 const CONFIG: Record<
   ImportKind,
   {
-    rpc: 'import_groups' | 'import_students' | 'import_staff' | 'import_schedule' | 'import_sections';
+    rpc:
+      'import_groups' | 'import_students' | 'import_staff' | 'import_schedule' | 'import_sections';
     template: string;
     file: string;
     help: string;

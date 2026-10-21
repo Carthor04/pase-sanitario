@@ -3,8 +3,9 @@ import { useSearchParams } from 'react-router';
 import { GroupLive } from '@/components/pass/GroupLive';
 import { Card, Loading, Notice, PageTitle } from '@/components/ui/Page';
 import { useAudioUnlock } from '@/lib/device';
+import { withListNumbers } from '@/lib/board';
 import { useBoard, useLivePasses } from '@/lib/live';
-import { hhmm, useMyGroups, useStudents } from '@/lib/queries';
+import { hhmm, useMyGroups, useRoster } from '@/lib/queries';
 
 const RANK_LABELS = ['Ahora', 'Mis grupos', 'Otros grupos'] as const;
 
@@ -27,17 +28,18 @@ export function MyGroup() {
 
   const list = groups.data ?? [];
   const selected = list.find((g) => g.group_id === params.get('g')) ?? list[0];
-  const students = useStudents(selected?.group_id);
+  const roster = useRoster(selected?.group_id);
   const board = useBoard(selected?.group_id);
   const online = useLivePasses();
   useAudioUnlock();
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
-    const all = students.data ?? [];
+    const all = roster.data?.students ?? [];
     if (!q) return all;
     return all.filter((s) => normalize(s.full_name).includes(q) || String(s.list_number) === q);
-  }, [students.data, query]);
+  }, [roster.data, query]);
+  const section = roster.data?.section ?? null;
 
   if (groups.isPending) return <Loading />;
   if (groups.isError) return <Notice tone="error">No se pudieron cargar los grupos.</Notice>;
@@ -98,6 +100,11 @@ export function MyGroup() {
           ) : null}
         </div>
         {selected.room ? <span className="text-[15px] text-muted">{selected.room}</span> : null}
+        {section ? (
+          <Notice tone="info">
+            Clase por nivel: la lista es la de {section.subject}, con alumnos de varios grupos.
+          </Notice>
+        ) : null}
       </Card>
 
       <div className="flex flex-col gap-1.5">
@@ -114,19 +121,19 @@ export function MyGroup() {
         />
       </div>
 
-      {students.isError || board.isError ? (
+      {roster.isError || board.isError ? (
         <Notice tone="error">No se pudo cargar el grupo. Revisa tu conexión.</Notice>
       ) : null}
-      {students.data && !students.data.length ? (
+      {roster.data && !roster.data.students.length ? (
         <Notice>Este grupo no tiene alumnos. Coordinación los importa en Ajustes → Alumnos.</Notice>
       ) : null}
       {!online ? (
         <Notice tone="warn">Sin conexión en vivo: los datos pueden estar atrasados.</Notice>
       ) : null}
 
-      {board.data && students.data ? (
+      {board.data && roster.data ? (
         <GroupLive
-          board={board.data}
+          board={withListNumbers(board.data, roster.data.students)}
           groupName={selected.name}
           groupId={selected.group_id}
           students={filtered}

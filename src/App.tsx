@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Route, Routes } from 'react-router';
+import { Navigate, Route, Routes } from 'react-router';
 import { RequireDevice, RequireStaff } from '@/components/auth/Gates';
 import { AppShell } from '@/components/layout/AppShell';
 import { Alerts } from '@/pages/Alerts';
@@ -9,7 +9,7 @@ import { Home } from '@/pages/Home';
 import { LinkDevice } from '@/pages/LinkDevice';
 import { LiveBoard } from '@/pages/LiveBoard';
 import { Login } from '@/pages/Login';
-import { More } from '@/pages/More';
+import { Profile } from '@/pages/Profile';
 import { MyGroup } from '@/pages/MyGroup';
 import { MyPin } from '@/pages/MyPin';
 import { Nurse } from '@/pages/Nurse';
@@ -50,7 +50,8 @@ export function App() {
           <Route index element={<Home />} />
           <Route path="grupo" element={<MyGroup />} />
           <Route path="mi-pin" element={<MyPin />} />
-          <Route path="mas" element={<More />} />
+          <Route path="perfil" element={<Profile />} />
+          <Route path="mas" element={<Navigate to="/perfil" replace />} />
           <Route path="ajustes/*" element={<Settings />} />
           <Route path="banos" element={<Bathrooms />} />
           <Route path="alertas" element={<Alerts />} />

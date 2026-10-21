@@ -11,12 +11,13 @@ import {
   formatElapsed,
   nursePasses,
   slotPass,
+  withListNumbers,
   type Board,
   type BoardPass,
 } from '@/lib/board';
 import { useAudioUnlock, useWakeLock } from '@/lib/device';
 import { errorMessage, useBoard, useLivePasses, useServerNow } from '@/lib/live';
-import { hhmm, useCurrentClass, useGroups, useStudents } from '@/lib/queries';
+import { hhmm, useCurrentClass, useGroups, useRoster } from '@/lib/queries';
 import { useDevice } from '@/lib/session';
 import { supabase } from '@/lib/supabase';
 import { useClock } from '@/lib/useClock';
@@ -61,7 +62,7 @@ export function SalonHome() {
   const queryClient = useQueryClient();
   const session = useDeviceSession();
   const board = useBoard(device.group_id);
-  const students = useStudents(device.group_id);
+  const roster = useRoster(device.group_id);
   const current = useCurrentClass(device.group_id);
   const groups = useGroups();
   const online = useLivePasses();
@@ -204,12 +205,20 @@ export function SalonHome() {
       <main className="mx-auto grid w-full max-w-[1600px] flex-1 gap-5 px-4 py-5 sm:px-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
           {board.isError ? <Notice tone="error">No se pudo cargar el grupo.</Notice> : null}
-          {board.data && students.data ? (
+          {roster.data?.section ? (
+            <div className="mb-4">
+              <Notice tone="info">
+                Clase por nivel: la lista es la de {roster.data.section.subject}, con alumnos de
+                varios grupos.
+              </Notice>
+            </div>
+          ) : null}
+          {board.data && roster.data ? (
             <GroupLive
-              board={board.data}
+              board={withListNumbers(board.data, roster.data.students)}
               groupName={device.group_name}
               groupId={device.group_id}
-              students={students.data}
+              students={roster.data.students}
               capture
               bathroomBar={false}
               footnote={`Un toque abre el pase. Queda registrado a nombre de ${session.data?.staff_name}, quien desbloqueó a las ${hm(session.data?.unlocked_at)}.`}

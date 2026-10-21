@@ -13,7 +13,7 @@ const STATE_TEXT: Record<PushState, string> = {
   'ios-install': 'Primero instala la app',
 };
 
-/** Activar notificaciones push en este celular o computadora (Más / Ajustes). */
+/** Activar notificaciones push en este celular o computadora (Perfil / Ajustes). */
 export function PushSettings() {
   const [state, setState] = useState<PushState | null>(null);
   const [busy, setBusy] = useState(false);

@@ -1,4 +1,4 @@
-// Instalar la PWA en la pantalla de inicio (Más → Instalar app).
+// Instalar la PWA en la pantalla de inicio (Perfil → Instalar app).
 // Chrome/Edge en Android y computadora mandan `beforeinstallprompt` una sola vez y muy
 // pronto, así que se escucha desde que carga la app (main.tsx importa este módulo) y se
 // guarda para cuando el usuario toque el botón. Safari en iPhone no lo manda: ahí se
