@@ -195,8 +195,8 @@ export function GroupLive({
     }
   }
 
-  const boy = slotPass(board.passes, 'H');
-  const girl = slotPass(board.passes, 'M');
+  const boy = slotPass(board.passes, 'H', groupId);
+  const girl = slotPass(board.passes, 'M', groupId);
   const nurse = nursePasses(board.passes);
 
   return (
@@ -366,6 +366,7 @@ export function GroupLive({
           board={board}
           now={now}
           groupName={groupName}
+          roomId={groupId}
           footnote={footnote}
           today={todayLabel(counts.data?.counts[menuFor.id])}
           showToday

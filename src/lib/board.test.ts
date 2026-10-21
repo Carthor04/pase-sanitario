@@ -125,10 +125,10 @@ describe('bathroomHint', () => {
     expect(slotPass(b.passes, 'M')).toBeUndefined();
   });
 
-  it('en una clase por nivel solo cuenta el lugar del grupo del alumno', () => {
-    const b = board([pass({ group_name: '1°B' })]);
-    expect(bathroomHint({ ...jorge, group_name: '1°A' }, b).tone).not.toBe('wait');
-    expect(bathroomHint({ ...jorge, group_name: '1°B' }, b).tone).toBe('wait');
+  it('el lugar se cuenta por salón: el pase que salió de otro salón no ocupa este', () => {
+    const b = board([pass({ room_group_id: 'salon-6' })]);
+    expect(bathroomHint(jorge, b, 'salon-2').tone).not.toBe('wait');
+    expect(bathroomHint(jorge, b, 'salon-6').tone).toBe('wait');
   });
 
   it('entra directo si hay lugar y no hay fila', () => {

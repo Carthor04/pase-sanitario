@@ -17,6 +17,8 @@ type Props = {
   board: Board;
   now: number;
   groupName: string;
+  /** Salón del tablero: el lugar del baño se cuenta por salón. */
+  roomId?: string;
   footnote?: string;
   /** Salidas de hoy, p. ej. "2 baño · 1 enfermería". */
   today?: string | null;
@@ -44,6 +46,7 @@ export function PassMenu(props: Props) {
     board,
     now,
     groupName,
+    roomId,
     footnote,
     today,
     showToday,
@@ -54,7 +57,7 @@ export function PassMenu(props: Props) {
   } = props;
   const firstButton = useRef<HTMLButtonElement>(null);
   const pass = passForStudent(board.passes, student.id);
-  const hint = bathroomHint(student, board);
+  const hint = bathroomHint(student, board, roomId);
 
   useEffect(() => {
     firstButton.current?.focus();

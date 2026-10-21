@@ -275,3 +275,11 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - `passes.auto_closed boolean`: el sistema liberó el pase al final del día (`release_reason = 'Cierre automático'`, evento `released` con `actor_id` null y `payload.auto = true`).
 - `private.auto_close_passes(p_at default clock_timestamp())`: lo llama `tick()` cada 30 s. Cierra los pases abiertos de días anteriores y, después de `max(periods.ends)` del día, los de hoy pedidos antes de esa hora. `p_at` solo se usa en las pruebas.
 - `report_summary`, `report_detail`, `pass_history` y `student_today_passes` no calculan minutos para los pases con `auto_closed`.
+
+## Alertas por pase, clases por nivel y lugar por salón (2026-10-21)
+
+- `acknowledge_pass(pase)`: "Yo lo atiendo" por pase. Si el alumno ya pasó el tiempo de alerta y `tick()` todavía no creó la alerta, la crea en ese momento (`private.ensure_alert`) y la atiende. El monitor muestra la alerta en cuanto se cumple el tiempo.
+- **Clases por nivel** (Inglés básico/intermedio/avanzado): `class_sections (room_group_id, subject)` y `class_section_students`. Cada nivel se da en el salón de un grupo y el horario de ese grupo tiene la materia del nivel con su docente. La sección está en clase cuando `classes_at()` de su salón tiene su materia. Se importan con `import_sections` (`secciones.csv`: salon_grupo, materia, grupo, numero_lista).
+- `room_roster(grupo)`: lista del salón a esta hora (la del nivel o la del grupo). La usan el celular y la computadora del salón; esta última opera a los alumnos de su salón (`private.device_may_operate`).
+- `passes.room_group_id`: salón de donde salió el alumno. `period_subject` guarda la clase y, en clases por nivel, el salón ("Inglés básico · Salón 6"). Alertas y avisos van al docente con quien está el alumno (`private.student_room_at`, `private.pass_teacher_now`).
+- **Lugar por salón:** un niño y una niña fuera a la vez por salón (`coalesce(room_group_id, group_id)`). En clases normales es el grupo, igual que antes; en Inglés es el salón del nivel.

@@ -151,7 +151,12 @@ export function SalonHome() {
             </span>
           </section>
           {board.data ? (
-            <LockedStatus board={board.data} session={session.data} groupName={device.group_name} />
+            <LockedStatus
+              board={board.data}
+              session={session.data}
+              groupName={device.group_name}
+              groupId={device.group_id}
+            />
           ) : null}
         </main>
       </div>
@@ -249,15 +254,17 @@ function LockedStatus({
   board,
   session,
   groupName,
+  groupId,
 }: {
   board: Board & { offsetMs: number };
   session?: Session;
   groupName: string;
+  groupId: string;
 }) {
   const now = useServerNow(board.offsetMs);
   const rows: { title: string; pass?: BoardPass; empty: string }[] = [
-    { title: 'Niño · Baño hombres', pass: slotPass(board.passes, 'H'), empty: 'Libre' },
-    { title: 'Niña · Baño mujeres', pass: slotPass(board.passes, 'M'), empty: 'Libre' },
+    { title: 'Niño · Baño hombres', pass: slotPass(board.passes, 'H', groupId), empty: 'Libre' },
+    { title: 'Niña · Baño mujeres', pass: slotPass(board.passes, 'M', groupId), empty: 'Libre' },
     { title: 'Enfermería', pass: nursePasses(board.passes)[0], empty: 'Nadie' },
   ];
   const last = session?.last_lock;

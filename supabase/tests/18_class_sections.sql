@@ -7,7 +7,8 @@ declare
   pc uuid := '00000000-0000-4000-f800-000000000004';  -- computadora del salón de S1
   pr uuid := '00000000-0000-4000-f800-000000000005';
   g1 uuid; g2 uuid;
-  a1 uuid; a2 uuid; b1 uuid; b2 uuid;
+  a1 uuid; a2 uuid; b1 uuid; b2 uuid; a3 uuid; a4 uuid; b3 uuid;
+  q1 uuid; q2 uuid; q3 uuid;
   v_basic uuid; v_inter uuid;
   v_period uuid;
   p uuid;
@@ -121,6 +122,30 @@ begin
     '5: lista reemplazada';
   perform pg_temp.logout();
 
-  raise notice 'clases por nivel: lista del salón, equipo, salida, alertas e importación: ok';
+  -- 6. En la clase por nivel el lugar del baño es por salón, no por grupo.
+  perform pg_temp.login(ti);
+  perform public.mark_returned(p);
+  perform pg_temp.logout();
+  insert into public.schedule_entries (group_id, period_id, subject, teacher_id)
+  values (g1, v_period, 'Inglés básico', te), (g2, v_period, 'Inglés intermedio', ti);
+  a3 := pg_temp.make_student(g1, 3, 'H');  -- S1, básico (salón de S1)
+  b3 := pg_temp.make_student(g2, 3, 'H');  -- S2, básico (salón de S1)
+  a4 := pg_temp.make_student(g1, 4, 'H');  -- S1, intermedio (salón de S2)
+  delete from public.class_section_students;
+  insert into public.class_section_students values (v_basic, a3), (v_basic, b3), (v_inter, a4);
+  perform pg_temp.login(te);
+  q1 := pg_temp.req(a3);
+  q2 := pg_temp.req(b3);
+  q3 := pg_temp.req(a4);
+  perform pg_temp.logout();
+  assert pg_temp.st(q1) = 'out', '6: el primero sale ' || pg_temp.st(q1);
+  assert pg_temp.st(q2) = 'group_wait', '6: otro niño del mismo salón espera aunque sea de otro grupo';
+  assert pg_temp.st(q3) = 'queued', '6: un niño del mismo grupo en otro salón no espera al grupo ' || pg_temp.st(q3);
+  perform pg_temp.login(te);
+  perform public.mark_returned(q1);
+  perform pg_temp.logout();
+  assert pg_temp.st(q2) in ('queued', 'called', 'out'), '6: al regresar, sigue el del mismo salón';
+
+  raise notice 'clases por nivel: lista del salón, equipo, salida, alertas, importación y lugar por salón: ok';
 end;
 $$;

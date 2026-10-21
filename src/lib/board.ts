@@ -13,6 +13,8 @@ export type BoardPass = {
   sex: Sex;
   /** Grupo del alumno (en una clase por nivel el salón mezcla grupos). */
   group_name?: string;
+  /** Salón de donde salió: el lugar del baño se cuenta por salón. */
+  room_group_id?: string | null;
   status: ActiveStatus;
   destination_id: string;
   destination_kind: 'bathroom' | 'nurse';
@@ -131,12 +133,12 @@ export const isOverdue = (p: BoardPass, now: number, s: BoardSettings) =>
 // ---------------------------------------------------------------------------
 
 /** El pase que ocupa el lugar del grupo para ese sexo (en fila, con turno o fuera). */
-export function slotPass(passes: BoardPass[], sex: Sex, groupName?: string): BoardPass | undefined {
+export function slotPass(passes: BoardPass[], sex: Sex, roomId?: string): BoardPass | undefined {
   return passes.find(
     (p) =>
       p.destination_kind === 'bathroom' &&
       p.sex === sex &&
-      (!groupName || p.group_name === groupName) &&
+      (!roomId || !p.room_group_id || p.room_group_id === roomId) &&
       (p.status === 'out' || p.status === 'called' || p.status === 'queued'),
   );
 }
@@ -210,14 +212,15 @@ export const sexLabel = (sex: Sex) => (sex === 'H' ? 'Niño' : 'Niña');
 export function bathroomHint(
   student: StudentRef,
   board: Board,
+  roomId?: string,
 ): { text: string; tone: 'free' | 'wait' | 'blocked' } {
   if (passForStudent(board.passes, student.id)) {
     return { text: 'Ya tiene un pase activo', tone: 'blocked' };
   }
   const bath = bathroomFor(board, student.sex);
   if (!bath) return { text: 'No hay baño configurado', tone: 'blocked' };
-  // El lugar del grupo es por grupo del alumno, también en una clase por nivel.
-  const holder = slotPass(board.passes, student.sex, student.group_name);
+  // El lugar es por salón (en Inglés, el salón del nivel aunque mezcle grupos).
+  const holder = slotPass(board.passes, student.sex, roomId);
   if (holder) {
     const who = `${holder.full_name} (#${holder.list_number})`;
     return holder.status === 'out'
