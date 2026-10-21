@@ -5,7 +5,7 @@ import { navForRoles } from '@/lib/nav';
 import { useStaff } from '@/lib/session';
 import { useClock } from '@/lib/useClock';
 import { BottomNav } from './BottomNav';
-import { BrandMark } from './BrandMark';
+import { BrandMark, BrandName } from './BrandMark';
 
 export function AppShell() {
   const { roles } = useStaff();
@@ -28,9 +28,7 @@ export function AppShell() {
         <div className="mx-auto flex max-w-container items-center gap-3 px-4 py-3 sm:gap-8 sm:px-6 sm:py-3.5">
           <div className="flex items-center gap-3">
             <BrandMark />
-            <span className="font-display text-xl font-bold leading-none sm:text-[26px]">
-              Pase Sanitario
-            </span>
+            <BrandName className="text-xl sm:text-[26px]" />
           </div>
 
           <nav aria-label="Secciones" className="hidden flex-1 gap-1 sm:flex">

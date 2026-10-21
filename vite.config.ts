@@ -11,7 +11,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Pase Sanitario',
+        name: 'Pase Sanitario by Tellus',
         short_name: 'Pase',
         description: 'Control de salidas al baño y a enfermería',
         lang: 'es-MX',

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { BrandMark } from '@/components/layout/BrandMark';
+import { BrandMark, BrandName } from '@/components/layout/BrandMark';
 
 export function PageTitle({ children, aside }: { children: ReactNode; aside?: ReactNode }) {
   return (
@@ -53,7 +53,7 @@ export function FullScreen({ title, children }: { title?: string; children: Reac
       <div className="flex w-full max-w-[420px] flex-col gap-5 rounded-card-lg border border-line bg-surface p-6">
         <div className="flex items-center gap-3">
           <BrandMark />
-          <span className="font-display text-[22px] font-bold leading-none">Pase Sanitario</span>
+          <BrandName className="text-[22px]" />
         </div>
         {title ? <h1 className="m-0 font-display text-[22px] font-bold">{title}</h1> : null}
         {children}

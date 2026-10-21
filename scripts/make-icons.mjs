@@ -1,5 +1,5 @@
 // Genera los íconos PNG de la PWA (public/icon-192.png, icon-512.png, apple-touch-icon.png)
-// sin dependencias: dibuja la "P" con figuras y codifica el PNG con zlib.
+// sin dependencias: dibuja el hexágono de Tellus con polígonos y codifica el PNG con zlib.
 // Uso: node scripts/make-icons.mjs
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -9,18 +9,52 @@ import { root } from './db-connection.mjs';
 const ACCENT = [0x1d, 0x4e, 0x89];
 const WHITE = [0xff, 0xff, 0xff];
 
-// Geometría en un lienzo de 512×512.
-function insideP(x, y) {
-  const stem = x >= 168 && x <= 240 && y >= 112 && y <= 400;
-  const cx = 292;
-  const cy = 210;
-  const outer =
-    (x >= 168 && x <= cx && y >= 112 && y <= 308) ||
-    (x >= cx && (x - cx) ** 2 + (y - cy) ** 2 <= 98 ** 2);
-  const inner =
-    (x >= 240 && x <= cx && y >= 164 && y <= 256) ||
-    (x >= cx && (x - cx) ** 2 + (y - cy) ** 2 <= 46 ** 2);
-  return stem || (outer && !inner);
+// Hexágono de Tellus en su viewBox de 636×766 (igual que BrandMark.tsx y icon.svg).
+const MARK = [
+  [
+    [1, 191],
+    [319, 0],
+    [636, 191],
+    [636, 340],
+    [382, 190],
+    [382, 571],
+    [510, 486],
+    [510, 302],
+    [636, 376],
+    [636, 564],
+    [319, 766],
+    [254, 726],
+    [254, 190],
+    [1, 340],
+  ],
+  [
+    [1, 376],
+    [127, 302],
+    [127, 486],
+    [224, 547],
+    [224, 705],
+    [0, 564],
+  ],
+];
+// Colocado al centro del lienzo de 512×512, con 300 px de alto.
+const SCALE = 300 / 766;
+const OFFSET_X = (512 - 636 * SCALE) / 2;
+const OFFSET_Y = (512 - 766 * SCALE) / 2;
+
+function insidePolygon(x, y, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+function insideMark(x, y) {
+  const mx = (x - OFFSET_X) / SCALE;
+  const my = (y - OFFSET_Y) / SCALE;
+  return MARK.some((poly) => insidePolygon(mx, my, poly));
 }
 
 function insideRounded(x, y, r) {
@@ -43,7 +77,7 @@ function render(size, radius) {
           const y = ((j + (b + 0.5) / ss) / size) * 512;
           if (insideRounded(x, y, radius)) {
             bg++;
-            if (insideP(x, y)) fg++;
+            if (insideMark(x, y)) fg++;
           }
         }
       }
