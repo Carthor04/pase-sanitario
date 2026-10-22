@@ -496,7 +496,7 @@ function Column({
                 <span className="flex min-w-0 flex-col">
                   <span className="truncate font-bold">{p.full_name}</span>
                   <span className="text-[13px] text-muted">
-                    {p.group_name} · sale cuando regrese el de su grupo
+                    {p.group_name} · turno cuando regrese el de su grupo
                   </span>
                 </span>
                 <span className="font-mono text-[14px] tabular-nums text-muted">

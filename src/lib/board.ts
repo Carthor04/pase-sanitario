@@ -242,7 +242,7 @@ export function bathroomHint(
   if (holder) {
     const who = `${holder.full_name} (#${holder.list_number})`;
     return holder.status === 'out'
-      ? { text: `Queda en espera: ${who} sigue fuera. Sale en cuanto regrese.`, tone: 'wait' }
+      ? { text: `Queda en espera: ${who} sigue fuera. Recibe turno cuando regrese.`, tone: 'wait' }
       : { text: `Queda en espera: ${who} está en la fila del baño.`, tone: 'wait' };
   }
   const occ = occupancy(bath);

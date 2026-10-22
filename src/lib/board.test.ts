@@ -134,7 +134,7 @@ describe('bathroomHint', () => {
   it('avisa que queda en espera si el lugar del grupo está ocupado', () => {
     const b = board([pass({})]);
     expect(bathroomHint(jorge, b)).toEqual({
-      text: 'Queda en espera: Luis Martínez (#14) sigue fuera. Sale en cuanto regrese.',
+      text: 'Queda en espera: Luis Martínez (#14) sigue fuera. Recibe turno cuando regrese.',
       tone: 'wait',
     });
     expect(slotPass(b.passes, 'M')).toBeUndefined();

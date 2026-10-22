@@ -64,7 +64,7 @@ group_wait ──► queued ──► called ──► out ──► returned
 4. Si no → `queued`.
 
 **Cada vez que un pase se cierra o cambia** se ejecuta `advance(bathroom)`:
-1. Promueve el `group_wait` más antiguo de ese grupo/sexo a `queued` (o `out` si hay lugar y la fila está vacía). Entra **al final de la fila**: su `queue_ts` es el momento en que pasa a `queued`, no la hora en que se pidió (decisión 2026-10-15).
+1. Promueve el `group_wait` más antiguo de ese grupo/sexo a `queued`, siempre: nunca sale directo, recibe turno en el paso siguiente y su maestro confirma. Conserva su lugar: su `queue_ts` es la hora en que se pidió su pase, así que quienes se formaron mientras esperaba a su grupo no se le adelantan (decisiones 2026-10-22; reemplazan la de 2026-10-15, que lo mandaba al final de la fila).
 2. Mientras haya lugar, pasa el primero de la fila a `called`.
 
 ### Enfermería

@@ -49,16 +49,19 @@ begin
   end;
   perform pg_temp.logout();
 
-  -- 2b. Mismo grupo con la fila vacía: al regresar el primero, el segundo sale directo.
+  -- 2b. Mismo grupo con la fila vacía: al regresar el primero, el segundo recibe turno
+  --     (no sale directo; decisión 2026-10-22) y su maestro confirma.
   perform pg_temp.reset_engine();
   perform pg_temp.login(t);
   p1 := pg_temp.req(b1);
   p3 := pg_temp.req(b3);
   assert pg_temp.st(p3) = 'group_wait', '2b: espera';
   perform public.mark_returned(p1);
-  assert pg_temp.st(p3) = 'out', '2b: sale directo';
-  assert (select payload ->> 'to' from public.pass_events where pass_id = p3 order by id desc limit 1) = 'out',
-    '2b: evento promoted';
+  assert pg_temp.st(p3) = 'called', '2b: recibe turno';
+  assert exists (select 1 from public.pass_events where pass_id = p3 and type = 'promoted'
+                  and payload ->> 'to' = 'queued'), '2b: evento promoted';
+  perform public.confirm_turn(p3);
+  assert pg_temp.st(p3) = 'out', '2b: confirma y sale';
 
   -- 3. Niño y niña del mismo grupo pueden estar fuera a la vez.
   p4 := pg_temp.req(m1);
