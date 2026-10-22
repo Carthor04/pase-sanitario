@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { parseBoard, type ActiveStatus } from './board';
+import type { Role } from './nav';
 import { supabase } from './supabase';
 
 /** Consultas que dependen de pases y alertas: se refrescan con cada cambio. */
@@ -141,11 +142,26 @@ export function usePassAction() {
   });
 }
 
-/** Un renglón de las listas: grupo siempre; nombre y clase solo para el personal. */
+/** Estados de un pase que todavía no sale: en espera del grupo, en fila o con turno. */
+const WAITING = ['group_wait', 'queued', 'called'];
+
+export function isWaiting(status: string): boolean {
+  return WAITING.includes(status);
+}
+
+/** Roles que pueden quitar a alguien de la fila (los mismos que acepta cancel_pass). */
+export function canRemoveFromQueue(roles: readonly Role[]): boolean {
+  return roles.some(
+    (r) => r === 'teacher' || r === 'prefect' || r === 'coordinator' || r === 'admin',
+  );
+}
+
+/** Un renglón de las listas: grupo siempre; id, nombre y clase solo para el personal. */
 export type WaitItem = {
   group_name: string;
   status: string;
   since: string;
+  id?: string;
   full_name?: string;
   list_number?: number;
   subject?: string | null;

@@ -2,6 +2,7 @@ import { Loading, Notice } from '@/components/ui/Page';
 import { formatElapsed } from '@/lib/board';
 import {
   errorMessage,
+  isWaiting,
   useBathrooms,
   useServerNow,
   type BathroomsStatus,
@@ -19,13 +20,21 @@ type Props = {
   alertMinutes?: number;
   /** Solo la vista de diseño de desarrollo. */
   preview?: BathroomsStatus;
+  /** Al tocar a alguien que todavía no sale (solo llega con id para el personal). */
+  onPick?: (item: WaitItem & { id: string }) => void;
 };
 
 /**
  * Baños y enfermería en tiempo real: quién está dentro y quién espera. El personal ve
  * nombre, grupo y clase; la compu del salón (a la vista de los alumnos) solo el grupo.
  */
-export function BathroomsLive({ variant = 'cards', ownGroup, alertMinutes = 10, preview }: Props) {
+export function BathroomsLive({
+  variant = 'cards',
+  ownGroup,
+  alertMinutes = 10,
+  preview,
+  onPick,
+}: Props) {
   const query = useBathrooms();
   const data = preview ?? query.data;
   const now = useServerNow(data?.offsetMs ?? 0);
@@ -35,7 +44,7 @@ export function BathroomsLive({ variant = 'cards', ownGroup, alertMinutes = 10, 
 
   const wrap =
     variant === 'cards' ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'flex flex-col gap-3';
-  const ctx: Ctx = { now, variant, ownGroup, alertMs: alertMinutes * 60_000 };
+  const ctx: Ctx = { now, variant, ownGroup, alertMs: alertMinutes * 60_000, onPick };
 
   return (
     <div className={wrap}>
@@ -47,7 +56,13 @@ export function BathroomsLive({ variant = 'cards', ownGroup, alertMinutes = 10, 
   );
 }
 
-type Ctx = { now: number; variant: Variant; ownGroup?: string; alertMs: number };
+type Ctx = {
+  now: number;
+  variant: Variant;
+  ownGroup?: string;
+  alertMs: number;
+  onPick?: Props['onPick'];
+};
 
 function box(variant: Variant) {
   return variant === 'dark'
@@ -125,8 +140,8 @@ function Row({
         .filter(Boolean)
         .join(' · ')
     : '';
-  return (
-    <span className={`flex items-center justify-between gap-2 rounded-btn px-3 py-1.5 ${frame}`}>
+  const body = (
+    <>
       <span className="flex min-w-0 flex-col">
         <span className="truncate">
           {position ? `${position}. ` : ''}
@@ -148,6 +163,24 @@ function Row({
         ) : null}
       </span>
       <span className="shrink-0 font-mono tabular-nums">{timeLabel}</span>
+    </>
+  );
+  const { onPick } = ctx;
+  const id = item.id;
+  if (onPick && id && isWaiting(item.status)) {
+    return (
+      <button
+        type="button"
+        onClick={() => onPick({ ...item, id })}
+        className={`flex min-h-btn items-center justify-between gap-2 rounded-btn px-3 py-1.5 text-left ${frame}`}
+      >
+        {body}
+      </button>
+    );
+  }
+  return (
+    <span className={`flex items-center justify-between gap-2 rounded-btn px-3 py-1.5 ${frame}`}>
+      {body}
     </span>
   );
 }
