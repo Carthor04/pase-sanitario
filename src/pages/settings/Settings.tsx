@@ -2,6 +2,7 @@ import { NavLink, Navigate, Route, Routes } from 'react-router';
 import { Notice, PageTitle } from '@/components/ui/Page';
 import { canManage } from '@/lib/me';
 import { useStaff } from '@/lib/session';
+import { Profile } from '@/pages/Profile';
 import { DevicesPanel } from './DevicesPanel';
 import { ImportPanel } from './ImportPanel';
 import { NotificationsPanel } from './NotificationsPanel';
@@ -11,12 +12,13 @@ import { StaffPanel } from './StaffPanel';
 import { StudentsPanel } from './StudentsPanel';
 import { TeachersPanel } from './TeachersPanel';
 
-// Coordinación y dirección ven las cuatro primeras; el resto es solo para admin.
+// Coordinación y dirección ven las cinco primeras; el resto es solo para admin.
 const TABS = [
   { to: 'banos', label: 'Baños y reglas', adminOnly: false },
   { to: 'horarios', label: 'Horarios', adminOnly: false },
   { to: 'docentes', label: 'Docentes', adminOnly: false },
   { to: 'alumnos', label: 'Alumnos', adminOnly: false },
+  { to: 'cuenta', label: 'Mi cuenta', adminOnly: false },
   { to: 'personal', label: 'Personal y PIN', adminOnly: true },
   { to: 'equipos', label: 'Salones y equipos', adminOnly: true },
   { to: 'notificaciones', label: 'Notificaciones', adminOnly: true },
@@ -70,6 +72,8 @@ export function Settings() {
             </div>
           }
         />
+        {/* Notificaciones, PIN, instalar app y cerrar sesión de quien está en Ajustes. */}
+        <Route path="cuenta" element={<Profile embedded />} />
         {isAdmin ? (
           <>
             <Route

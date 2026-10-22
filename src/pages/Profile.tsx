@@ -9,13 +9,17 @@ import { canManage } from '@/lib/me';
 import { ROLE_LABELS } from '@/lib/nav';
 import { signOut, useStaff } from '@/lib/session';
 
-/** Perfil: datos de la persona, su horario (si da clases), PIN, instalar la app y avisos. */
-export function Profile() {
+/**
+ * Perfil: datos de la persona, su horario (si da clases), PIN, instalar la app y avisos.
+ * `embedded` lo muestra dentro de Ajustes → Mi cuenta (coordinación y dirección no tienen
+ * la pestaña Perfil en la navegación).
+ */
+export function Profile({ embedded = false }: { embedded?: boolean }) {
   const staff = useStaff();
   const queryClient = useQueryClient();
   return (
     <div className="flex max-w-[560px] flex-col gap-4">
-      <PageTitle>Perfil</PageTitle>
+      {embedded ? null : <PageTitle>Perfil</PageTitle>}
       <Card>
         <div className="flex flex-col">
           <span className="text-[17px] font-bold">{staff.full_name}</span>
@@ -27,7 +31,7 @@ export function Profile() {
         <Link to="/mi-pin" className={buttonClass.secondary}>
           {staff.has_pin ? 'Cambiar mi PIN' : 'Definir mi PIN'}
         </Link>
-        {canManage(staff.roles) ? (
+        {canManage(staff.roles) && !embedded ? (
           <Link to="/ajustes" className={buttonClass.secondary}>
             Ajustes
           </Link>

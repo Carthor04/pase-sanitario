@@ -1,4 +1,12 @@
-export const ROLES = ['teacher', 'prefect', 'nurse', 'coordinator', 'director', 'admin'] as const;
+export const ROLES = [
+  'teacher',
+  'prefect',
+  'nurse',
+  'coordinator',
+  'director',
+  'admin',
+  'counselor',
+] as const;
 export type Role = (typeof ROLES)[number];
 
 export const ROLE_LABELS: Record<Role, string> = {
@@ -8,6 +16,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   coordinator: 'Coordinación',
   director: 'Dirección',
   admin: 'Admin',
+  counselor: 'Psicopedagogía',
 };
 
 export type NavItem = { to: string; label: string };
@@ -35,6 +44,8 @@ export const navByRole: Record<Role, ItemKey[]> = {
   coordinator: ['enVivo', 'grupo', 'reportes', 'historial', 'ajustes'],
   director: ['enVivo', 'reportes', 'historial', 'ajustes'],
   admin: ['enVivo', 'reportes', 'historial', 'ajustes'],
+  // Psicopedagogía ve los baños en vivo (solo lectura).
+  counselor: ['enVivo', 'perfil'],
 };
 
 // Orden canónico cuando una persona tiene varios roles.

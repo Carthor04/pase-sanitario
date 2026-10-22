@@ -31,6 +31,9 @@ describe('navForRoles', () => {
       'Ajustes',
     ]);
   });
+  it('psicopedagogía que da clase: En vivo además de su grupo', () => {
+    expect(labels(['teacher', 'counselor'])).toEqual(['En vivo', 'Mi grupo', 'Perfil']);
+  });
   it('sin roles: sin pestañas', () => {
     expect(navForRoles([])).toEqual([]);
   });
