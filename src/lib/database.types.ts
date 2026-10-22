@@ -405,6 +405,7 @@ export type Database = {
           kind: string
           pass_id: string | null
           payload: Json
+          recipient_device_id: string | null
           recipient_staff_id: string | null
           sent_at: string | null
         }
@@ -419,6 +420,7 @@ export type Database = {
           kind: string
           pass_id?: string | null
           payload?: Json
+          recipient_device_id?: string | null
           recipient_staff_id?: string | null
           sent_at?: string | null
         }
@@ -433,6 +435,7 @@ export type Database = {
           kind?: string
           pass_id?: string | null
           payload?: Json
+          recipient_device_id?: string | null
           recipient_staff_id?: string | null
           sent_at?: string | null
         }
@@ -442,6 +445,13 @@ export type Database = {
             columns: ["pass_id"]
             isOneToOne: false
             referencedRelation: "passes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_outbox_recipient_device_id_fkey"
+            columns: ["recipient_device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
             referencedColumns: ["id"]
           },
           {
@@ -702,37 +712,47 @@ export type Database = {
         Row: {
           auth: string
           created_at: string
+          device_id: string | null
           endpoint: string
           id: string
           last_error: string | null
           last_success_at: string | null
           p256dh: string
-          staff_id: string
+          staff_id: string | null
           user_agent: string | null
         }
         Insert: {
           auth: string
           created_at?: string
+          device_id?: string | null
           endpoint: string
           id?: string
           last_error?: string | null
           last_success_at?: string | null
           p256dh: string
-          staff_id: string
+          staff_id?: string | null
           user_agent?: string | null
         }
         Update: {
           auth?: string
           created_at?: string
+          device_id?: string | null
           endpoint?: string
           id?: string
           last_error?: string | null
           last_success_at?: string | null
           p256dh?: string
-          staff_id?: string
+          staff_id?: string | null
           user_agent?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "push_subscriptions_staff_id_fkey"
             columns: ["staff_id"]
@@ -833,6 +853,8 @@ export type Database = {
           pairing_code_minutes: number
           pin_lockout_seconds: number
           pin_max_attempts: number
+          queue_reset_done_at: string | null
+          queue_reset_times: string[]
           review_alerts_threshold: number
           review_exits_threshold: number
           sheets_daily_export_time: string
@@ -852,6 +874,8 @@ export type Database = {
           pairing_code_minutes?: number
           pin_lockout_seconds?: number
           pin_max_attempts?: number
+          queue_reset_done_at?: string | null
+          queue_reset_times?: string[]
           review_alerts_threshold?: number
           review_exits_threshold?: number
           sheets_daily_export_time?: string
@@ -871,6 +895,8 @@ export type Database = {
           pairing_code_minutes?: number
           pin_lockout_seconds?: number
           pin_max_attempts?: number
+          queue_reset_done_at?: string | null
+          queue_reset_times?: string[]
           review_alerts_threshold?: number
           review_exits_threshold?: number
           sheets_daily_export_time?: string
@@ -1043,7 +1069,6 @@ export type Database = {
       }
       clear_staff_pin: { Args: { p_staff_id: string }; Returns: undefined }
       confirm_turn: { Args: { p_pass_id: string }; Returns: Json }
-      force_out: { Args: { p_pass_id: string }; Returns: Json }
       create_device_pairing: {
         Args: { p_group_id: string; p_label?: string }
         Returns: Json
@@ -1064,6 +1089,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      force_out: { Args: { p_pass_id: string }; Returns: Json }
       group_board: { Args: { p_group_id: string }; Returns: Json }
       group_schedule: { Args: { p_group_id: string }; Returns: Json }
       group_today_counts: { Args: { p_group_id: string }; Returns: Json }
