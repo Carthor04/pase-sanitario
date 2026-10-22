@@ -1131,6 +1131,7 @@ export type Database = {
         Returns: Json
       }
       pass_timeline: { Args: { p_pass_id: string }; Returns: Json }
+      permissions_overview: { Args: never; Returns: Json }
       push_config: { Args: never; Returns: Json }
       release_pass: {
         Args: { p_pass_id: string; p_reason: string }
@@ -1166,8 +1167,13 @@ export type Database = {
       }
       send_test_push: { Args: never; Returns: Json }
       set_my_pin: { Args: { p_pin: string }; Returns: Json }
+      set_role_tabs: { Args: { p_role: string; p_tabs: string[] }; Returns: Json }
       set_staff_pin: {
         Args: { p_pin: string; p_staff_id: string }
+        Returns: Json
+      }
+      set_staff_roles: {
+        Args: { p_roles: string[]; p_staff_id: string }
         Returns: Json
       }
       student_today_passes: { Args: { p_student_id: string }; Returns: Json }

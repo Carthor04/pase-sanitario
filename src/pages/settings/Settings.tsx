@@ -6,6 +6,7 @@ import { Profile } from '@/pages/Profile';
 import { DevicesPanel } from './DevicesPanel';
 import { ImportPanel } from './ImportPanel';
 import { NotificationsPanel } from './NotificationsPanel';
+import { PermissionsPanel } from './PermissionsPanel';
 import { RulesPanel } from './RulesPanel';
 import { SchedulePanel } from './SchedulePanel';
 import { StaffPanel } from './StaffPanel';
@@ -20,6 +21,7 @@ const TABS = [
   { to: 'alumnos', label: 'Alumnos', adminOnly: false },
   { to: 'cuenta', label: 'Mi cuenta', adminOnly: false },
   { to: 'personal', label: 'Personal y PIN', adminOnly: true },
+  { to: 'permisos', label: 'Permisos', adminOnly: true },
   { to: 'equipos', label: 'Salones y equipos', adminOnly: true },
   { to: 'notificaciones', label: 'Notificaciones', adminOnly: true },
 ];
@@ -85,6 +87,7 @@ export function Settings() {
                 </div>
               }
             />
+            <Route path="permisos" element={<PermissionsPanel />} />
             <Route path="equipos" element={<DevicesPanel />} />
             <Route path="notificaciones" element={<NotificationsPanel />} />
           </>

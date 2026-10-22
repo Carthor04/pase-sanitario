@@ -22,6 +22,19 @@ describe('parseMe', () => {
     });
   });
 
+  it('trae las pestañas de Ajustes → Permisos', () => {
+    const me = parseMe({
+      kind: 'staff',
+      id: 'a',
+      full_name: 'Laura',
+      email: 'l@x.mx',
+      roles: ['teacher'],
+      tabs: ['grupo', 7, 'reportes'],
+      has_pin: false,
+    });
+    expect(me.kind === 'staff' && me.tabs).toEqual(['grupo', 'reportes']);
+  });
+
   it('reconoce un equipo de salón', () => {
     expect(
       parseMe({ kind: 'device', id: 'd', label: null, group_id: 'g', group_name: '2°B' }),

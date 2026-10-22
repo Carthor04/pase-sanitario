@@ -7,6 +7,8 @@ export type StaffMe = {
   full_name: string;
   email: string;
   roles: Role[];
+  /** Pestañas que ve según Ajustes → Permisos; sin ellas, el menú por omisión del rol. */
+  tabs?: string[];
   has_pin: boolean;
 };
 export type DeviceMe = {
@@ -37,6 +39,9 @@ export function parseMe(raw: Json): Me {
       full_name: str(o.full_name) ?? '',
       email: str(o.email) ?? '',
       roles,
+      ...(Array.isArray(o.tabs)
+        ? { tabs: o.tabs.filter((t): t is string => typeof t === 'string') }
+        : {}),
       has_pin: o.has_pin === true,
     };
   }

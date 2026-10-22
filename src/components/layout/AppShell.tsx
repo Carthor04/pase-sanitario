@@ -8,8 +8,8 @@ import { BottomNav } from './BottomNav';
 import { BrandMark, BrandName } from './BrandMark';
 
 export function AppShell() {
-  const { roles } = useStaff();
-  const items = navForRoles(roles);
+  const { roles, tabs } = useStaff();
+  const items = navForRoles(roles, tabs);
   // Contador de alertas del maestro en la pestaña Alertas.
   const showsAlerts = items.some((i) => i.to === '/alertas');
   const myAlerts = useMyAlerts(showsAlerts);

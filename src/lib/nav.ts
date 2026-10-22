@@ -35,7 +35,25 @@ const ITEMS = {
 
 type ItemKey = keyof typeof ITEMS;
 
-// Navegación inferior por rol (SPEC §6).
+/** Pestañas que el admin reparte por rol (Ajustes → Permisos). Perfil y Ajustes van fijos. */
+export const GRANTABLE_TABS = [
+  { id: 'en-vivo', label: 'En vivo' },
+  { id: 'grupo', label: 'Mi grupo' },
+  { id: 'banos', label: 'Baños' },
+  { id: 'alertas', label: 'Alertas' },
+  { id: 'enfermeria', label: 'Enfermería' },
+  { id: 'reportes', label: 'Reportes' },
+  { id: 'historial', label: 'Historial' },
+] as const;
+export type TabId = (typeof GRANTABLE_TABS)[number]['id'];
+
+const FIXED: ItemKey[] = ['ajustes', 'perfil'];
+const keyForTab = (tab: string) =>
+  GRANTABLE_TABS.some((t) => t.id === tab)
+    ? (Object.keys(ITEMS) as ItemKey[]).find((k) => ITEMS[k].to === `/${tab}`)
+    : undefined;
+
+// Navegación inferior por rol (SPEC §6). Es la de omisión: la que vale la trae me().tabs.
 export const navByRole: Record<Role, ItemKey[]> = {
   teacher: ['grupo', 'banos', 'alertas', 'perfil'],
   // Prefectura y coordinación también autorizan salidas desde "Mi grupo".
@@ -60,8 +78,19 @@ const SUPERSEDED_BY: Partial<Record<ItemKey, ItemKey>> = {
 
 export const MAX_NAV_ITEMS = 5;
 
-export function navForRoles(roles: readonly Role[]): NavItem[] {
-  const keys = new Set(roles.flatMap((r) => navByRole[r]));
+/**
+ * Menú de una persona. `tabs` son sus pestañas según Ajustes → Permisos (me().tabs); sin
+ * ellas se usa el menú por omisión de cada rol. Perfil y Ajustes siempre salen del rol.
+ */
+export function navForRoles(roles: readonly Role[], tabs?: readonly string[]): NavItem[] {
+  const keys = new Set(
+    tabs
+      ? [
+          ...tabs.map(keyForTab).filter((k): k is ItemKey => k !== undefined),
+          ...roles.flatMap((r) => navByRole[r].filter((k) => FIXED.includes(k))),
+        ]
+      : roles.flatMap((r) => navByRole[r]),
+  );
   for (const [key, by] of Object.entries(SUPERSEDED_BY) as [ItemKey, ItemKey][]) {
     if (keys.has(by)) keys.delete(key);
   }

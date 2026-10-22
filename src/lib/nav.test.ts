@@ -37,4 +37,33 @@ describe('navForRoles', () => {
   it('sin roles: sin pestañas', () => {
     expect(navForRoles([])).toEqual([]);
   });
+
+  describe('con las pestañas de Ajustes → Permisos', () => {
+    const withTabs = (roles: Parameters<typeof navForRoles>[0], tabs: string[]) =>
+      navForRoles(roles, tabs).map((i) => i.label);
+
+    it('maestro al que se le dio Reportes', () => {
+      expect(withTabs(['teacher'], ['grupo', 'banos', 'alertas', 'reportes'])).toEqual([
+        'Mi grupo',
+        'Baños',
+        'Alertas',
+        'Reportes',
+        'Perfil',
+      ]);
+    });
+    it('Ajustes y Perfil siguen saliendo del rol', () => {
+      expect(withTabs(['director'], ['reportes'])).toEqual(['Reportes', 'Ajustes']);
+      expect(withTabs(['teacher'], [])).toEqual(['Perfil']);
+    });
+    it('quien ve En vivo no repite Baños ni Alertas', () => {
+      expect(withTabs(['teacher'], ['en-vivo', 'grupo', 'banos', 'alertas'])).toEqual([
+        'En vivo',
+        'Mi grupo',
+        'Perfil',
+      ]);
+    });
+    it('ignora pestañas desconocidas', () => {
+      expect(withTabs(['teacher'], ['grupo', 'ajustes', 'otra'])).toEqual(['Mi grupo', 'Perfil']);
+    });
+  });
 });
