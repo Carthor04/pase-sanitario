@@ -17,6 +17,16 @@ begin
   perform pg_temp.make_anon(pc);
   g := pg_temp.make_group('P1');
   delete from public.staff_pins;
+  -- Pestañas por omisión, sin importar lo que el admin haya cambiado en la escuela.
+  delete from public.role_tabs;
+  insert into public.role_tabs (role, tab) values
+    ('teacher', 'grupo'), ('teacher', 'banos'), ('teacher', 'alertas'),
+    ('prefect', 'en-vivo'), ('prefect', 'grupo'), ('prefect', 'historial'),
+    ('nurse', 'enfermeria'), ('nurse', 'historial'),
+    ('coordinator', 'en-vivo'), ('coordinator', 'grupo'), ('coordinator', 'reportes'), ('coordinator', 'historial'),
+    ('director', 'en-vivo'), ('director', 'reportes'), ('director', 'historial'),
+    ('admin', 'en-vivo'), ('admin', 'reportes'), ('admin', 'historial'),
+    ('counselor', 'en-vivo');
 
   -- Menú por omisión: lo mismo que antes estaba fijo en el código.
   perform pg_temp.login(t);
