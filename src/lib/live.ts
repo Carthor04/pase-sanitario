@@ -81,7 +81,7 @@ type PassResult = {
 type Action =
   | { type: 'request'; studentId: string; kind: 'bathroom' | 'nurse' }
   | {
-      type: 'confirm' | 'cede' | 'return' | 'cancel' | 'undo' | 'arrived' | 'sendBack';
+      type: 'confirm' | 'cede' | 'return' | 'cancel' | 'undo' | 'arrived' | 'sendBack' | 'forceOut';
       passId: string;
     }
   | { type: 'release'; passId: string; reason: string }
@@ -96,6 +96,7 @@ const RPC = {
   undo: 'undo_last',
   arrived: 'mark_arrived',
   sendBack: 'nurse_send_back',
+  forceOut: 'force_out',
 } as const;
 
 /** Mensaje legible de un error de Supabase (las RPC ya devuelven textos en español). */

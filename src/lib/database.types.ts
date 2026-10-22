@@ -1043,6 +1043,7 @@ export type Database = {
       }
       clear_staff_pin: { Args: { p_staff_id: string }; Returns: undefined }
       confirm_turn: { Args: { p_pass_id: string }; Returns: Json }
+      force_out: { Args: { p_pass_id: string }; Returns: Json }
       create_device_pairing: {
         Args: { p_group_id: string; p_label?: string }
         Returns: Json

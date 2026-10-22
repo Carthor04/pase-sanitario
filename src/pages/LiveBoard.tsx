@@ -23,6 +23,8 @@ import { useClock } from '@/lib/useClock';
 
 type Caps = {
   ack: boolean;
+  /** Autorizar la salida de alguien que espera, aunque el baño esté lleno. */
+  forceOut: boolean;
   release: boolean;
   returnBath: boolean;
   returnNurse: boolean;
@@ -33,6 +35,7 @@ function capsFor(roles: Role[]): Caps {
   const has = (...r: Role[]) => roles.some((x) => r.includes(x));
   return {
     ack: has('prefect', 'coordinator', 'admin'),
+    forceOut: has('counselor', 'coordinator', 'director', 'admin'),
     release: has('prefect', 'coordinator', 'admin'),
     returnBath: has('teacher', 'prefect', 'coordinator', 'admin'),
     returnNurse: has('teacher', 'prefect', 'nurse', 'coordinator', 'admin'),
@@ -221,6 +224,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
             if (type === 'release') setReleasing(selected);
             else if (type === 'ack') void run({ type: 'acknowledge', passId: selected.id });
             else if (type === 'arrived') void run({ type: 'arrived', passId: selected.id });
+            else if (type === 'forceOut') void run({ type: 'forceOut', passId: selected.id });
             else void run({ type: 'return', passId: selected.id });
           }}
           onClose={() => setSelected(null)}
@@ -434,11 +438,28 @@ function Column({
               </button>
             ))}
             {groupWait.length ? (
-              <span className="px-2 pt-2 text-[13px] text-muted">
-                Espera del grupo:{' '}
-                {groupWait.map((p) => `${p.full_name} (${p.group_name})`).join(', ')}
+              <span className="px-2 pt-2 text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
+                Espera de su grupo
               </span>
             ) : null}
+            {groupWait.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onSelect(p)}
+                className="flex items-center justify-between gap-3 rounded-btn-lg border border-line px-3 py-2 text-left"
+              >
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-bold">{p.full_name}</span>
+                  <span className="text-[13px] text-muted">
+                    {p.group_name} · sale cuando regrese el de su grupo
+                  </span>
+                </span>
+                <span className="font-mono text-[14px] tabular-nums text-muted">
+                  {formatElapsed(elapsedSince(p.requested_at, now))}
+                </span>
+              </button>
+            ))}
           </>
         ) : (
           <span className="px-2 pt-1 text-[14px] font-bold text-free-fg">
@@ -468,7 +489,7 @@ function PersonDialog({
   canReturn: boolean;
   caps: Caps;
   isNurse: boolean;
-  onAction: (type: 'return' | 'release' | 'ack' | 'arrived') => void;
+  onAction: (type: 'return' | 'release' | 'ack' | 'arrived' | 'forceOut') => void;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -479,7 +500,9 @@ function PersonDialog({
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
+  const waiting = ['group_wait', 'queued', 'called'].includes(pass.status);
   const nothing =
+    !(caps.forceOut && waiting) &&
     !canReturn &&
     !caps.release &&
     !(caps.ack && pass.alert && !pass.alert.acknowledged_by_name) &&
@@ -512,6 +535,22 @@ function PersonDialog({
           {pass.opened_by_name ? ` · autorizó ${pass.opened_by_name}` : ''}
           {pass.current_teacher_name ? ` · ahora con ${pass.current_teacher_name}` : ''}
         </p>
+        {caps.forceOut && waiting ? (
+          <>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => onAction('forceOut')}
+              className={buttonClass.primary}
+            >
+              Autorizar salida ahora
+            </button>
+            <p className="m-0 text-[14px] text-muted">
+              Sale de inmediato aunque el baño esté lleno o ya haya alguien de su grupo fuera. Queda
+              registrado a tu nombre.
+            </p>
+          </>
+        ) : null}
         {isNurse && caps.arrive && pass.status === 'out' ? (
           <button
             type="button"

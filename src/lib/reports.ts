@@ -248,6 +248,7 @@ export const EVENT_LABELS: Record<string, string> = {
   confirmed: 'Se confirmó su salida',
   ceded: 'Cedió el turno',
   turn_expired: 'No se confirmó a tiempo',
+  forced_out: 'Salida autorizada desde En vivo',
   arrived: 'Llegó a enfermería (en atención)',
   sent_back: 'Salió de enfermería hacia el salón',
   returned: 'Regresó',
