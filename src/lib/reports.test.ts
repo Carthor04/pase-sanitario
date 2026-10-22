@@ -1,4 +1,12 @@
-import { closureText, heatmapMatrix, rangeFor, rangeTitle, todayMx, type Report } from './reports';
+import {
+  closureText,
+  dayLabel,
+  heatmapMatrix,
+  rangeFor,
+  rangeTitle,
+  todayMx,
+  type Report,
+} from './reports';
 
 describe('fechas de reportes', () => {
   it('usa la fecha de México, no la UTC', () => {
@@ -70,5 +78,12 @@ describe('closureText', () => {
         alert: { level: 1, acknowledged_by: 'Juan Pérez' },
       }),
     ).toBe('Regresó con alerta · atendió Juan Pérez');
+  });
+});
+
+describe('dayLabel', () => {
+  it('día de la semana, número y mes', () => {
+    expect(dayLabel('2026-10-22')).toBe('jue 22 de octubre');
+    expect(dayLabel('2026-07-13')).toBe('lun 13 de julio');
   });
 });

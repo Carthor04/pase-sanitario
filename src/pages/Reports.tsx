@@ -6,9 +6,11 @@ import { hm } from '@/lib/monitor';
 import {
   RANGE_LABELS,
   closureText,
+  dayLabel,
   heatmapMatrix,
   rangeFor,
   rangeTitle,
+  useFrequentExits,
   useHistory,
   useReport,
   type DetailFilter,
@@ -123,6 +125,8 @@ export function ReportBody({ report, from, to }: { report: Report; from: string;
           sub={mq ? `${mq.destination} · ${dayTimeFmt.format(new Date(mq.at))}` : 'Sin fila'}
         />
       </section>
+
+      <FrequentExitsCard from={from} to={to} />
 
       <Heatmap report={report} onOpen={setDetail} />
 
@@ -355,6 +359,76 @@ function ByGroup({ report, onOpen }: { report: Report; onOpen: OpenDetail }) {
           ))}
         </tbody>
       </table>
+    </Card>
+  );
+}
+
+/** Alumnos con 3 o más salidas al baño en un mismo día; al tocar uno se ven sus salidas. */
+function FrequentExitsCard({ from, to }: { from: string; to: string }) {
+  const query = useFrequentExits(from, to);
+  const oneDay = from === to;
+  const flag = query.data?.flag ?? 3;
+  const rows = query.data?.rows ?? [];
+
+  return (
+    <Card>
+      <div className="flex flex-col">
+        <h2 className="m-0 font-display text-[20px] font-bold sm:text-[24px]">
+          {flag} o más salidas al baño en un día
+        </h2>
+        <span className="text-[14px] text-muted">
+          {oneDay ? 'Hoy' : 'En el periodo'} · toca a un alumno para ver a qué hora salió
+        </span>
+      </div>
+      {query.isPending ? <Loading /> : null}
+      {query.isError ? <Notice tone="error">{errorMessage(query.error)}</Notice> : null}
+      {query.data && rows.length === 0 ? (
+        <span className="text-[15px] text-muted">
+          Nadie salió {flag} veces o más en un mismo día.
+        </span>
+      ) : null}
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        {rows.map((r) => (
+          <li key={`${r.day}:${r.student_id}`}>
+            <details className="group rounded-btn-lg border border-wait-bd/60 bg-wait-bg/30">
+              <summary className="flex min-h-btn cursor-pointer list-none items-center justify-between gap-2 px-3 py-2">
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-bold">
+                    {r.full_name} <span className="font-mono text-muted">#{r.list_number}</span>
+                  </span>
+                  <span className="text-[13px] text-muted">
+                    {r.group_name}
+                    {oneDay ? '' : ` · ${dayLabel(r.day)}`}
+                  </span>
+                </span>
+                <span className="flex shrink-0 items-center gap-2">
+                  <span className="rounded-chip bg-wait-bg px-2.5 py-0.5 text-[13px] font-bold text-wait-fg">
+                    {r.count} salidas
+                  </span>
+                  <span aria-hidden="true" className="text-muted group-open:rotate-180">
+                    ▾
+                  </span>
+                </span>
+              </summary>
+              <ol className="m-0 flex list-none flex-col gap-1 border-t border-line px-3 py-2">
+                {r.exits.map((e, i) => (
+                  <li key={e.started_at} className="flex flex-wrap gap-x-2 text-[14px]">
+                    <span className="font-mono tabular-nums">
+                      {i + 1}. {hm(e.started_at)}
+                    </span>
+                    <span>{e.subject ?? 'Sin clase'}</span>
+                    <span className="text-muted">
+                      {e.minutes == null ? 'sin regreso marcado' : `${e.minutes} min`}
+                      {e.opened_by ? ` · autorizó ${e.opened_by}` : ''}
+                    </span>
+                    {e.alert ? <span className="font-bold text-alert-fg">⚠ alerta</span> : null}
+                  </li>
+                ))}
+              </ol>
+            </details>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 }

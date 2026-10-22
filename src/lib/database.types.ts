@@ -1090,6 +1090,7 @@ export type Database = {
         Returns: undefined
       }
       force_out: { Args: { p_pass_id: string }; Returns: Json }
+      frequent_exits: { Args: { p_from: string; p_to: string }; Returns: Json }
       group_board: { Args: { p_group_id: string }; Returns: Json }
       group_schedule: { Args: { p_group_id: string }; Returns: Json }
       group_today_counts: { Args: { p_group_id: string }; Returns: Json }

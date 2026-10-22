@@ -138,6 +138,15 @@ export function rangeTitle(from: string, to: string): string {
   return `del ${fd} de ${MONTHS[fm - 1]} al ${td} de ${MONTHS[tm - 1]}`;
 }
 
+const WEEKDAYS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+
+/** "lun 13 de julio" para una fecha AAAA-MM-DD. */
+export function dayLabel(day: string): string {
+  const [y, m, d] = day.split('-').map(Number) as [number, number, number];
+  const weekday = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+  return `${WEEKDAYS[weekday]} ${d} de ${MONTHS[m - 1]}`;
+}
+
 // ---------------------------------------------------------------------------
 // Mapa de calor
 // ---------------------------------------------------------------------------
@@ -170,6 +179,30 @@ export function heatmapMatrix(report: Report, destination: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Muchas salidas al baño en un día
+// ---------------------------------------------------------------------------
+export type FrequentExit = {
+  started_at: string;
+  minutes: number | null;
+  subject: string | null;
+  opened_by: string | null;
+  alert: boolean;
+};
+
+export type FrequentRow = {
+  day: string;
+  student_id: string;
+  full_name: string;
+  list_number: number;
+  group_name: string;
+  count: number;
+  exits: FrequentExit[];
+};
+
+/** Alumnos con settings.daily_exits_flag (3) o más salidas al baño en un mismo día. */
+export type FrequentExits = { flag: number; rows: FrequentRow[] };
+
+// ---------------------------------------------------------------------------
 // Consultas
 // ---------------------------------------------------------------------------
 export function useReport(from: string, to: string) {
@@ -179,6 +212,17 @@ export function useReport(from: string, to: string) {
       const { data, error } = await supabase.rpc('report_summary', { p_from: from, p_to: to });
       if (error) throw error;
       return data as unknown as Report;
+    },
+  });
+}
+
+export function useFrequentExits(from: string, to: string) {
+  return useQuery({
+    queryKey: ['report', 'frequent', from, to],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('frequent_exits', { p_from: from, p_to: to });
+      if (error) throw error;
+      return data as unknown as FrequentExits;
     },
   });
 }
