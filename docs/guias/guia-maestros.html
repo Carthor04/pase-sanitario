@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<title>Pase Sanitario · Guía para maestros</title>
+<style>
+@font-face { font-family: 'Bricolage Grotesque'; font-weight: 700; src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 400; src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 700; src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2') format('woff2'); }
+:root { --ground:#F3F5F7; --line:#DCE2E8; --ink:#15212C; --muted:#52606D; --accent:#1D4E89;
+  --free:#146C43; --free-bg:#E3F4EA; --wait:#8A4B00; --wait-bg:#FFF0D6; --alert:#A3221A; --alert-bg:#FDE9E7; }
+@page { size: 8.5in 11in; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Atkinson Hyperlegible', sans-serif; color: var(--ink); background: #888;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 8.5in; height: 11in; background: #fff; padding: 46px 56px 52px; position: relative; overflow: hidden;
+  break-after: page; display: flex; flex-direction: column; gap: 18px; }
+.page:last-child { break-after: auto; }
+@media screen { .page { margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,.25); } }
+h1, h2 { font-family: 'Bricolage Grotesque', sans-serif; margin: 0; letter-spacing: -.01em; }
+h1 { font-size: 34px; line-height: 1.05; }
+h2 { font-size: 26px; }
+p { margin: 0; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { width: 44px; height: 44px; border-radius: 11px; background: var(--accent); display: grid; place-items: center; }
+.mark svg { height: 25px; fill: #fff; }
+.brand b { font-family: 'Bricolage Grotesque'; font-size: 20px; display: block; line-height: 1; }
+.brand small { font-size: 12px; color: var(--muted); font-weight: 700; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.tag { background: #E4ECF6; color: var(--accent); font-weight: 700; font-size: 13px; padding: 5px 12px; border-radius: 999px; }
+.lead { font-size: 17px; color: var(--muted); line-height: 1.45; }
+.steps { display: flex; flex-direction: column; gap: 12px; }
+.step { display: flex; gap: 16px; align-items: flex-start; border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
+.n { flex: none; width: 36px; height: 36px; border-radius: 999px; background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+.step b { font-size: 18px; display: block; margin-bottom: 3px; }
+.step span { font-size: 15.5px; color: var(--muted); line-height: 1.42; }
+.step em { font-style: normal; font-weight: 700; color: var(--ink); }
+.step span.n { color: #fff; font-size: 18px; line-height: 1; }
+.cols { display: grid; grid-template-columns: 250px 1fr; gap: 26px; align-items: start; }
+.phone { border: 6px solid var(--ink); border-radius: 26px; overflow: hidden; background: var(--ground); }
+.phone img { display: block; width: 100%; }
+.caption { font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; }
+.chips { display: flex; flex-direction: column; gap: 8px; }
+.chip { border-radius: 12px; padding: 10px 14px; font-size: 15px; line-height: 1.35; }
+.chip b { display: block; font-size: 16px; }
+.c-free { background: var(--free-bg); color: var(--free); }
+.c-wait { background: var(--wait-bg); color: var(--wait); }
+.c-alert { background: var(--alert-bg); color: var(--alert); }
+.note { background: var(--ground); border-radius: 12px; padding: 12px 16px; font-size: 15px; line-height: 1.42; }
+.note b { color: var(--ink); }
+.faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.faq div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; line-height: 1.4; color: var(--muted); }
+.faq b { display: block; color: var(--ink); font-size: 15.5px; margin-bottom: 3px; }
+.foot { position: absolute; left: 56px; right: 56px; bottom: 22px; display: flex; justify-content: space-between;
+  font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="tellus" viewBox="0 0 636 766"><path d="M1 191 319 0l317 191v149L382 190v381l128-85V302l126 74v188L319 766l-65-40V190L1 340Z"/><path d="M1 376l126-74v184l97 61v158L0 564Z"/></symbol>
+</defs></svg>
+
+<!-- 1 -->
+<section class="page">
+  <div class="top">
+    <div class="brand"><span class="mark"><svg viewBox="0 0 636 766"><use href="#tellus"/></svg></span><span><b>Pase Sanitario</b><small>by Tellus</small></span></div>
+    <span class="tag">Guía para maestros · celular</span>
+  </div>
+  <h1>Pase Sanitario en tu celular</h1>
+  <p class="lead">Con la app das permiso para ir al baño con un toque. El sistema decide si el alumno sale, lo forma en la fila y avisa si tarda. El alumno no toca nada.</p>
+
+  <h2>Antes de empezar (solo una vez)</h2>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><b>Entra con tu correo de la escuela</b><span>Abre <em>pase-oviedo.vercel.app</em> en Chrome (Android) o Safari (iPhone). Toca <em>Entrar con Google</em> y elige tu correo <em>@institutooviedo.edu.mx</em>.</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>Instala la app</b><span>Ve a <em>Perfil</em> y toca <em>Instalar app</em>. En iPhone: botón <em>Compartir</em> de Safari → <em>Agregar a inicio</em>. Después abre siempre el ícono <em>Pase</em>.</span></div></div>
+    <div class="step"><span class="n">3</span><div><b>Activa las notificaciones</b><span>En <em>Perfil → Notificaciones</em> toca <em>Activar</em> y acepta el permiso. Toca <em>Enviar prueba</em>: debe llegarte un aviso.</span></div></div>
+    <div class="step"><span class="n">4</span><div><b>Crea tu PIN de 4 dígitos</b><span>En <em>Perfil → Definir mi PIN</em>. Es solo tuyo: con él desbloqueas la computadora del salón. No lo compartas.</span></div></div>
+  </div>
+
+  <div class="note"><b>En Perfil</b> también ves tu horario: en qué clase estás ahora y cuál sigue.</div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>1</span></div>
+</section>
+
+<!-- 2 -->
+<section class="page">
+  <h2>Dar un pase al baño</h2>
+  <div class="cols">
+    <div>
+      <div class="phone"><img src="img/cel-libre.png" alt="" style="object-view-box: inset(0 0 640px 0);"></div>
+      <p class="caption">Mi grupo · datos de ejemplo</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>Abre Mi grupo</b><span>Aparece solo el grupo que tienes a esta hora. Si das clase en otro grupo (suplencia), cámbialo arriba.</span></div></div>
+      <div class="step"><span class="n">2</span><div><b>Toca el nombre del alumno</b><span>Puedes buscarlo por nombre o número de lista.</span></div></div>
+      <div class="step"><span class="n">3</span><div><b>Toca Baño</b><span>El baño de hombres o de mujeres se elige solo. Por ahora usa solo <em>Baño</em>.</span></div></div>
+      <div class="phone" style="width: 230px; align-self: center; border-width: 5px;"><img src="img/menu-celular.png" alt="" style="object-view-box: inset(925px 0 180px 0);"></div>
+    </div>
+  </div>
+
+  <h2 style="font-size:22px;">Qué puede pasar</h2>
+  <div class="chips">
+    <div class="chip c-free"><b>Sale ya</b>Hay lugar: el alumno sale y empieza a correr su tiempo.</div>
+    <div class="chip c-wait"><b>En fila</b>El baño está lleno. Cuando le toque, te avisará la app.</div>
+    <div class="chip c-wait"><b>Espera de su grupo</b>Ya hay alguien de su grupo y su mismo sexo afuera. Sale en cuanto regrese.</div>
+  </div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>2</span></div>
+</section>
+
+<!-- 3 -->
+<section class="page">
+  <h2>Su turno, regreso y alertas</h2>
+  <div class="cols">
+    <div>
+      <div class="phone"><img src="img/cel-turno.png" alt="" style="object-view-box: inset(0 0 560px 0);"></div>
+      <p class="caption">Turno y alerta · datos de ejemplo</p>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>“Turno de…” (franja amarilla)</b><span>Le tocó salir al alumno que estaba en fila. Toca <em>Confirmar salida</em> cuando salga. Tienes 2 minutos; si no, el turno pasa al siguiente.</span></div></div>
+      <div class="step"><span class="n">2</span><div><b>Cuando regrese</b><span>Toca <em>Marcar regreso</em>. Así se libera el lugar para el siguiente.</span></div></div>
+      <div class="step"><span class="n">3</span><div><b>¿Te equivocaste?</b><span>Toca <em>Deshacer</em> en los 10 segundos siguientes.</span></div></div>
+      <div class="step"><span class="n">4</span><div><b>Alerta de 10 minutos</b><span>Si tarda más, la tarjeta se pone <em>roja</em> y te llega un aviso. Prefectura va a buscarlo. También lo ves en la pestaña <em>Alertas</em>.</span></div></div>
+    </div>
+  </div>
+  <div class="chip c-alert"><b>El color nunca es lo único</b>Cada estado dice su nombre: Fuera, En fila, Su turno, Alerta. El cronómetro marca cuánto tiempo lleva afuera.</div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>3</span></div>
+</section>
+
+<!-- 4 -->
+<section class="page">
+  <h2>Reglas rápidas</h2>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><b>Un niño y una niña por grupo a la vez</b><span>En horas de Inglés se cuenta por salón.</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>Baño de hombres: 1 · Baño de mujeres: 3</b><span>Si está lleno, el alumno queda en la fila y se le llama en orden.</span></div></div>
+    <div class="step"><span class="n">3</span><div><b>En Inglés la lista cambia sola</b><span>Verás a los alumnos de tu nivel (básico, intermedio o avanzado), con su grupo junto al nombre.</span></div></div>
+    <div class="step"><span class="n">4</span><div><b>Al cambiar de clase no se cierra nada</b><span>Si un alumno sigue afuera, el siguiente maestro lo ve con “salió en…”. Al final del día se cierran solos los pases olvidados.</span></div></div>
+  </div>
+
+  <h2 style="margin-top:6px;">Dudas comunes</h2>
+  <div class="faq">
+    <div><b>No puedo entrar</b>Usa tu correo @institutooviedo.edu.mx. Si dice que no estás registrado, avisa a coordinación.</div>
+    <div><b>No me llegan avisos</b>Abre la app desde el ícono, ve a Perfil → Notificaciones y toca Activar. Prueba con Enviar prueba.</div>
+    <div><b>Olvidé mi PIN</b>Créalo de nuevo en Perfil → Cambiar mi PIN.</div>
+    <div><b>Falta un alumno o un dato está mal</b>Avisa a coordinación para que lo corrija.</div>
+  </div>
+  <div class="note"><b>Ayuda:</b> si algo no funciona, avisa a coordinación o al administrador del sistema.</div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>4</span></div>
+</section>
+</body>
+</html>

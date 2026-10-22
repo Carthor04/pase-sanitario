@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<title>Pase Sanitario · Guía de la computadora del salón</title>
+<style>
+@font-face { font-family: 'Bricolage Grotesque'; font-weight: 700; src: url('../../node_modules/@fontsource/bricolage-grotesque/files/bricolage-grotesque-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 400; src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Atkinson Hyperlegible'; font-weight: 700; src: url('../../node_modules/@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-700-normal.woff2') format('woff2'); }
+:root { --ground:#F3F5F7; --line:#DCE2E8; --ink:#15212C; --muted:#52606D; --accent:#1D4E89;
+  --free:#146C43; --free-bg:#E3F4EA; --wait:#8A4B00; --wait-bg:#FFF0D6; --alert:#A3221A; --alert-bg:#FDE9E7; }
+@page { size: 8.5in 11in; margin: 0; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Atkinson Hyperlegible', sans-serif; color: var(--ink); background: #888;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 8.5in; height: 11in; background: #fff; padding: 46px 56px 52px; position: relative; overflow: hidden;
+  break-after: page; display: flex; flex-direction: column; gap: 18px; }
+.page:last-child { break-after: auto; }
+@media screen { .page { margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,.25); } }
+h1, h2 { font-family: 'Bricolage Grotesque', sans-serif; margin: 0; letter-spacing: -.01em; }
+h1 { font-size: 34px; line-height: 1.05; }
+h2 { font-size: 26px; }
+p { margin: 0; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { width: 44px; height: 44px; border-radius: 11px; background: var(--accent); display: grid; place-items: center; }
+.mark svg { height: 25px; fill: #fff; }
+.brand b { font-family: 'Bricolage Grotesque'; font-size: 20px; display: block; line-height: 1; }
+.brand small { font-size: 12px; color: var(--muted); font-weight: 700; }
+.top { display: flex; justify-content: space-between; align-items: center; }
+.tag { background: #E4ECF6; color: var(--accent); font-weight: 700; font-size: 13px; padding: 5px 12px; border-radius: 999px; }
+.lead { font-size: 17px; color: var(--muted); line-height: 1.45; }
+.steps { display: flex; flex-direction: column; gap: 12px; }
+.step { display: flex; gap: 16px; align-items: flex-start; border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
+.n { flex: none; width: 36px; height: 36px; border-radius: 999px; background: var(--accent); color: #fff;
+  display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+.step b { font-size: 18px; display: block; margin-bottom: 3px; }
+.step span { font-size: 15.5px; color: var(--muted); line-height: 1.42; }
+.step em { font-style: normal; font-weight: 700; color: var(--ink); }
+.step span.n { color: #fff; font-size: 18px; line-height: 1; }
+.screen { border: 1px solid #C5CED8; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(21,33,44,.12); }
+.screen img { display: block; width: 100%; }
+.caption { font-size: 12px; color: var(--muted); text-align: center; margin-top: 6px; }
+.kbd { display: inline-block; min-width: 28px; padding: 2px 8px; border: 1px solid #C5CED8; border-bottom-width: 3px;
+  border-radius: 7px; background: #fff; font-weight: 700; color: var(--ink); text-align: center; }
+.keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.keys div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 15px; color: var(--muted); line-height: 1.5; }
+.keys b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+.note { background: var(--ground); border-radius: 12px; padding: 12px 16px; font-size: 15px; line-height: 1.42; }
+.note b { color: var(--ink); }
+.warn { background: var(--wait-bg); color: var(--wait); border-radius: 12px; padding: 12px 16px; font-size: 15px; line-height: 1.42; }
+.faq { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.faq div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; line-height: 1.4; color: var(--muted); }
+.faq em { font-style: normal; font-weight: 700; color: var(--ink); }
+.faq b { display: block; color: var(--ink); font-size: 15.5px; margin-bottom: 3px; }
+.foot { position: absolute; left: 56px; right: 56px; bottom: 22px; display: flex; justify-content: space-between;
+  font-size: 11.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="tellus" viewBox="0 0 636 766"><path d="M1 191 319 0l317 191v149L382 190v381l128-85V302l126 74v188L319 766l-65-40V190L1 340Z"/><path d="M1 376l126-74v184l97 61v158L0 564Z"/></symbol>
+</defs></svg>
+
+<!-- 1 -->
+<section class="page">
+  <div class="top">
+    <div class="brand"><span class="mark"><svg viewBox="0 0 636 766"><use href="#tellus"/></svg></span><span><b>Pase Sanitario</b><small>by Tellus</small></span></div>
+    <span class="tag">Guía · computadora del salón</span>
+  </div>
+  <h1>La computadora del salón</h1>
+  <p class="lead">Cada salón tiene una computadora con Pase Sanitario abierto todo el día. Ahí el maestro da los pases al baño. El alumno no toca nada.</p>
+
+  <div style="display:grid; grid-template-columns: 1fr 250px; gap: 26px; align-items: start;">
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>Normalmente está bloqueada</b><span>Muestra el grupo, la clase actual y quién está fuera del salón, pero no deja dar pases.</span></div></div>
+      <div class="step"><span class="n">2</span><div><b>Desbloquea con tu PIN</b><span>Escribe tus 4 dígitos. Los pases que des quedan <em>a tu nombre</em>. Si eres suplente, usa tu propio PIN.</span></div></div>
+      <div class="step"><span class="n">3</span><div><b>¿Aún no tienes PIN?</b><span>Créalo en tu celular: <em>Perfil → Definir mi PIN</em>.</span></div></div>
+    </div>
+    <div>
+      <div class="screen"><img src="img/pin.png" alt="" style="object-view-box: inset(20px 80px 860px 80px);"></div>
+      <p class="caption">Teclado del PIN</p>
+    </div>
+  </div>
+
+  <div class="warn"><b>5 intentos equivocados</b> bloquean el teclado 1 minuto. Espera y vuelve a intentar.</div>
+  <div class="note"><b>No cierres la app.</b> Si se cerró, ábrela desde el ícono <b>Pase</b> del escritorio o de la barra de tareas.</div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>1</span></div>
+</section>
+
+<!-- 2 -->
+<section class="page">
+  <h2>Dar un pase al baño</h2>
+  <div class="screen"><img src="img/pc-turno.png" alt="" style="object-view-box: inset(0 0 560px 0);"></div>
+  <p class="caption" style="margin-top:-10px;">Computadora desbloqueada · datos de ejemplo</p>
+
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><b>Toca el nombre del alumno y luego Baño</b><span>El baño de hombres o de mujeres se elige solo. El sistema dice si sale ya, queda en fila o espera a alguien de su grupo.</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>Arriba ves quién está fuera</b><span>Tarjetas <em>Niño</em> y <em>Niña</em> con el nombre y el cronómetro. Cuando regrese, toca <em>Marcar regreso</em>.</span></div></div>
+    <div class="step"><span class="n">3</span><div><b>“Turno de…” (franja amarilla)</b><span>Le tocó al alumno que estaba en fila. Toca <em>Confirmar salida</em> cuando salga (tienes 2 minutos).</span></div></div>
+  </div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>2</span></div>
+</section>
+
+<!-- 3 -->
+<section class="page">
+  <h2>Atajo con el teclado</h2>
+  <p class="lead">En el cuadro <b>Número de lista</b> escribe el número del alumno y luego una letra:</p>
+  <div class="keys">
+    <div><b>Baño</b><span class="kbd">7</span> + <span class="kbd">B</span><br>abre el pase de #7</div>
+    <div><b>Regresó</b><span class="kbd">7</span> + <span class="kbd">R</span><br>marca el regreso de #7</div>
+    <div><b>Enfermería</b><span class="kbd">7</span> + <span class="kbd">E</span><br>solo si dirección lo indica</div>
+  </div>
+
+  <h2 style="margin-top:4px;">Al terminar tu clase</h2>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><b>Toca Bloquear</b><span>El botón con el candado, arriba a la derecha. Si lo olvidas, se bloquea sola 5 minutos después de que termina la clase.</span></div></div>
+    <div class="step"><span class="n">2</span><div><b>Los alumnos que siguen fuera no se pierden</b><span>El siguiente maestro los ve con “salió en…” y marca su regreso.</span></div></div>
+  </div>
+
+  <h2 style="margin-top:4px;">Bueno saber</h2>
+  <div class="faq">
+    <div><b>En Inglés la lista cambia sola</b>Aparecen los alumnos del nivel que se da en este salón, con su grupo junto al nombre.</div>
+    <div><b>¿Te equivocaste?</b>Toca <em>Deshacer</em> en los 10 segundos siguientes.</div>
+    <div><b>Alerta de 10 minutos</b>Si un alumno tarda, su tarjeta se pone roja y prefectura recibe el aviso.</div>
+    <div><b>Dice “Sin conexión”</b>Revisa el internet de la computadora. Al volver, se actualiza sola.</div>
+  </div>
+  <div class="note"><b>Botón ⋯</b> (arriba): activa las notificaciones de esta computadora. Lo configura el administrador al instalarla; no hace falta tocarlo.</div>
+  <div class="foot"><span>Pase Sanitario · Instituto Oviedo</span><span>3</span></div>
+</section>
+</body>
+</html>

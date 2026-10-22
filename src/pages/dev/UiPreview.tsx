@@ -42,9 +42,11 @@ const NAMES = [
 ];
 
 export function UiPreview() {
-  const [view, setView] = useState<
-    'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes' | 'baños' | 'instalar'
-  >('turno');
+  type View = 'turno' | 'libre' | 'pin' | 'prefectura' | 'reportes' | 'baños' | 'instalar';
+  // ?vista=libre abre esa vista directo (para tomar capturas de las guías).
+  const [view, setView] = useState<View>(
+    () => (new URLSearchParams(window.location.search).get('vista') as View | null) ?? 'turno',
+  );
   const students: StudentRef[] = NAMES.map((full_name, i) => ({
     id: `s${i + 1}`,
     list_number: i + 1,
@@ -163,7 +165,11 @@ export function UiPreview() {
 
   return (
     <div className="min-h-screen bg-ground">
-      <div className="flex flex-wrap gap-2 border-b border-line bg-surface p-3">
+      <div
+        className={`flex flex-wrap gap-2 border-b border-line bg-surface p-3 ${
+          new URLSearchParams(window.location.search).has('limpio') ? 'hidden' : ''
+        }`}
+      >
         <strong className="mr-2 self-center">Vista de prueba (datos ficticios)</strong>
         {(['turno', 'libre', 'pin', 'prefectura', 'reportes', 'baños', 'instalar'] as const).map(
           (v) => (
