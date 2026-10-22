@@ -1,11 +1,19 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Fragment, useEffect, useState } from 'react';
 import { AlertCard, ReleaseDialog } from '@/components/pass/AlertCard';
+import { RemoveFromQueueDialog } from '@/components/pass/RemoveFromQueue';
 import { Loading, Notice } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
 import { formatElapsed } from '@/lib/board';
 import { useAudioUnlock } from '@/lib/device';
-import { errorMessage, useLivePasses, usePassAction, useServerNow } from '@/lib/live';
+import {
+  canRemoveFromQueue,
+  errorMessage,
+  isWaiting,
+  useLivePasses,
+  usePassAction,
+  useServerNow,
+} from '@/lib/live';
 import {
   alertStatusText,
   hm,
@@ -25,6 +33,9 @@ type Caps = {
   ack: boolean;
   /** Autorizar la salida de alguien que espera, aunque el baño esté lleno. */
   forceOut: boolean;
+  /** Quitar de la fila (cancel_pass) a alguien que todavía no sale. */
+  cancel: boolean;
+  /** Liberar el lugar de alguien que ya salió (con motivo). */
   release: boolean;
   returnBath: boolean;
   returnNurse: boolean;
@@ -36,6 +47,7 @@ function capsFor(roles: Role[]): Caps {
   return {
     ack: has('prefect', 'coordinator', 'admin'),
     forceOut: has('counselor', 'coordinator', 'director', 'admin'),
+    cancel: canRemoveFromQueue(roles),
     release: has('prefect', 'coordinator', 'admin'),
     returnBath: has('teacher', 'prefect', 'coordinator', 'admin'),
     returnNurse: has('teacher', 'prefect', 'nurse', 'coordinator', 'admin'),
@@ -60,6 +72,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<LivePass | null>(null);
   const [releasing, setReleasing] = useState<LivePass | null>(null);
+  const [removing, setRemoving] = useState<LivePass | null>(null);
   const [tab, setTab] = useState(0);
   useAudioUnlock();
 
@@ -98,6 +111,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
     } catch (err) {
       setError(errorMessage(err));
     }
+    setRemoving(null);
   }
 
   if (!preview && live.isPending) return <Loading />;
@@ -204,7 +218,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
           Hoy: <strong className="text-ink">{board.stats.exits_today}</strong> salidas ·{' '}
           <strong className="text-ink">{board.stats.alerts_today}</strong> alertas
         </span>
-        <span>Toca a un alumno para marcar regreso o liberar su lugar</span>
+        <span>Toca a un alumno para marcar regreso, liberar su lugar o quitarlo de la fila</span>
       </footer>
 
       {selected ? (
@@ -222,6 +236,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
           isNurse={columns.find((d) => d.id === selected.destination_id)?.kind === 'nurse'}
           onAction={(type) => {
             if (type === 'release') setReleasing(selected);
+            else if (type === 'cancel') setRemoving(selected);
             else if (type === 'ack') void run({ type: 'acknowledge', passId: selected.id });
             else if (type === 'arrived') void run({ type: 'arrived', passId: selected.id });
             else if (type === 'forceOut') void run({ type: 'forceOut', passId: selected.id });
@@ -237,6 +252,16 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
           busy={action.isPending}
           onConfirm={(reason) => void run({ type: 'release', passId: releasing.id, reason })}
           onClose={() => setReleasing(null)}
+        />
+      ) : null}
+
+      {removing ? (
+        <RemoveFromQueueDialog
+          name={removing.full_name}
+          groupName={removing.group_name}
+          busy={action.isPending}
+          onConfirm={() => void run({ type: 'cancel', passId: removing.id })}
+          onClose={() => setRemoving(null)}
         />
       ) : null}
 
@@ -489,7 +514,7 @@ function PersonDialog({
   canReturn: boolean;
   caps: Caps;
   isNurse: boolean;
-  onAction: (type: 'return' | 'release' | 'ack' | 'arrived' | 'forceOut') => void;
+  onAction: (type: 'return' | 'release' | 'cancel' | 'ack' | 'arrived' | 'forceOut') => void;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -500,11 +525,15 @@ function PersonDialog({
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  const waiting = ['group_wait', 'queued', 'called'].includes(pass.status);
+  const waiting = isWaiting(pass.status);
+  // Quien todavía no sale se quita de la fila; "Liberar lugar" es para quien ya salió.
+  const canCancel = caps.cancel && waiting;
+  const canRelease = caps.release && !waiting;
   const nothing =
     !(caps.forceOut && waiting) &&
+    !canCancel &&
     !canReturn &&
-    !caps.release &&
+    !canRelease &&
     !(caps.ack && pass.alert && !pass.alert.acknowledged_by_name) &&
     !(isNurse && caps.arrive && pass.status === 'out');
 
@@ -581,7 +610,17 @@ function PersonDialog({
             Marcar regreso
           </button>
         ) : null}
-        {caps.release ? (
+        {canCancel ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onAction('cancel')}
+            className={buttonClass.danger}
+          >
+            Quitar de la fila
+          </button>
+        ) : null}
+        {canRelease ? (
           <button
             type="button"
             disabled={busy}
