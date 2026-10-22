@@ -2,7 +2,7 @@
 // acciones sobre pases. El cliente nunca decide; solo llama RPC y muestra el resultado.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { parseBoard, type ActiveStatus } from './board';
+import { parseBoard, type ActiveStatus, type BathroomPause } from './board';
 import type { Role } from './nav';
 import { supabase } from './supabase';
 
@@ -25,6 +25,9 @@ export function useLivePasses(): boolean {
         void invalidateLive(queryClient);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, () => {
+        void invalidateLive(queryClient);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bathroom_pauses' }, () => {
         void invalidateLive(queryClient);
       })
       .subscribe((status) => {
@@ -156,6 +159,35 @@ export function canRemoveFromQueue(roles: readonly Role[]): boolean {
   );
 }
 
+/** Roles que pueden pausar y reanudar un baño (los mismos que aceptan pause_bathroom y resume_bathroom). */
+export function canPauseBathroom(roles: readonly Role[]): boolean {
+  return roles.some(
+    (r) =>
+      r === 'teacher' ||
+      r === 'prefect' ||
+      r === 'coordinator' ||
+      r === 'director' ||
+      r === 'admin',
+  );
+}
+
+/** Pausar o reanudar un baño. Las reglas de la pausa viven en la BD. */
+export function usePauseBathroom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (a: { destination: string; pause: boolean; reason?: string }) => {
+      const { error } = a.pause
+        ? await supabase.rpc('pause_bathroom', {
+            p_destination: a.destination,
+            p_reason: a.reason ?? '',
+          })
+        : await supabase.rpc('resume_bathroom', { p_destination: a.destination });
+      if (error) throw error;
+    },
+    onSettled: () => invalidateLive(queryClient),
+  });
+}
+
 /** Un renglón de las listas: grupo siempre; id, nombre y clase solo para el personal. */
 export type WaitItem = {
   group_name: string;
@@ -183,6 +215,7 @@ export type BathroomsStatus = {
     label: string;
     sex: 'H' | 'M';
     capacity: number | null;
+    paused?: BathroomPause | null;
     occupants: WaitItem[];
     queue: WaitItem[];
     group_wait: number;

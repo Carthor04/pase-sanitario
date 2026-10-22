@@ -3,6 +3,7 @@ import { BathroomsLive } from '@/components/pass/BathroomsLive';
 import { RemoveFromQueueDialog } from '@/components/pass/RemoveFromQueue';
 import { PageTitle } from '@/components/ui/Page';
 import {
+  canPauseBathroom,
   canRemoveFromQueue,
   errorMessage,
   useLivePasses,
@@ -52,7 +53,10 @@ export function Bathrooms() {
       >
         Baños
       </PageTitle>
-      <BathroomsLive onPick={canRemoveFromQueue(staff.roles) ? setPicked : undefined} />
+      <BathroomsLive
+        onPick={canRemoveFromQueue(staff.roles) ? setPicked : undefined}
+        canPause={canPauseBathroom(staff.roles)}
+      />
 
       {picked ? (
         <RemoveFromQueueDialog

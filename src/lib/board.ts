@@ -37,11 +37,28 @@ export type BoardPass = {
   } | null;
 };
 
+/** Baño en pausa (limpieza u otro motivo): no se piden pases y la fila no avanza. */
+export type BathroomPause = { since: string; by: string | null; reason: string | null };
+
+/** "Baño de hombres en pausa · Limpieza" */
+export const pausedText = (label: string, p: BathroomPause) =>
+  `${label} en pausa${p.reason ? ` · ${p.reason}` : ''}`;
+
+/**
+ * Tiempo de espera de quien está en fila: con el baño en pausa el reloj se detiene en el
+ * momento de la pausa.
+ */
+export function waitElapsed(since: string, now: number, pause?: BathroomPause | null): number {
+  const end = pause ? Math.min(now, new Date(pause.since).getTime()) : now;
+  return Math.max(0, end - new Date(since).getTime());
+}
+
 export type Bathroom = {
   id: string;
   label: string;
   sex: Sex;
   capacity: number | null;
+  paused?: BathroomPause | null;
   occupants: { group_name: string; own: boolean; status: 'called' | 'out'; since: string }[];
   queue: { group_name: string; own: boolean }[];
 };
@@ -219,6 +236,7 @@ export function bathroomHint(
   }
   const bath = bathroomFor(board, student.sex);
   if (!bath) return { text: 'No hay baño configurado', tone: 'blocked' };
+  if (bath.paused) return { text: pausedText(bath.label, bath.paused), tone: 'blocked' };
   // El lugar es por salón (en Inglés, el salón del nivel aunque mezcle grupos).
   const holder = slotPass(board.passes, student.sex, roomId);
   if (holder) {

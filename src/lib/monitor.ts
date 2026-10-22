@@ -1,7 +1,7 @@
 // Lecturas de la Fase 4: monitor en vivo (prefectura), alertas del maestro y enfermería.
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import type { ActiveStatus, Sex } from './board';
+import type { ActiveStatus, BathroomPause, Sex } from './board';
 import { playAlertSound } from './device';
 import { supabase } from './supabase';
 
@@ -41,6 +41,7 @@ export type LiveDestination = {
   kind: 'bathroom' | 'nurse';
   sex: Sex | null;
   capacity: number | null;
+  paused?: BathroomPause | null;
 };
 
 export type LiveBoard = {

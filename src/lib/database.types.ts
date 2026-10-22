@@ -1119,6 +1119,10 @@ export type Database = {
       }
       nurse_send_back: { Args: { p_pass_id: string }; Returns: Json }
       nurse_today: { Args: never; Returns: Json }
+      pause_bathroom: {
+        Args: { p_destination: string; p_reason?: string }
+        Returns: Json
+      }
       pass_history: {
         Args: {
           p_from: string
@@ -1155,6 +1159,7 @@ export type Database = {
         Returns: Json
       }
       revoke_device: { Args: { p_device_id: string }; Returns: undefined }
+      resume_bathroom: { Args: { p_destination: string }; Returns: undefined }
       room_roster: { Args: { p_group_id: string }; Returns: Json }
       save_push_subscription: {
         Args: {

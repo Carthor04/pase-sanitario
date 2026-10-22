@@ -196,7 +196,7 @@ export function UiPreview() {
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="flex flex-col gap-3 lg:col-span-2">
               <h2 className="m-0 font-display text-[22px] font-bold">Personal (pantalla Baños)</h2>
-              <BathroomsLive preview={bathroomsPreview(true)} />
+              <BathroomsLive preview={bathroomsPreview(true)} canPause />
             </div>
             <div className="flex flex-col gap-3">
               <h2 className="m-0 font-display text-[22px] font-bold">Panel (salón desbloqueado)</h2>
@@ -476,6 +476,7 @@ function bathroomsPreview(names = false): BathroomsStatus {
         label: 'Baño hombres',
         sex: 'H',
         capacity: 1,
+        paused: { since: iso(4), by: 'Prefectura', reason: 'Limpieza' },
         group_wait: 1,
         occupants: [
           {

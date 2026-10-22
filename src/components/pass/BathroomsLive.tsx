@@ -1,5 +1,6 @@
+import { PauseBanner, PauseControl } from '@/components/pass/BathroomPause';
 import { Loading, Notice } from '@/components/ui/Page';
-import { formatElapsed } from '@/lib/board';
+import { formatElapsed, waitElapsed } from '@/lib/board';
 import {
   errorMessage,
   isWaiting,
@@ -22,6 +23,8 @@ type Props = {
   preview?: BathroomsStatus;
   /** Al tocar a alguien que todavía no sale (solo llega con id para el personal). */
   onPick?: (item: WaitItem & { id: string }) => void;
+  /** Muestra el botón para pausar o reanudar cada baño (pantalla Baños). */
+  canPause?: boolean;
 };
 
 /**
@@ -34,6 +37,7 @@ export function BathroomsLive({
   alertMinutes = 10,
   preview,
   onPick,
+  canPause = false,
 }: Props) {
   const query = useBathrooms();
   const data = preview ?? query.data;
@@ -44,7 +48,7 @@ export function BathroomsLive({
 
   const wrap =
     variant === 'cards' ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3' : 'flex flex-col gap-3';
-  const ctx: Ctx = { now, variant, ownGroup, alertMs: alertMinutes * 60_000, onPick };
+  const ctx: Ctx = { now, variant, ownGroup, alertMs: alertMinutes * 60_000, onPick, canPause };
 
   return (
     <div className={wrap}>
@@ -62,6 +66,7 @@ type Ctx = {
   ownGroup?: string;
   alertMs: number;
   onPick?: Props['onPick'];
+  canPause: boolean;
 };
 
 function box(variant: Variant) {
@@ -192,6 +197,8 @@ function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ct
   const occ = b.occupants.length;
   const full = b.capacity !== null && occ >= b.capacity;
   const muted = dark ? 'text-white/70' : 'text-muted';
+  const pause = b.paused ?? null;
+  const pausedMark = pause ? '⏸ ' : '';
 
   return (
     <section
@@ -212,6 +219,12 @@ function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ct
         </span>
       </div>
 
+      {variant === 'cards' ? (
+        <PauseControl destination={b.id} label={b.label} pause={pause} canControl={ctx.canPause} />
+      ) : pause ? (
+        <PauseBanner pause={pause} dark={dark} />
+      ) : null}
+
       <div className="flex flex-col gap-1">
         <Heading text="Dentro" tone="muted" variant={variant} />
         {occ === 0 ? <span className={muted}>Nadie</span> : null}
@@ -227,7 +240,7 @@ function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ct
               late={late}
               timeLabel={
                 o.status === 'called'
-                  ? 'su turno'
+                  ? `${pausedMark}su turno`
                   : `${late ? 'Alerta · ' : ''}${formatElapsed(ms)}`
               }
             />
@@ -239,7 +252,7 @@ function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ct
         <Heading text={`Lista de espera · ${b.queue.length}`} tone="wait" variant={variant} />
         {b.queue.length === 0 ? (
           <span className={dark ? 'text-[#8FE0B0]' : 'text-free-fg'}>
-            {full ? 'Sin fila' : 'Sin fila: si sale alguien ahora, entra directo'}
+            {pause || full ? 'Sin fila' : 'Sin fila: si sale alguien ahora, entra directo'}
           </span>
         ) : null}
         {b.queue.map((q, i) => (
@@ -249,7 +262,7 @@ function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ct
             ctx={ctx}
             position={i + 1}
             tone="wait"
-            timeLabel={`espera ${formatElapsed(now - new Date(q.since).getTime())}`}
+            timeLabel={`${pausedMark}espera ${formatElapsed(waitElapsed(q.since, now, pause))}`}
           />
         ))}
         {b.group_wait_list?.length ? (
@@ -261,7 +274,7 @@ function Bathroom({ b, ctx }: { b: BathroomsStatus['bathrooms'][number]; ctx: Ct
                 item={q}
                 ctx={ctx}
                 tone="plain"
-                timeLabel={formatElapsed(now - new Date(q.since).getTime())}
+                timeLabel={`${pausedMark}${formatElapsed(waitElapsed(q.since, now, pause))}`}
               />
             ))}
           </>

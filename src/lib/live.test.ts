@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canRemoveFromQueue, isWaiting } from './live';
+import { canPauseBathroom, canRemoveFromQueue, isWaiting } from './live';
 
 describe('isWaiting', () => {
   it('solo los pases que todavía no salen', () => {
@@ -25,5 +25,14 @@ describe('canRemoveFromQueue', () => {
     expect(canRemoveFromQueue(['counselor'])).toBe(false);
     expect(canRemoveFromQueue(['nurse'])).toBe(false);
     expect(canRemoveFromQueue(['counselor', 'teacher'])).toBe(true);
+  });
+});
+
+describe('canPauseBathroom', () => {
+  it('maestros, prefectura, coordinación, dirección y admin', () => {
+    expect(canPauseBathroom(['teacher'])).toBe(true);
+    expect(canPauseBathroom(['director'])).toBe(true);
+    expect(canPauseBathroom(['nurse'])).toBe(false);
+    expect(canPauseBathroom(['counselor'])).toBe(false);
   });
 });

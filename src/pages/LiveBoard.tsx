@@ -1,12 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Fragment, useEffect, useState } from 'react';
 import { AlertCard, ReleaseDialog } from '@/components/pass/AlertCard';
+import { PauseControl } from '@/components/pass/BathroomPause';
 import { RemoveFromQueueDialog } from '@/components/pass/RemoveFromQueue';
 import { Loading, Notice } from '@/components/ui/Page';
 import { buttonClass } from '@/components/ui/styles';
-import { formatElapsed } from '@/lib/board';
+import { formatElapsed, waitElapsed } from '@/lib/board';
 import { useAudioUnlock } from '@/lib/device';
 import {
+  canPauseBathroom,
   canRemoveFromQueue,
   errorMessage,
   isWaiting,
@@ -37,6 +39,8 @@ type Caps = {
   cancel: boolean;
   /** Liberar el lugar de alguien que ya salió (con motivo). */
   release: boolean;
+  /** Pausar y reanudar un baño (limpieza). */
+  pause: boolean;
   returnBath: boolean;
   returnNurse: boolean;
   arrive: boolean;
@@ -48,6 +52,7 @@ function capsFor(roles: Role[]): Caps {
     ack: has('prefect', 'coordinator', 'admin'),
     forceOut: has('counselor', 'coordinator', 'director', 'admin'),
     cancel: canRemoveFromQueue(roles),
+    pause: canPauseBathroom(roles),
     release: has('prefect', 'coordinator', 'admin'),
     returnBath: has('teacher', 'prefect', 'coordinator', 'admin'),
     returnNurse: has('teacher', 'prefect', 'nurse', 'coordinator', 'admin'),
@@ -208,7 +213,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
       <div className="grid gap-4 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
         {columns.map((d, i) => (
           <div key={d.id} className={tab === i ? '' : 'hidden sm:block'}>
-            <Column dest={d} board={board} now={now} onSelect={setSelected} />
+            <Column dest={d} board={board} now={now} canPause={caps.pause} onSelect={setSelected} />
           </div>
         ))}
       </div>
@@ -234,6 +239,7 @@ export function LiveBoard({ preview }: { preview?: Board } = {}) {
           canReturn={canReturn(selected)}
           caps={caps}
           isNurse={columns.find((d) => d.id === selected.destination_id)?.kind === 'nurse'}
+          paused={Boolean(columns.find((d) => d.id === selected.destination_id)?.paused)}
           onAction={(type) => {
             if (type === 'release') setReleasing(selected);
             else if (type === 'cancel') setRemoving(selected);
@@ -302,11 +308,13 @@ function Column({
   dest,
   board,
   now,
+  canPause,
   onSelect,
 }: {
   dest: LiveDestination;
   board: Board;
   now: number;
+  canPause: boolean;
   onSelect: (p: LivePass) => void;
 }) {
   const mine = board.passes.filter((p) => p.destination_id === dest.id);
@@ -325,6 +333,8 @@ function Column({
   const groupWait = mine.filter((p) => p.status === 'group_wait');
   const full = dest.capacity !== null && inside.length >= dest.capacity;
   const alertMs = board.settings.alert_minutes * 60_000;
+  const pause = dest.paused ?? null;
+  const pausedMark = pause ? '⏸ ' : '';
 
   return (
     <section
@@ -350,6 +360,14 @@ function Column({
         </span>
       </div>
       <div className="flex flex-col gap-2 p-3">
+        {dest.kind === 'bathroom' ? (
+          <PauseControl
+            destination={dest.id}
+            label={dest.label}
+            pause={pause}
+            canControl={canPause}
+          />
+        ) : null}
         <span className="px-2 pt-1 text-[12px] font-bold uppercase tracking-[0.08em] text-muted">
           {dest.kind === 'nurse' ? 'Enfermería ahora' : 'Dentro · más tiempo primero'}
         </span>
@@ -413,7 +431,7 @@ function Column({
                   <span
                     className={`font-mono text-[26px] font-semibold tabular-nums ${overdue ? 'text-alert-fg' : ''}`}
                   >
-                    {p.status === 'called' ? 'Turno' : formatElapsed(elapsed)}
+                    {p.status === 'called' ? `${pausedMark}Turno` : formatElapsed(elapsed)}
                   </span>
                 </span>
                 {p.status !== 'called' ? (
@@ -458,7 +476,8 @@ function Column({
                   </span>
                 </span>
                 <span className="font-mono text-[15px] tabular-nums text-wait-fg">
-                  espera {formatElapsed(elapsedSince(p.queue_ts, now))}
+                  {pausedMark}espera{' '}
+                  {formatElapsed(p.queue_ts ? waitElapsed(p.queue_ts, now, pause) : 0)}
                 </span>
               </button>
             ))}
@@ -481,7 +500,8 @@ function Column({
                   </span>
                 </span>
                 <span className="font-mono text-[14px] tabular-nums text-muted">
-                  {formatElapsed(elapsedSince(p.requested_at, now))}
+                  {pausedMark}
+                  {formatElapsed(waitElapsed(p.requested_at, now, pause))}
                 </span>
               </button>
             ))}
@@ -504,6 +524,7 @@ function PersonDialog({
   canReturn,
   caps,
   isNurse,
+  paused,
   onAction,
   onClose,
 }: {
@@ -514,6 +535,8 @@ function PersonDialog({
   canReturn: boolean;
   caps: Caps;
   isNurse: boolean;
+  /** Baño en pausa: no se autoriza la salida hasta reanudarlo. */
+  paused: boolean;
   onAction: (type: 'return' | 'release' | 'cancel' | 'ack' | 'arrived' | 'forceOut') => void;
   onClose: () => void;
 }) {
@@ -529,8 +552,9 @@ function PersonDialog({
   // Quien todavía no sale se quita de la fila; "Liberar lugar" es para quien ya salió.
   const canCancel = caps.cancel && waiting;
   const canRelease = caps.release && !waiting;
+  const canForceOut = caps.forceOut && waiting && !paused;
   const nothing =
-    !(caps.forceOut && waiting) &&
+    !canForceOut &&
     !canCancel &&
     !canReturn &&
     !canRelease &&
@@ -564,7 +588,7 @@ function PersonDialog({
           {pass.opened_by_name ? ` · autorizó ${pass.opened_by_name}` : ''}
           {pass.current_teacher_name ? ` · ahora con ${pass.current_teacher_name}` : ''}
         </p>
-        {caps.forceOut && waiting ? (
+        {canForceOut ? (
           <>
             <button
               type="button"

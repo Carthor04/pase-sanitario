@@ -5,6 +5,7 @@ import {
   passTag,
   requestMessage,
   slotPass,
+  waitElapsed,
   type Board,
   type BoardPass,
   type StudentRef,
@@ -115,6 +116,20 @@ describe('passTag', () => {
   });
 });
 
+describe('waitElapsed', () => {
+  it('corre normal sin pausa', () => {
+    expect(waitElapsed(iso(0), T0 + 90_000)).toBe(90_000);
+  });
+  it('se detiene en el momento de la pausa', () => {
+    const pause = { since: iso(60_000), by: null, reason: null };
+    expect(waitElapsed(iso(0), T0 + 600_000, pause)).toBe(60_000);
+  });
+  it('quien llegó a la fila después de la pausa marca cero', () => {
+    const pause = { since: iso(0), by: null, reason: null };
+    expect(waitElapsed(iso(30_000), T0 + 600_000, pause)).toBe(0);
+  });
+});
+
 describe('bathroomHint', () => {
   it('avisa que queda en espera si el lugar del grupo está ocupado', () => {
     const b = board([pass({})]);
@@ -169,6 +184,26 @@ describe('bathroomHint', () => {
     expect(bathroomHint(jorge, b)).toEqual({
       text: 'Baño hombres lleno · queda en fila (1 antes)',
       tone: 'wait',
+    });
+  });
+
+  it('bloquea si el baño está en pausa', () => {
+    const b = board([], {
+      bathrooms: [
+        {
+          id: 'bath_m',
+          label: 'Baño mujeres',
+          sex: 'M',
+          capacity: 3,
+          paused: { since: iso(0), by: 'Prefectura', reason: 'Limpieza' },
+          occupants: [],
+          queue: [],
+        },
+      ],
+    });
+    expect(bathroomHint(ana, b)).toEqual({
+      text: 'Baño mujeres en pausa · Limpieza',
+      tone: 'blocked',
     });
   });
 
