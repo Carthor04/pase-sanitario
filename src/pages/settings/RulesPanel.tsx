@@ -195,16 +195,35 @@ export function RulesPanel() {
                   max={20}
                   onChange={(v) => setDest(d.id, { capacity: v })}
                 />
-                <NumberField
-                  label="Fuera por grupo"
-                  value={d.per_group_limit ?? 1}
-                  min={1}
-                  max={10}
-                  onChange={(v) => setDest(d.id, { per_group_limit: v })}
-                />
-                <span className="text-[13px] text-muted">
-                  Con 1 por grupo, nunca coinciden dos del mismo grupo y sexo.
-                </span>
+                <label className="flex min-h-btn items-center gap-3 font-bold">
+                  <input
+                    type="checkbox"
+                    checked={d.uses_group_slot}
+                    onChange={(e) => setDest(d.id, { uses_group_slot: e.target.checked })}
+                    className="h-6 w-6"
+                  />
+                  Lugar por grupo
+                </label>
+                {d.uses_group_slot ? (
+                  <>
+                    <NumberField
+                      label="Fuera por grupo"
+                      value={d.per_group_limit ?? 1}
+                      min={1}
+                      max={10}
+                      onChange={(v) => setDest(d.id, { per_group_limit: v })}
+                    />
+                    <span className="text-[13px] text-muted">
+                      Con 1 por grupo, nunca coinciden dos del mismo grupo y sexo. Quien llega
+                      después espera a su grupo.
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-[13px] text-muted">
+                    Lista general: todos los salones se forman en una sola fila por orden de
+                    llegada. Salen tantos como personas dentro a la vez.
+                  </span>
+                )}
               </div>
             ) : (
               <div key={d.id} className="flex flex-col gap-3 rounded-card border border-line p-4">

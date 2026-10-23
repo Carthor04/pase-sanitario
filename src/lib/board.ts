@@ -58,6 +58,8 @@ export type Bathroom = {
   label: string;
   sex: Sex;
   capacity: number | null;
+  /** false = lista general: no hay lugar por grupo (baño de hombres). */
+  uses_group_slot?: boolean;
   paused?: BathroomPause | null;
   occupants: { group_name: string; own: boolean; status: 'called' | 'out'; since: string }[];
   queue: { group_name: string; own: boolean }[];
@@ -237,8 +239,10 @@ export function bathroomHint(
   const bath = bathroomFor(board, student.sex);
   if (!bath) return { text: 'No hay baño configurado', tone: 'blocked' };
   if (bath.paused) return { text: pausedText(bath.label, bath.paused), tone: 'blocked' };
-  // El lugar es por salón (en Inglés, el salón del nivel aunque mezcle grupos).
-  const holder = slotPass(board.passes, student.sex, roomId);
+  // El lugar es por salón (en Inglés, el salón del nivel aunque mezcle grupos). Sin lugar
+  // por grupo (lista general) nadie espera a su grupo.
+  const holder =
+    bath.uses_group_slot === false ? undefined : slotPass(board.passes, student.sex, roomId);
   if (holder) {
     const who = `${holder.full_name} (#${holder.list_number})`;
     return holder.status === 'out'

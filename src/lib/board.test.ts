@@ -187,6 +187,26 @@ describe('bathroomHint', () => {
     });
   });
 
+  it('con lista general nadie espera a su grupo', () => {
+    const b = board([pass({})], {
+      bathrooms: [
+        {
+          id: 'bath_h',
+          label: 'Baño hombres',
+          sex: 'H',
+          capacity: 1,
+          uses_group_slot: false,
+          occupants: [{ group_name: '2°B', own: true, status: 'out', since: iso(0) }],
+          queue: [],
+        },
+      ],
+    });
+    expect(bathroomHint(jorge, b)).toEqual({
+      text: 'Baño hombres lleno · queda en fila',
+      tone: 'wait',
+    });
+  });
+
   it('bloquea si el baño está en pausa', () => {
     const b = board([], {
       bathrooms: [

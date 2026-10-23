@@ -53,7 +53,9 @@ group_wait ──► queued ──► called ──► out ──► returned
 - `released`: prefectura liberó el lugar (requiere motivo). Cierra el pase y genera incidencia.
 - `cancelled`: el maestro canceló antes de salir.
 
-**Lugar del grupo:** por grupo y por sexo, a lo más un pase en `queued | called | out`. Los demás quedan en `group_wait`.
+**Lugar del grupo:** por grupo y por sexo, a lo más un pase en `queued | called | out`. Los demás quedan en `group_wait`. Es la regla `uses_group_slot` de cada baño: el de hombres no la usa (decisión 2026-10-23), es una sola lista general para todos los salones y sale uno a la vez por su cupo de 1.
+
+**El pase sigue al alumno:** el grupo del lugar es el salón donde está el alumno (en Inglés, el salón del nivel). Si termina la clase y su pase todavía no sale, `tick()` lo pasa al salón donde está ahora; si ahí el lugar ya está ocupado, queda en `group_wait` con la hora en que se pidió (decisión 2026-10-23).
 
 **Ocupación del baño:** `count(called) + count(out)` ≤ `capacity`. `called` reserva lugar.
 
