@@ -3,6 +3,7 @@ import {
   formatCountdown,
   formatElapsed,
   passTag,
+  pausedText,
   requestMessage,
   slotPass,
   waitElapsed,
@@ -127,6 +128,24 @@ describe('waitElapsed', () => {
   it('quien llegó a la fila después de la pausa marca cero', () => {
     const pause = { since: iso(0), by: null, reason: null };
     expect(waitElapsed(iso(30_000), T0 + 600_000, pause)).toBe(0);
+  });
+});
+
+describe('pausedText', () => {
+  it('pausa a mano y horario sin baño', () => {
+    const since = iso(0);
+    expect(pausedText('Baño hombres', { since, by: null, reason: 'Limpieza' })).toBe(
+      'Baño hombres en pausa · Limpieza',
+    );
+    expect(
+      pausedText('Baño hombres', {
+        since,
+        by: null,
+        reason: 'Horario sin baño hasta las 11:00',
+        scheduled: true,
+        until: iso(1_800_000),
+      }),
+    ).toBe('Baño hombres cerrado · Horario sin baño hasta las 11:00');
   });
 });
 

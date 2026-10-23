@@ -11,6 +11,7 @@ import {
   occupancy,
   passForStudent,
   passTag,
+  pausedText,
   requestMessage,
   returningMs,
   slotPass,
@@ -207,6 +208,33 @@ export function GroupLive({
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
+      {/* Baño cerrado o en pausa: aviso grande para que nadie pida pases (la BD tampoco
+          los acepta). */}
+      {board.bathrooms
+        .filter((b) => b.paused)
+        .map((b) => (
+          <section
+            key={b.id}
+            role="status"
+            aria-label={`${b.label} cerrado`}
+            className="-mx-4 flex items-center gap-3 border-b-[3px] border-alert-bd bg-alert-bg px-4 py-3 text-alert-fg sm:mx-0 sm:rounded-card sm:border-2 sm:px-6"
+          >
+            <span aria-hidden="true" className="text-[26px] leading-none">
+              ⏸
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <strong className="text-[18px] sm:text-[20px]">
+                {pausedText(b.label, b.paused!)}
+              </strong>
+              <span className="text-[15px]">
+                No pidas pases para {b.sex === 'H' ? 'niños' : 'niñas'} ahora: el sistema no los
+                acepta y la fila no avanza
+                {b.paused!.scheduled && b.paused!.until ? ` hasta las ${hm(b.paused!.until)}` : ''}.
+              </span>
+            </span>
+          </section>
+        ))}
+
       {turns.map((p) => (
         <TurnBanner
           key={p.id}

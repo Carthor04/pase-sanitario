@@ -1041,6 +1041,7 @@ export type Database = {
         Args: { p_body: string; p_pass_id: string }
         Returns: undefined
       }
+      bathroom_closures_list: { Args: never; Returns: Json }
       bathroom_guards_list: { Args: never; Returns: Json }
       bathrooms_status: { Args: never; Returns: Json }
       cancel_pass: { Args: { p_pass_id: string }; Returns: Json }
@@ -1175,6 +1176,7 @@ export type Database = {
       }
       send_test_push: { Args: never; Returns: Json }
       set_my_pin: { Args: { p_pin: string }; Returns: Json }
+      set_bathroom_closures: { Args: { p_ranges: Json }; Returns: Json }
       set_bathroom_guard: {
         Args: { p_staff_id: string | null; p_starts: string; p_weekday: number }
         Returns: undefined

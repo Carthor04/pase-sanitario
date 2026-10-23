@@ -3,6 +3,7 @@ import { Notice, PageTitle } from '@/components/ui/Page';
 import { canManage } from '@/lib/me';
 import { useStaff } from '@/lib/session';
 import { Profile } from '@/pages/Profile';
+import { ClosuresPanel } from './ClosuresPanel';
 import { DevicesPanel } from './DevicesPanel';
 import { GuardsPanel } from './GuardsPanel';
 import { ImportPanel } from './ImportPanel';
@@ -24,6 +25,7 @@ const TABS = [
   { to: 'cuenta', label: 'Mi cuenta', adminOnly: false },
   { to: 'personal', label: 'Personal y PIN', adminOnly: true },
   { to: 'permisos', label: 'Permisos', adminOnly: true },
+  { to: 'horario-banos', label: 'Horarios sin baño', adminOnly: true },
   { to: 'equipos', label: 'Salones y equipos', adminOnly: true },
   { to: 'notificaciones', label: 'Notificaciones', adminOnly: true },
 ];
@@ -91,6 +93,7 @@ export function Settings() {
               }
             />
             <Route path="permisos" element={<PermissionsPanel />} />
+            <Route path="horario-banos" element={<ClosuresPanel />} />
             <Route path="equipos" element={<DevicesPanel />} />
             <Route path="notificaciones" element={<NotificationsPanel />} />
           </>

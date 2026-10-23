@@ -38,11 +38,20 @@ export type BoardPass = {
 };
 
 /** Baño en pausa (limpieza u otro motivo): no se piden pases y la fila no avanza. */
-export type BathroomPause = { since: string; by: string | null; reason: string | null };
+export type BathroomPause = {
+  since: string;
+  by: string | null;
+  reason: string | null;
+  /** Horario sin baño (Configuración): termina solo a esta hora y no se reanuda a mano. */
+  scheduled?: boolean;
+  until?: string | null;
+};
 
 /** "Baño de hombres en pausa · Limpieza" */
 export const pausedText = (label: string, p: BathroomPause) =>
-  `${label} en pausa${p.reason ? ` · ${p.reason}` : ''}`;
+  p.scheduled
+    ? `${label} cerrado · ${p.reason ?? 'horario sin baño'}`
+    : `${label} en pausa${p.reason ? ` · ${p.reason}` : ''}`;
 
 /**
  * Tiempo de espera de quien está en fila: con el baño en pausa el reloj se detiene en el

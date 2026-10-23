@@ -16,10 +16,14 @@ export function PauseBanner({ pause, dark = false }: { pause: Pause; dark?: bool
       }`}
     >
       <strong>
-        <span aria-hidden="true">⏸ </span>En pausa{pause.reason ? ` · ${pause.reason}` : ''}
+        <span aria-hidden="true">⏸ </span>
+        {pause.scheduled ? 'Cerrado' : 'En pausa'}
+        {pause.reason ? ` · ${pause.reason}` : ''}
       </strong>
       <span className="text-[13px]">
-        Desde {hm(pause.since)}
+        {pause.scheduled
+          ? `De ${hm(pause.since)} a ${hm(pause.until)}`
+          : `Desde ${hm(pause.since)}`}
         {pause.by && !dark ? ` · ${pause.by}` : ''} · no se piden pases y la fila no avanza
       </span>
     </div>
@@ -58,7 +62,8 @@ export function PauseControl({
   return (
     <div className="flex flex-col gap-2">
       {pause ? <PauseBanner pause={pause} /> : null}
-      {canControl ? (
+      {/* El horario sin baño termina solo: no se reanuda ni se pausa a mano. */}
+      {canControl && !pause?.scheduled ? (
         pause ? (
           <button
             type="button"
