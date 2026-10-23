@@ -53,11 +53,14 @@ try {
     rows: [state],
   } = await admin.query(
     `select capacity, (select count(*) from public.passes where destination_id = 'bath_h'
-       and status in ('queued', 'called', 'out'))::int as busy
+       and status in ('queued', 'called', 'out'))::int as busy,
+       private.paused_since('bath_h') is not null as paused
        from public.destinations where id = 'bath_h'`,
   );
-  if (state.capacity !== 1 || state.busy > 0) {
-    console.log('- concurrencia: omitida (el baño de hombres está en uso o su capacidad no es 1)');
+  if (state.capacity !== 1 || state.busy > 0 || state.paused) {
+    console.log(
+      '- concurrencia: omitida (el baño de hombres está en uso, en pausa o su capacidad no es 1)',
+    );
   } else {
     await admin.query('begin');
     await admin.query(

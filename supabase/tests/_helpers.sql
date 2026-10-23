@@ -63,6 +63,7 @@ begin
   update public.passes set status = 'cancelled'
    where status in ('group_wait', 'queued', 'called', 'out', 'arrived');
   update public.bathroom_pauses set resumed_at = clock_timestamp() where resumed_at is null;
+  delete from public.bathroom_closures;
   update public.destinations
      set capacity = 1, per_group_limit = 1, uses_group_slot = true, queue_enabled = true
    where id = 'bath_h';
