@@ -1041,6 +1041,7 @@ export type Database = {
         Args: { p_body: string; p_pass_id: string }
         Returns: undefined
       }
+      bathroom_guards_list: { Args: never; Returns: Json }
       bathrooms_status: { Args: never; Returns: Json }
       cancel_pass: { Args: { p_pass_id: string }; Returns: Json }
       cede_turn: { Args: { p_pass_id: string }; Returns: Json }
@@ -1094,6 +1095,7 @@ export type Database = {
       group_board: { Args: { p_group_id: string }; Returns: Json }
       group_schedule: { Args: { p_group_id: string }; Returns: Json }
       group_today_counts: { Args: { p_group_id: string }; Returns: Json }
+      import_guards: { Args: { p_rows: Json }; Returns: Json }
       import_groups: { Args: { p_rows: Json }; Returns: Json }
       import_schedule: { Args: { p_rows: Json }; Returns: Json }
       import_sections: { Args: { p_rows: Json }; Returns: Json }
@@ -1173,6 +1175,10 @@ export type Database = {
       }
       send_test_push: { Args: never; Returns: Json }
       set_my_pin: { Args: { p_pin: string }; Returns: Json }
+      set_bathroom_guard: {
+        Args: { p_staff_id: string | null; p_starts: string; p_weekday: number }
+        Returns: undefined
+      }
       set_role_tabs: { Args: { p_role: string; p_tabs: string[] }; Returns: Json }
       set_staff_pin: {
         Args: { p_pin: string; p_staff_id: string }

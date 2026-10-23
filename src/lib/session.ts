@@ -14,6 +14,8 @@ export function useMe() {
     queryKey: ['me', session?.user.id],
     enabled: Boolean(session),
     staleTime: 60_000,
+    // El menú cambia con la hora (guardias del baño): se revisa cada minuto.
+    refetchInterval: 60_000,
     queryFn: async () => {
       const { data, error } = await supabase.rpc('me');
       if (error) throw error;

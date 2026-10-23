@@ -4,6 +4,7 @@ import { canManage } from '@/lib/me';
 import { useStaff } from '@/lib/session';
 import { Profile } from '@/pages/Profile';
 import { DevicesPanel } from './DevicesPanel';
+import { GuardsPanel } from './GuardsPanel';
 import { ImportPanel } from './ImportPanel';
 import { NotificationsPanel } from './NotificationsPanel';
 import { PermissionsPanel } from './PermissionsPanel';
@@ -13,11 +14,12 @@ import { StaffPanel } from './StaffPanel';
 import { StudentsPanel } from './StudentsPanel';
 import { TeachersPanel } from './TeachersPanel';
 
-// Coordinación y dirección ven las cinco primeras; el resto es solo para admin.
+// Coordinación y dirección ven las seis primeras; el resto es solo para admin.
 const TABS = [
   { to: 'banos', label: 'Baños y reglas', adminOnly: false },
   { to: 'horarios', label: 'Horarios', adminOnly: false },
   { to: 'docentes', label: 'Docentes', adminOnly: false },
+  { to: 'guardias', label: 'Guardias', adminOnly: false },
   { to: 'alumnos', label: 'Alumnos', adminOnly: false },
   { to: 'cuenta', label: 'Mi cuenta', adminOnly: false },
   { to: 'personal', label: 'Personal y PIN', adminOnly: true },
@@ -65,6 +67,7 @@ export function Settings() {
         <Route path="banos" element={<RulesPanel />} />
         <Route path="horarios" element={<SchedulePanel />} />
         <Route path="docentes" element={<TeachersPanel />} />
+        <Route path="guardias" element={<GuardsPanel />} />
         <Route
           path="alumnos"
           element={

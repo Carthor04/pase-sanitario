@@ -263,6 +263,51 @@ for s in students:
         errors.append(('inglés', f'{s[0]} #{s[1]}', f'{s[2]} no aparece en ninguna lista de Inglés'))
 write('secciones.csv', ['salon_grupo', 'materia', 'grupo', 'numero_lista'], members)
 
+# ---------------------------------------------------------------- guardias del baño
+# Hoja "Baños" del horario: solo trae el nombre de pila. FRANCO es Ignacio Franco (Carlos
+# Franco tiene clase en esas horas), ANDREA es Andrea Córdoba (Andrea Noe tiene clase el
+# miércoles 12:15), CARLOS es Carlos Franco y LUCY es Luz del Carmen Tejeda (2026-10-23).
+# PATRICK aún no está en el personal: su guardia queda sin asignar.
+GUARD = {
+    'EDUARDO': 'eduardorizos@institutooviedo.edu.mx',
+    'ANDRES': 'saelcarrillot@institutooviedo.edu.mx',
+    'FRANCO': 'ignacio.franco@institutooviedo.edu.mx',
+    'ALAN': 'alanmaganao@institutooviedo.edu.mx',
+    'LUCY': 'coordinacion.secundaria@institutooviedo.edu.mx',
+    'HECTOR': 'hectorfernandezh@institutooviedo.edu.mx',
+    'MARISELA': 'mariselasancheze@institutooviedo.edu.mx',
+    'ANDREA': 'andreacordobac@institutooviedo.edu.mx',
+    'EDGAR': 'edgarchavezb@institutooviedo.edu.mx',
+    'AMALINALLI': 'amalinallitecuapetlae@institutooviedo.edu.mx',
+    'RICARDO': 'luisramirezg@institutooviedo.edu.mx',
+    'VICTORIA': 'victoriaenriquezh@institutooviedo.edu.mx',
+    'CARLOS': 'carlosfrancom@institutooviedo.edu.mx',
+    'PATRICK': '',
+}
+guards = []
+ws = next(w for w in openpyxl.load_workbook(SRC / 'Jornada maestr@s  26 -27.xlsx').worksheets
+          if norm(w.title) == 'BANOS')
+hdr = next(c for row in ws.iter_rows() for c in row if str(c.value or '').strip().lower() == 'hora')
+daycol = {c.column: DAYS[str(c.value).strip().lower()] for c in ws[hdr.row]
+          if str(c.value or '').strip().lower() in DAYS}
+for r in range(hdr.row + 1, ws.max_row + 1):
+    t = hhmm(str(ws.cell(row=r, column=1).value or ''))
+    if len(t) != 2:
+        continue
+    for col, day in daycol.items():
+        name = norm(ws.cell(row=r, column=col).value or '')
+        if not name or name.startswith('R E'):
+            continue  # receso
+        if name not in GUARD:
+            errors.append(('guardias', f'{day} {t[0]}', f'nombre no reconocido: {name}'))
+            continue
+        if not GUARD[name]:
+            errors.append(('guardias', f'{day} {t[0]}', f'{name} no está en el personal: queda sin asignar'))
+        elif GUARD[name] not in emails:
+            errors.append(('guardias', f'{day} {t[0]}', f'{GUARD[name]} no está en personal'))
+        guards.append([day, t[0], t[1], GUARD[name]])
+write('guardias.csv', ['dia', 'inicio', 'fin', 'correo_maestro'], guards)
+
 # ---------------------------------------------------------------- resumen
 per = collections.Counter(s[0] for s in students)
 hrs = collections.Counter(e[0] for e in schedule)
@@ -273,7 +318,8 @@ for g in GROUPS:
     print(f'{g:5}  {ROOMS[g]:8}  {per[g]:7}  {h:2}  {per[g] - h:2}  {hrs[g]:6}  {sin[g]:4}')
 lv = collections.Counter((m[0], m[1]) for m in members)
 print('Inglés:', ', '.join(f'{k[1]} en {k[0]} ({ROOMS[k[0]]}): {v}' for k, v in sorted(lv.items())))
-print(f'Total: {len(students)} alumnos, {len(staff)} personal, {len(schedule)} clases, {len(members)} en Inglés')
+print(f'Total: {len(students)} alumnos, {len(staff)} personal, {len(schedule)} clases, {len(members)} en Inglés, '
+      f'{len(guards)} guardias')
 print('\nAvisos:' if errors else '\nSin avisos.')
 for e in errors:
     print('  ', ' · '.join(map(str, e)))

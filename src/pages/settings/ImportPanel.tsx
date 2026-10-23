@@ -9,13 +9,19 @@ import alumnosUrl from '../../../data/templates/alumnos.csv?url';
 import gruposUrl from '../../../data/templates/grupos.csv?url';
 import horarioUrl from '../../../data/templates/horario.csv?url';
 import personalUrl from '../../../data/templates/personal.csv?url';
+import guardiasUrl from '../../../data/templates/guardias.csv?url';
 import seccionesUrl from '../../../data/templates/secciones.csv?url';
 
 const CONFIG: Record<
   ImportKind,
   {
     rpc:
-      'import_groups' | 'import_students' | 'import_staff' | 'import_schedule' | 'import_sections';
+      | 'import_groups'
+      | 'import_students'
+      | 'import_staff'
+      | 'import_schedule'
+      | 'import_sections'
+      | 'import_guards';
     template: string;
     file: string;
     help: string;
@@ -59,6 +65,14 @@ const CONFIG: Record<
     help: 'Clases por nivel (como Inglés): en salon_grupo va el grupo cuyo salón se usa y en materia la misma materia del horario de ese salón (ej. Inglés básico). Reemplaza la lista de cada clase que venga en el archivo.',
     invalidates: ['roster'],
     labels: { replaced: 'quitados de las listas anteriores' },
+  },
+  guards: {
+    rpc: 'import_guards',
+    template: guardiasUrl,
+    file: 'guardias.csv',
+    help: 'Reemplaza el rol completo de guardias del baño. Días de lunes a viernes, horas HH:MM y el correo del docente (vacío = sin asignar).',
+    invalidates: ['guards', 'me'],
+    labels: { guardias: 'guardias', sin_asignar: 'sin asignar' },
   },
 };
 

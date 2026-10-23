@@ -62,6 +62,13 @@ describe('navForRoles', () => {
         'Perfil',
       ]);
     });
+    it('maestro de guardia: me() agrega En vivo mientras dura su turno', () => {
+      expect(withTabs(['teacher'], ['grupo', 'banos', 'alertas', 'en-vivo'])).toEqual([
+        'En vivo',
+        'Mi grupo',
+        'Perfil',
+      ]);
+    });
     it('ignora pestañas desconocidas', () => {
       expect(withTabs(['teacher'], ['grupo', 'ajustes', 'otra'])).toEqual(['Mi grupo', 'Perfil']);
     });
