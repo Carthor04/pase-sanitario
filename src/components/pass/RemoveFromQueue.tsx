@@ -9,6 +9,9 @@ export function RemoveFromQueueDialog({
   name,
   groupName,
   detail,
+  question,
+  note = 'Su maestro tendrá que pedir el pase otra vez.',
+  confirmLabel = 'Sí, quitar',
   busy,
   onConfirm,
   onClose,
@@ -16,6 +19,10 @@ export function RemoveFromQueueDialog({
   name: string;
   groupName: string;
   detail?: string;
+  /** Pregunta de la confirmación; por omisión "¿Quitar a X de la fila?". */
+  question?: string;
+  note?: string;
+  confirmLabel?: string;
   busy: boolean;
   onConfirm: () => void;
   onClose: () => void;
@@ -48,11 +55,9 @@ export function RemoveFromQueueDialog({
         {confirming ? (
           <>
             <h2 id={`${id}-t`} className="m-0 font-display text-[24px] font-bold">
-              ¿Quitar a {name} de la fila?
+              {question ?? `¿Quitar a ${name} de la fila?`}
             </h2>
-            <p className="m-0 text-[15px] text-muted">
-              Su maestro tendrá que pedir el pase otra vez.
-            </p>
+            <p className="m-0 text-[15px] text-muted">{note}</p>
             <div className="grid grid-cols-2 gap-2">
               <button type="button" onClick={onClose} className={buttonClass.secondary}>
                 No
@@ -64,7 +69,7 @@ export function RemoveFromQueueDialog({
                 onClick={onConfirm}
                 className={buttonClass.danger}
               >
-                Sí, quitar
+                {confirmLabel}
               </button>
             </div>
           </>

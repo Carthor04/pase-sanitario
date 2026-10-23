@@ -33,6 +33,7 @@ import {
   type TodayCounts,
 } from '@/lib/live';
 import { PassMenu } from './PassMenu';
+import { RemoveFromQueueDialog } from './RemoveFromQueue';
 import { TodayDialog } from './TodayExits';
 
 const timeFmt = new Intl.DateTimeFormat('es-MX', {
@@ -97,6 +98,8 @@ export function GroupLive({
   const [detailFor, setDetailFor] = useState<StudentRef | null>(null);
   const [undo, setUndo] = useState<Undo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Cancelar una salida que todavía no ocurre: siempre con confirmación.
+  const [cancelling, setCancelling] = useState<BoardPass | null>(null);
   const clearUndo = useCallback(() => setUndo(null), []);
   const s = board.settings;
 
@@ -167,7 +170,10 @@ export function GroupLive({
 
   function onPassAction(type: 'return' | 'cancel', pass: BoardPass) {
     if (type === 'return') markReturned(pass);
-    else void run({ type: 'cancel', passId: pass.id }, () => setMenuFor(null));
+    else {
+      setMenuFor(null);
+      setCancelling(pass);
+    }
   }
 
   // Captura rápida: número de lista + B (baño), E (enfermería), R (regresó).
@@ -210,6 +216,7 @@ export function GroupLive({
           busy={action.isPending}
           onConfirm={() => void run({ type: 'confirm', passId: p.id })}
           onCede={() => void run({ type: 'cede', passId: p.id })}
+          onCancel={() => setCancelling(p)}
         />
       ))}
 
@@ -224,6 +231,7 @@ export function GroupLive({
           now={now}
           busy={action.isPending}
           onReturn={markReturned}
+          onCancel={setCancelling}
         />
         <SexSlot
           sex="M"
@@ -232,6 +240,7 @@ export function GroupLive({
           now={now}
           busy={action.isPending}
           onReturn={markReturned}
+          onCancel={setCancelling}
         />
         <NurseSlot
           passes={nurse}
@@ -377,6 +386,21 @@ export function GroupLive({
         />
       ) : null}
 
+      {cancelling ? (
+        <RemoveFromQueueDialog
+          name={cancelling.full_name}
+          groupName={`${cancelling.group_name ?? groupName} · ${cancelling.destination_label}`}
+          question={`¿Cancelar la salida de ${cancelling.full_name}?`}
+          note="Deja la fila y su lugar pasa al siguiente. Si todavía necesita salir, pide el pase otra vez."
+          confirmLabel="Sí, cancelar"
+          busy={action.isPending}
+          onConfirm={() =>
+            void run({ type: 'cancel', passId: cancelling.id }, () => setCancelling(null))
+          }
+          onClose={() => setCancelling(null)}
+        />
+      ) : null}
+
       <div className="pointer-events-none fixed inset-x-0 bottom-[86px] z-30 flex flex-col items-center gap-2 px-4 sm:bottom-6">
         {error ? (
           <div
@@ -481,6 +505,7 @@ function SexSlot({
   now,
   busy,
   onReturn,
+  onCancel,
 }: {
   sex: Sex;
   pass: BoardPass | undefined;
@@ -488,6 +513,7 @@ function SexSlot({
   now: number;
   busy: boolean;
   onReturn: (p: BoardPass) => void;
+  onCancel: (p: BoardPass) => void;
 }) {
   const bath = bathroomFor(board, sex);
   const title = `${sex === 'H' ? 'Niño' : 'Niña'} · ${bath?.label ?? 'Baño'}`;
@@ -578,6 +604,14 @@ function SexSlot({
           Fila: {bath.queue.map((q) => q.group_name).join(', ')}
         </span>
       ) : null}
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => onCancel(pass)}
+        className={buttonClass.danger}
+      >
+        Cancelar salida
+      </button>
     </SlotFrame>
   );
 }
@@ -663,6 +697,7 @@ function TurnBanner({
   busy,
   onConfirm,
   onCede,
+  onCancel,
 }: {
   pass: BoardPass;
   bathroom: Bathroom | undefined;
@@ -670,6 +705,7 @@ function TurnBanner({
   busy: boolean;
   onConfirm: () => void;
   onCede: () => void;
+  onCancel: () => void;
 }) {
   const canCede = (bathroom?.queue.length ?? 0) > 0;
   return (
@@ -698,7 +734,15 @@ function TurnBanner({
           <span className="text-[12px]">para confirmar</span>
         </div>
       </div>
-      <div className="grid grid-cols-[1fr_2fr] gap-2 sm:flex sm:shrink-0">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onCancel}
+          className="min-h-btn rounded-btn border border-alert-bd bg-surface px-4 text-[15px] font-bold text-alert-fg disabled:opacity-60"
+        >
+          Cancelar salida
+        </button>
         <button
           type="button"
           disabled={busy || !canCede}
@@ -711,7 +755,7 @@ function TurnBanner({
           type="button"
           disabled={busy}
           onClick={onConfirm}
-          className="min-h-btn-critical rounded-btn bg-ink px-5 text-[17px] font-bold text-white disabled:opacity-60"
+          className="col-span-2 min-h-btn-critical rounded-btn bg-ink px-5 text-[17px] font-bold text-white disabled:opacity-60"
         >
           Confirmar salida
         </button>
