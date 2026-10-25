@@ -32,6 +32,7 @@ Lee estos documentos antes de programar cualquier cosa:
 
 - Nombres de tablas y código en inglés; textos de UI en español.
 - Migraciones SQL en `supabase/migrations/` con timestamp. Seeds de ejemplo en `supabase/seed.sql` (marcados como ejemplo).
+- Toda tabla nueva lleva RLS y su `grant` explícito (solo lo que la app usa, normalmente `select` a `authenticated`). Desde el 2026-10-30 Supabase ya no da permisos por omisión a las tablas nuevas; `supabase/tests/33_table_grants.sql` lo revisa.
 - Tipos de BD generados con `supabase gen types typescript` en `src/lib/database.types.ts`.
 - Pruebas: Vitest para lógica de frontend; pgTAP (o scripts SQL de prueba) para las funciones de reglas. Las reglas de cupo y fila **deben** tener pruebas.
 - Commits pequeños por tarea del plan. Antes de cerrar una fase, corre lint, typecheck y pruebas.
