@@ -93,13 +93,16 @@ describe('passTag', () => {
     ).toBe('Espera · sale al regresar #14');
   });
 
-  it('en enfermería ya no hay alerta (solo cuenta el trayecto)', () => {
+  it('enfermería no tiene límite de tiempo: nunca hay alerta', () => {
     const nurse = pass({ destination_kind: 'nurse', destination_id: 'nurse', status: 'arrived' });
     expect(passTag(nurse, T0 + 3_600_000, settings)).toEqual({
       label: 'En atención',
       tone: 'nurse',
     });
-    expect(passTag({ ...nurse, status: 'out' }, T0 + 700_000, settings).tone).toBe('alert');
+    expect(passTag({ ...nurse, status: 'out' }, T0 + 3_600_000, settings)).toEqual({
+      label: 'Enfermería · 1:00:00',
+      tone: 'nurse',
+    });
   });
 
   it('de regreso de enfermería cuenta desde que la enfermera lo manda', () => {
@@ -113,7 +116,10 @@ describe('passTag', () => {
       label: 'De regreso · 03:00',
       tone: 'wait',
     });
-    expect(passTag(back, T0 + 1_860_000, settings).label).toBe('Alerta · de regreso 11:00');
+    expect(passTag(back, T0 + 1_860_000, settings)).toEqual({
+      label: 'De regreso · 11:00',
+      tone: 'wait',
+    });
   });
 });
 

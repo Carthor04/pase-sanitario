@@ -132,7 +132,7 @@ begin
   perform pg_temp.logout();
   assert (select resolution from public.alerts where pass_id = p2) = 'released', '5: resuelta al liberar';
 
-  -- 6. Enfermería: alerta solo en el trayecto; al llegar se resuelve y ya no corre.
+  -- 6. Enfermería no tiene límite de tiempo: ni en camino ni en atención hay alerta.
   perform pg_temp.login(t);
   pn := pg_temp.req(n1, 'nurse');
   pn2 := pg_temp.req(n2, 'nurse');
@@ -142,12 +142,18 @@ begin
   perform pg_temp.logout();
   update public.passes set started_at = clock_timestamp() - interval '30 minutes' where id in (pn, pn2);
   perform private.tick();
-  assert exists (select 1 from public.alerts where pass_id = pn and resolved_at is null), '6: en camino 30 min → alerta';
+  assert not exists (select 1 from public.alerts where pass_id = pn), '6: en camino 30 min, sin alerta';
   assert not exists (select 1 from public.alerts where pass_id = pn2), '6: en enfermería no hay alerta';
+  perform pg_temp.login(pr);
+  begin
+    perform public.acknowledge_pass(pn);
+    raise exception 'enfermería no se atiende como alerta' using errcode = 'TF001';
+  exception when sqlstate 'P0001' then null;
+  end;
+  perform pg_temp.logout();
   perform pg_temp.login(nu);
   perform public.mark_arrived(pn);
   perform pg_temp.logout();
-  assert (select resolution from public.alerts where pass_id = pn) = 'arrived', '6: llegó → resuelta';
 
   -- 7. Nota interna: la escribe enfermería; la leen enfermería y dirección, no maestros.
   perform pg_temp.login(nu);

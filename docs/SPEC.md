@@ -70,7 +70,7 @@ group_wait ──► queued ──► called ──► out ──► returned
 2. Mientras haya lugar, pasa el primero de la fila a `called`.
 
 ### Enfermería
-`out` (en camino; aparece en la lista de espera de enfermería, en orden de llegada) → `arrived` (la enfermera confirma; se muestra como **"En atención"**) → `returning` (la enfermera toca "Regresa al salón"; se avisa al maestro a cargo y al que autorizó) → `returned` (el maestro marca el regreso cuando llega al salón). No hace fila ni ocupa lugar. La alerta cubre los dos trayectos: de ida hasta "Llegó" y de regreso desde que sale de enfermería hasta que el maestro marca el regreso (decisión 2026-10-16).
+`out` (en camino; aparece en la lista de espera de enfermería, en orden de llegada) → `arrived` (la enfermera confirma; se muestra como **"En atención"**) → `returning` (la enfermera toca "Regresa al salón"; se avisa al maestro a cargo y al que autorizó) → `returned` (el maestro marca el regreso cuando llega al salón). No hace fila ni ocupa lugar. Enfermería no tiene límite de tiempo ni alertas, ni de ida ni de regreso: es algo médico (decisión 2026-10-26; sustituye la de 2026-10-16).
 
 ### Deshacer
 Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer". Revierte con un evento nuevo (`undo`) y re-ejecuta `advance`.
@@ -101,7 +101,7 @@ Durante 10 s después de "Marcar regreso" o de abrir un pase, aparece "Deshacer"
 
 ## 7. Alertas
 
-- Se disparan cuando un pase lleva `alert_minutes` (10) en `out`. En enfermería la alerta cubre solo el trayecto: si en 10 min no se marcó "Llegó", hay alerta; una vez en `arrived` el cronómetro de alerta se detiene y la responsable es la enfermera (decisión 2026-10-15).
+- Se disparan cuando un pase de baño lleva `alert_minutes` (10) en `out`. Los pases de enfermería no tienen límite de tiempo ni generan alertas: es algo médico (decisión 2026-10-26; sustituye la de 2026-10-15).
 - Destinatarios (configurables por canal):
   - **Maestro a cargo del grupo en ese momento** (según horario) y, si es distinto, el maestro que autorizó la salida → en la app.
   - **Prefectura, Coordinación, Dirección** → app + push + WhatsApp.

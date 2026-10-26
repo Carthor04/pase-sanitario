@@ -380,8 +380,9 @@ function Column({
             p.status === 'returning' ? p.left_nurse_at : p.started_at,
             now,
           );
-          const overdue = (p.status === 'out' || p.status === 'returning') && elapsed >= alertMs;
           const nurse = dest.kind === 'nurse';
+          // Enfermería no tiene límite de tiempo: ni alerta ni barra de avance.
+          const overdue = !nurse && p.status === 'out' && elapsed >= alertMs;
           const header =
             nurse && (idx === 0 || inside[idx - 1]!.status !== p.status)
               ? NURSE_HEADER[p.status]
@@ -434,13 +435,13 @@ function Column({
                     {p.status === 'called' ? `${pausedMark}Turno` : formatElapsed(elapsed)}
                   </span>
                 </span>
-                {p.status !== 'called' ? (
+                {p.status !== 'called' && !nurse ? (
                   <span
                     className="h-1.5 overflow-hidden rounded-[3px] bg-[#E6EBF0]"
                     aria-hidden="true"
                   >
                     <span
-                      className={`block h-full ${overdue ? 'bg-alert-fg' : nurse ? 'bg-nurse-bd' : 'bg-ink'}`}
+                      className={`block h-full ${overdue ? 'bg-alert-fg' : 'bg-ink'}`}
                       style={{ width: `${Math.min(100, (elapsed / alertMs) * 100)}%` }}
                     />
                   </span>

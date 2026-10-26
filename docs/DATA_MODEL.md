@@ -239,7 +239,7 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 
 - `alerts` como arriba, más `escalated_at` y `resolution` (`returned` | `released` | `arrived`); una alerta por pase. Se resuelve sola con un trigger en `passes` cuando el pase regresa, se libera o llega a enfermería, y se reabre si se deshace el regreso.
 - `nurse_notes(pass_id, author_id, body, created_at)`: notas internas de enfermería (solo se agregan). Las leen enfermería, coordinación, dirección y admin; los maestros no.
-- `private.tick()` ahora también crea alertas (`alert_minutes` en `out`; en enfermería solo el trayecto) y las escala a nivel 2 si nadie las atiende en `escalate_minutes`. Cada una deja evento `alert` / `escalated` en la bitácora.
+- `private.tick()` ahora también crea alertas (`alert_minutes` en `out`; desde 2026-10-26 solo baños) y las escala a nivel 2 si nadie las atiende en `escalate_minutes`. Cada una deja evento `alert` / `escalated` en la bitácora.
 - RPC: `acknowledge_alert` ("Yo lo atiendo": prefectura, coordinación, admin), `add_nurse_note`, `live_board()` (monitor en vivo para prefectura, enfermería, coordinación, dirección), `my_alerts()` (alertas del maestro a cargo ahora o del que autorizó) y `nurse_today()`. `group_board` incluye la alerta de cada pase.
 - `alerts` está en la publicación `supabase_realtime`.
 - Las notificaciones push y por WhatsApp (destinatarios configurables por canal) son de la Fase 5; en esta fase las alertas se ven en la app.
@@ -287,3 +287,4 @@ Implementado en `supabase/migrations/20261015130000_pass_engine.sql`:
 - **Rol `counselor` (Psicopedagogía, 2026-10-22):** ve el monitor En vivo en solo lectura (`live_board`). No atiende alertas, no libera lugares y no recibe avisos de alerta.
 - **`force_out(pase)` (2026-10-22):** desde En vivo, psicopedagogía, coordinación, dirección y admin autorizan la salida de quien espera (fila, espera del grupo o turno), aunque el baño esté lleno. Deja el evento `forced_out` con quién lo autorizó.
 - **Reinicio de la fila en el receso (2026-10-22):** `settings.queue_reset_times` (por omisión `{10:05}`, el receso es de 10:00 a 10:45). `tick()` llama a `private.reset_queues()`: a esa hora cancela los pases en fila, en espera del grupo o con turno sin confirmar pedidos antes de esa hora (evento `cancelled` del sistema con `payload.auto = 'receso'`). Una vez al día por hora configurada (`queue_reset_done_at`).
+- **Enfermería sin alertas (2026-10-26, `20261026090000_nurse_without_alerts.sql`):** `tick()` y `private.ensure_alert()` solo crean alertas para pases de baño; un pase de enfermería no tiene límite de tiempo (ni de ida ni de regreso). La migración cierra las alertas de enfermería que estuvieran abiertas (sin `resolution`).

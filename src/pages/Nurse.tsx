@@ -4,7 +4,7 @@ import { buttonClass } from '@/components/ui/styles';
 import { formatElapsed } from '@/lib/board';
 import { playTurnSound, useAudioUnlock } from '@/lib/device';
 import { errorMessage, useLivePasses, usePassAction, useServerNow } from '@/lib/live';
-import { alertStatusText, hm, useAlertSound, useNurseToday, type NursePass } from '@/lib/monitor';
+import { hm, useNurseToday, type NursePass } from '@/lib/monitor';
 import { useStaff } from '@/lib/session';
 
 /**
@@ -29,9 +29,6 @@ export function Nurse() {
   const here = passes.filter((p) => p.status === 'arrived');
   const goingBack = passes.filter((p) => p.status === 'returning');
   const done = passes.filter((p) => p.status === 'returned' || p.status === 'released');
-  useAlertSound(
-    onTheWay.filter((p) => p.alert).map((p) => ({ id: p.alert!.id, level: p.alert!.level })),
-  );
   // Suena cuando llega una solicitud nueva a la lista de espera.
   const waitingKey = onTheWay.map((p) => p.id).join(',');
   const seenWaiting = useRef<Set<string> | null>(null);
@@ -89,9 +86,7 @@ export function Nurse() {
           {onTheWay.map((p, i) => (
             <li
               key={p.id}
-              className={`flex items-center gap-3 rounded-card border-2 bg-surface p-3 ${
-                p.alert ? 'border-alert-bd bg-alert-bg' : 'border-nurse-bd'
-              }`}
+              className="flex items-center gap-3 rounded-card border-2 border-nurse-bd bg-surface p-3"
             >
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-nurse-bg font-bold text-nurse-fg">
                 {i + 1}
@@ -104,15 +99,8 @@ export function Nurse() {
                   {p.period_subject ? `Salió de ${p.period_subject}` : 'Salió de clase'}
                   {p.opened_by_name ? ` · lo mandó ${p.opened_by_name}` : ''} · {hm(p.started_at)}
                 </span>
-                {p.alert ? (
-                  <span className="text-[13px] font-bold text-alert-fg">
-                    Alerta: no ha llegado · {alertStatusText(p.alert)}
-                  </span>
-                ) : null}
               </div>
-              <span
-                className={`font-mono text-[20px] font-semibold tabular-nums ${p.alert ? 'text-alert-fg' : ''}`}
-              >
+              <span className="font-mono text-[20px] font-semibold tabular-nums">
                 {p.started_at ? formatElapsed(now - new Date(p.started_at).getTime()) : ''}
               </span>
               <button
@@ -143,9 +131,7 @@ export function Nurse() {
           {goingBack.map((p) => (
             <div
               key={p.id}
-              className={`flex flex-col gap-1 rounded-card border-2 bg-surface p-3 ${
-                p.alert ? 'border-alert-bd bg-alert-bg' : 'border-wait-bd'
-              }`}
+              className="flex flex-col gap-1 rounded-card border-2 border-wait-bd bg-surface p-3"
             >
               <Head
                 p={p}
@@ -153,11 +139,6 @@ export function Nurse() {
                 since={p.left_nurse_at}
                 sub={`salió de enfermería ${hm(p.left_nurse_at)}`}
               />
-              {p.alert ? (
-                <span className="text-[14px] font-bold text-alert-fg">
-                  Alerta: no ha llegado al salón · {alertStatusText(p.alert)}
-                </span>
-              ) : null}
             </div>
           ))}
         </Section>

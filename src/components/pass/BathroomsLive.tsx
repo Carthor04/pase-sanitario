@@ -311,21 +311,16 @@ function Nurse({ data, ctx }: { data: BathroomsStatus; ctx: Ctx }) {
       <div className="flex flex-col gap-1">
         <Heading text={`Lista de espera · ${queue.length}`} tone="nurse" variant={variant} />
         {queue.length === 0 ? <span className={muted}>Nadie en camino</span> : null}
-        {queue.map((q, i) => {
-          const ms = now - new Date(q.since).getTime();
-          const late = ms >= ctx.alertMs;
-          return (
-            <Row
-              key={i}
-              item={q}
-              ctx={ctx}
-              position={i + 1}
-              tone="nurse"
-              late={late}
-              timeLabel={`${late ? 'Alerta · ' : 'en camino '}${formatElapsed(ms)}`}
-            />
-          );
-        })}
+        {queue.map((q, i) => (
+          <Row
+            key={i}
+            item={q}
+            ctx={ctx}
+            position={i + 1}
+            tone="nurse"
+            timeLabel={`en camino ${formatElapsed(now - new Date(q.since).getTime())}`}
+          />
+        ))}
       </div>
 
       {care.length ? (
@@ -346,20 +341,15 @@ function Nurse({ data, ctx }: { data: BathroomsStatus; ctx: Ctx }) {
       {back.length ? (
         <div className="flex flex-col gap-1">
           <Heading text={`De regreso al salón · ${back.length}`} tone="wait" variant={variant} />
-          {back.map((q, i) => {
-            const ms = now - new Date(q.since).getTime();
-            const late = ms >= ctx.alertMs;
-            return (
-              <Row
-                key={i}
-                item={q}
-                ctx={ctx}
-                tone="wait"
-                late={late}
-                timeLabel={`${late ? 'Alerta · ' : ''}${formatElapsed(ms)}`}
-              />
-            );
-          })}
+          {back.map((q, i) => (
+            <Row
+              key={i}
+              item={q}
+              ctx={ctx}
+              tone="wait"
+              timeLabel={formatElapsed(now - new Date(q.since).getTime())}
+            />
+          ))}
         </div>
       ) : null}
     </section>

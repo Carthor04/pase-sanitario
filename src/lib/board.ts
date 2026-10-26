@@ -148,13 +148,13 @@ export const turnLeftMs = (p: BoardPass, now: number, s: BoardSettings) =>
   ms(p.called_at) + s.confirm_turn_minutes * 60_000 - now;
 
 /**
- * ¿Lleva más de alert_minutes fuera? Solo para pintar la tarjeta: las alertas reales las
- * genera tick(). En enfermería cuentan los trayectos: de ida (hasta "Llegó") y de regreso
- * al salón (desde que la enfermera lo manda hasta que el maestro marca su regreso).
+ * ¿Lleva más de alert_minutes fuera en el baño? Solo para pintar la tarjeta: las alertas
+ * reales las genera tick(). Enfermería no tiene límite de tiempo (es algo médico).
  */
 export const isOverdue = (p: BoardPass, now: number, s: BoardSettings) =>
-  (p.status === 'out' && elapsedMs(p, now) >= s.alert_minutes * 60_000) ||
-  (p.status === 'returning' && returningMs(p, now) >= s.alert_minutes * 60_000);
+  p.destination_kind === 'bathroom' &&
+  p.status === 'out' &&
+  elapsedMs(p, now) >= s.alert_minutes * 60_000;
 
 // ---------------------------------------------------------------------------
 // Lugares del grupo
@@ -198,13 +198,8 @@ export function passTag(
 ): { label: string; tone: Tone } {
   if (p.destination_kind === 'nurse') {
     if (p.status === 'arrived') return { label: 'En atención', tone: 'nurse' };
-    if (p.status === 'returning') {
-      return isOverdue(p, now, s)
-        ? { label: `Alerta · de regreso ${formatElapsed(returningMs(p, now))}`, tone: 'alert' }
-        : { label: `De regreso · ${formatElapsed(returningMs(p, now))}`, tone: 'wait' };
-    }
-    if (isOverdue(p, now, s))
-      return { label: `Alerta · ${formatElapsed(elapsedMs(p, now))}`, tone: 'alert' };
+    if (p.status === 'returning')
+      return { label: `De regreso · ${formatElapsed(returningMs(p, now))}`, tone: 'wait' };
     return { label: `Enfermería · ${formatElapsed(elapsedMs(p, now))}`, tone: 'nurse' };
   }
   switch (p.status) {

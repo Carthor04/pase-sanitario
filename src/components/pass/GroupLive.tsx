@@ -270,13 +270,7 @@ export function GroupLive({
           onReturn={markReturned}
           onCancel={setCancelling}
         />
-        <NurseSlot
-          passes={nurse}
-          board={board}
-          now={now}
-          busy={action.isPending}
-          onReturn={markReturned}
-        />
+        <NurseSlot passes={nurse} now={now} busy={action.isPending} onReturn={markReturned} />
       </section>
 
       {capture ? (
@@ -652,13 +646,11 @@ const NURSE_CHIP: Partial<Record<BoardPass['status'], string>> = {
 
 function NurseSlot({
   passes,
-  board,
   now,
   busy,
   onReturn,
 }: {
   passes: BoardPass[];
-  board: Board;
   now: number;
   busy: boolean;
   onReturn: (p: BoardPass) => void;
@@ -673,13 +665,12 @@ function NurseSlot({
       </SlotFrame>
     );
   }
-  const anyOverdue = passes.some((p) => isOverdue(p, now, board.settings));
   return (
     <SlotFrame
-      tone={anyOverdue ? 'alert' : 'nurse'}
+      tone="nurse"
       title="Enfermería"
       chip={
-        <Chip tone={anyOverdue ? 'alert' : 'nurse'}>
+        <Chip tone="nurse">
           {passes.length === 1
             ? (NURSE_CHIP[passes[0]!.status] ?? 'En camino')
             : `${passes.length} alumnos`}

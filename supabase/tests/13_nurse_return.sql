@@ -43,19 +43,17 @@ begin
     '2: el salón lo ve de regreso';
   perform pg_temp.logout();
 
-  -- 3. Si tarda alert_minutes en llegar al salón, hay alerta (aunque ya tuvo la de ida).
-  update public.passes set left_nurse_at = clock_timestamp() - interval '11 minutes' where id = p1;
+  -- 3. Enfermería no tiene límite de tiempo: aunque tarde en llegar al salón, no hay alerta.
+  update public.passes set left_nurse_at = clock_timestamp() - interval '30 minutes' where id = p1;
   perform private.tick();
-  assert exists (select 1 from public.alerts where pass_id = p1 and resolved_at is null), '3: alerta del regreso';
-  perform private.tick();
-  assert (select count(*) from public.alerts where pass_id = p1) = 1, '3: una sola alerta del regreso';
+  assert not exists (select 1 from public.alerts where pass_id = p1), '3: sin alerta de regreso';
 
-  -- 4. El maestro marca el regreso: se cierra el pase y la alerta.
+  -- 4. El maestro marca el regreso: se cierra el pase.
   perform pg_temp.login(t);
   v := public.mark_returned(p1);
   assert v ->> 'status' = 'returned', '4: regresó';
   perform pg_temp.logout();
-  assert not exists (select 1 from public.alerts where pass_id = p1 and resolved_at is null), '4: alerta resuelta';
+  assert not exists (select 1 from public.alerts where pass_id = p1 and resolved_at is null), '4: sin alerta abierta';
 
   -- 5. Deshacer "Regresa al salón" (la enfermera se equivocó): vuelve a "en enfermería".
   perform pg_temp.login(t);

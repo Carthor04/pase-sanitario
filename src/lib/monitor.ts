@@ -147,18 +147,19 @@ export const hm = (iso: string | null | undefined) => (iso ? timeFmt.format(new 
 /** "Sin atender", "Atiende Juan Pérez" o "Escalada · sin atender". */
 /**
  * Pases en alerta para el monitor: los que ya tienen alerta en la BD y los que ya pasaron el
- * tiempo aunque tick() (cada 30 s) todavía no la cree. Así la tarjeta, el sonido y "Yo lo
- * atiendo" aparecen en cuanto se cumple el tiempo; atender crea la alerta si falta.
+ * tiempo en el baño aunque tick() (cada 30 s) todavía no la cree. Así la tarjeta, el sonido y
+ * "Yo lo atiendo" aparecen en cuanto se cumple el tiempo; atender crea la alerta si falta.
+ * Enfermería no tiene límite de tiempo.
  */
 export function overdueAlerts(
   board: LiveBoard,
   now: number,
 ): (LivePass & { alert: NonNullable<PassAlert> })[] {
   const limit = board.settings.alert_minutes * 60_000;
+  const baths = bathroomIds(board);
   return board.passes.flatMap((p) => {
     if (p.alert) return [{ ...p, alert: p.alert }];
-    const since =
-      p.status === 'out' ? p.started_at : p.status === 'returning' ? p.left_nurse_at : null;
+    const since = p.status === 'out' && baths.has(p.destination_id) ? p.started_at : null;
     if (!since || now - new Date(since).getTime() < limit) return [];
     const created = new Date(new Date(since).getTime() + limit).toISOString();
     return [
@@ -176,14 +177,16 @@ export function overdueAlerts(
   });
 }
 
+const bathroomIds = (board: LiveBoard) =>
+  new Set(board.destinations.filter((d) => d.kind === 'bathroom').map((d) => d.id));
+
 /** Momento (ms) en que el siguiente pase cumple el tiempo de alerta, o null si no hay. */
 export function nextAlertAt(board: LiveBoard): number | null {
   const limit = board.settings.alert_minutes * 60_000;
+  const baths = bathroomIds(board);
   const times = board.passes
-    .filter((p) => !p.alert)
-    .map((p) =>
-      p.status === 'out' ? p.started_at : p.status === 'returning' ? p.left_nurse_at : null,
-    )
+    .filter((p) => !p.alert && p.status === 'out' && baths.has(p.destination_id))
+    .map((p) => p.started_at)
     .filter((s): s is string => Boolean(s))
     .map((s) => new Date(s).getTime() + limit);
   return times.length ? Math.min(...times) : null;

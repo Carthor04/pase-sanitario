@@ -34,7 +34,11 @@ function pass(over: Partial<LivePass>): LivePass {
 const board = (passes: LivePass[]): LiveBoard => ({
   now: min(0),
   settings: { alert_minutes: 10, escalate_minutes: 5, confirm_turn_minutes: 2 },
-  destinations: [],
+  destinations: [
+    { id: 'bath_h', label: 'Baño H', kind: 'bathroom', sex: 'H', capacity: 2 },
+    { id: 'bath_m', label: 'Baño M', kind: 'bathroom', sex: 'M', capacity: 2 },
+    { id: 'nurse', label: 'Enfermería', kind: 'nurse', sex: null, capacity: null },
+  ],
   passes,
   stats: { exits_today: 0, alerts_today: 0 },
   offsetMs: 0,
@@ -63,10 +67,13 @@ describe('alertas del monitor', () => {
     expect(alerts[1]!.alert.acknowledged_by_name).toBeNull();
   });
 
-  it('cuenta el regreso de enfermería desde que salió de enfermería', () => {
-    const b = board([pass({ status: 'returning', started_at: min(0), left_nurse_at: min(8) })]);
-    expect(overdueAlerts(b, T0 + 15 * 60_000)).toHaveLength(0);
-    expect(overdueAlerts(b, T0 + 18 * 60_000)).toHaveLength(1);
+  it('enfermería no tiene límite de tiempo: ni de ida ni de regreso', () => {
+    const b = board([
+      pass({ id: 'ida', destination_id: 'nurse', started_at: min(0) }),
+      pass({ id: 'vuelta', destination_id: 'nurse', status: 'returning', left_nurse_at: min(8) }),
+    ]);
+    expect(overdueAlerts(b, T0 + 60 * 60_000)).toHaveLength(0);
+    expect(nextAlertAt(b)).toBeNull();
   });
 
   it('sabe cuándo el siguiente pase cumple el tiempo', () => {
