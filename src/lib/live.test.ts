@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { canPauseBathroom, canRemoveFromQueue, isWaiting } from './live';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { canPauseBathroom, canRemoveFromQueue, debounce, isWaiting } from './live';
 
 describe('isWaiting', () => {
   it('solo los pases que todavía no salen', () => {
@@ -34,5 +34,43 @@ describe('canPauseBathroom', () => {
     expect(canPauseBathroom(['director'])).toBe(true);
     expect(canPauseBathroom(['nurse'])).toBe(false);
     expect(canPauseBathroom(['counselor'])).toBe(false);
+  });
+});
+
+describe('debounce', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('junta una ráfaga de eventos en una sola llamada', () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const call = debounce(fn, 500);
+    call();
+    call();
+    vi.advanceTimersByTime(300);
+    call();
+    expect(fn).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(500);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('eventos separados por más de la ventana refrescan cada uno', () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const call = debounce(fn, 500);
+    call();
+    vi.advanceTimersByTime(600);
+    call();
+    vi.advanceTimersByTime(600);
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it('cancel descarta la llamada pendiente', () => {
+    vi.useFakeTimers();
+    const fn = vi.fn();
+    const call = debounce(fn, 500);
+    call();
+    call.cancel();
+    vi.advanceTimersByTime(1000);
+    expect(fn).not.toHaveBeenCalled();
   });
 });

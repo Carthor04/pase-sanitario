@@ -13,31 +13,52 @@ export function invalidateLive(queryClient: ReturnType<typeof useQueryClient>) {
   return Promise.all(LIVE_KEYS.map((k) => queryClient.invalidateQueries({ queryKey: [k] })));
 }
 
+/** Espera tras un evento de Realtime antes de refrescar, para juntar los que llegan seguidos. */
+export const LIVE_DEBOUNCE_MS = 500;
+
+/**
+ * Devuelve una función que junta las llamadas hechas dentro de `ms` en una sola ejecución
+ * al final de la ventana. `cancel` descarta la que esté pendiente.
+ */
+export function debounce(fn: () => void, ms: number) {
+  let id: ReturnType<typeof setTimeout> | undefined;
+  const call = () => {
+    if (id !== undefined) clearTimeout(id);
+    id = setTimeout(() => {
+      id = undefined;
+      fn();
+    }, ms);
+  };
+  call.cancel = () => {
+    if (id !== undefined) clearTimeout(id);
+    id = undefined;
+  };
+  return call;
+}
+
 /** Escucha cambios en `passes` y `alerts` y refresca las pantallas. Devuelve si hay conexión. */
 export function useLivePasses(): boolean {
   const queryClient = useQueryClient();
   const [online, setOnline] = useState(true);
 
   useEffect(() => {
+    // Un mismo movimiento cambia varias filas (pase, alerta) y cada una manda su evento:
+    // se refresca una vez por ráfaga y no una vez por evento.
+    const refresh = debounce(() => void invalidateLive(queryClient), LIVE_DEBOUNCE_MS);
     const channel = supabase
       .channel(`passes-${Math.random().toString(36).slice(2)}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'passes' }, () => {
-        void invalidateLive(queryClient);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, () => {
-        void invalidateLive(queryClient);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bathroom_pauses' }, () => {
-        void invalidateLive(queryClient);
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'passes' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bathroom_pauses' }, refresh)
       .subscribe((status) => {
         setOnline(status === 'SUBSCRIBED');
         // Al reconectar puede haber cambios perdidos.
-        if (status === 'SUBSCRIBED') void invalidateLive(queryClient);
+        if (status === 'SUBSCRIBED') refresh();
       });
     const goOffline = () => setOnline(false);
     window.addEventListener('offline', goOffline);
     return () => {
+      refresh.cancel();
       window.removeEventListener('offline', goOffline);
       void supabase.removeChannel(channel);
     };
