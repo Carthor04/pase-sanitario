@@ -10,17 +10,20 @@ Entradas en data/oficial/:
   - "personal_para_llenar.xlsx": nombre, correo institucional y roles.
   - "Jornada maestr@s  26 -27.xlsx": horario POR DOCENTE (cada celda es el grupo).
   - "LS Tracker_Term 1.xlsx": listas de Inglés por grado y nivel.
+  - "SECU LABORATORIOS CREATIVOS 2026-2027.xlsx": talleres de Artes, una pestaña por taller.
 
 Reglas del horario:
   - En Tecnología y robótica, "2ºAT" es Tecnología y "2ºA" es Robótica.
   - Inglés se da por grado y nivel, cada nivel en el salón de un grupo (ENGLISH_ROOMS). En esas
     horas el salón tiene la clase "Inglés básico/intermedio/avanzado" con su docente, y la lista
     del salón es la del nivel (secciones.csv).
-  - Artes viene por grado ("1eros.") y aún sin docente: se carga en cada grupo del grado.
+  - Artes viene por grado ("1eros.") y sin docente: se carga en cada grupo del grado. Los
+    alumnos están repartidos en talleres (talleres_*.csv), cada uno con su docente.
 """
 import collections
 import csv
 import difflib
+import itertools
 import re
 import sys
 import unicodedata
@@ -308,6 +311,76 @@ for r in range(hdr.row + 1, ws.max_row + 1):
         guards.append([day, t[0], t[1], GUARD[name]])
 write('guardias.csv', ['dia', 'inicio', 'fin', 'correo_maestro'], guards)
 
+# ---------------------------------------------------------------- talleres de Artes
+# "SECU LABORATORIOS CREATIVOS": Artes se da en 5 talleres por grado, en otros salones y sin
+# computadora. Cada taller es un salón (grupo sin alumnos propios) con una sección por grado,
+# igual que Inglés; el horario del taller es el de Artes del grado. El docente viene en la
+# pestaña (nombre y, debajo, su correo). Se escriben aparte (talleres_*.csv) para cargarlos
+# sin volver a importar lo demás.
+TALLERES = {'AJEDREZ': 'Ajedrez', 'ARTES': 'Artes', 'AUDIOVISUAL': 'Audiovisual',
+            'GASTRO': 'Gastronomía', 'BAILE': 'Baile'}
+# Alumnos anotados fuera de la columna de nombres (pestaña, grado) → nombres.
+TALLER_EXTRA = {('ARTES', '2'): ['Iker Leonel Ramírez Barragán']}
+
+
+def score_any_order(raw, s):
+    """Como score(), pero también acepta el nombre en otro orden o todo junto, con errores de
+    dedo ("SamuelAndresLopezVenegas", "Vanesa Mayte" por "Vanesa Maite")."""
+    a, b = norm(raw).split(), norm(s[2]).split()
+    if len(a) == 1 and 1 < len(b) <= 6 and any(''.join(p) == a[0] for p in itertools.permutations(b)):
+        return 0.99
+    by_word = sum(max(difflib.SequenceMatcher(None, x, y).ratio() for y in b) for x in a) / len(a)
+    return max(score(raw, s), by_word if len(a) > 1 else 0)
+
+
+artes_hours = collections.defaultdict(set)
+for e in schedule:
+    if e[4] == 'Artes':
+        artes_hours[e[0][0]].add((e[1], e[2], e[3]))
+taller_groups, taller_staff, taller_schedule, taller_members = [], [], [], []
+taller_placed = collections.defaultdict(list)
+for i, ws in enumerate(w for w in openpyxl.load_workbook(SRC / 'SECU LABORATORIOS CREATIVOS 2026-2027.xlsx',
+                                                          data_only=True).worksheets if w.title in TALLERES):
+    room = TALLERES[ws.title]
+    taller_groups.append([room, 'Taller', len(GROUPS) + i + 1])
+    mail = next((c for c in ws['A'][:4] if '@' in str(c.value or '')), None)
+    if mail is None:
+        errors.append(('talleres', ws.title, 'sin correo del docente'))
+        email = ''
+    else:
+        email = mail.value.strip().lower()
+        taller_staff.append([title(ws.cell(row=mail.row - 1, column=1).value), email, 'teacher', ''])
+    for gr in '123':
+        for day, start, end in sorted(artes_hours[gr]):
+            taller_schedule.append([room, day, start, end, f'{room} {gr}°', email])
+    names, grade = [], None
+    for c in ws['B']:
+        v = str(c.value or '').strip()
+        m = re.fullmatch(r'([123]) SECUNDARIA', v.upper())
+        if m:
+            grade = m.group(1)
+        elif v and grade:
+            names.append((grade, re.sub(r'\s+[123][ABC]$', '', v)))  # "Victoria Sandoval Ortega 1A"
+    names += [(gr, n) for (t, gr), ns in TALLER_EXTRA.items() if t == ws.title for n in ns]
+    for gr, raw in names:
+        ranked = sorted(by_grade[gr], key=lambda s: -score_any_order(raw, s))
+        best, second = score_any_order(raw, ranked[0]), score_any_order(raw, ranked[1])
+        if best < 0.86 or best - second < 0.05:
+            errors.append(('talleres', f'{ws.title} {gr}°', f'{raw!r} ≈ {ranked[0][2]} ({ranked[0][0]}) — revisar'))
+        s = ranked[0]
+        taller_placed[(s[0], s[1])].append(f'{room} {gr}°')
+        taller_members.append([room, f'{room} {gr}°', s[0], s[1]])
+for k, v in taller_placed.items():
+    if len(v) > 1:
+        errors.append(('talleres', f'{k[0]} #{k[1]}', 'aparece en más de un taller: ' + ', '.join(v)))
+for s in students:
+    if (s[0], s[1]) not in taller_placed:
+        errors.append(('talleres', f'{s[0]} #{s[1]}', f'{s[2]} no aparece en ningún taller'))
+write('talleres_grupos.csv', ['grupo', 'salon', 'orden'], taller_groups)
+write('talleres_personal.csv', ['nombre_completo', 'correo', 'roles', 'whatsapp'], taller_staff)
+write('talleres_horario.csv', ['grupo', 'dia', 'inicio', 'fin', 'materia', 'correo_maestro'], taller_schedule)
+write('talleres_secciones.csv', ['salon_grupo', 'materia', 'grupo', 'numero_lista'], taller_members)
+
 # ---------------------------------------------------------------- resumen
 per = collections.Counter(s[0] for s in students)
 hrs = collections.Counter(e[0] for e in schedule)
@@ -320,6 +393,8 @@ lv = collections.Counter((m[0], m[1]) for m in members)
 print('Inglés:', ', '.join(f'{k[1]} en {k[0]} ({ROOMS[k[0]]}): {v}' for k, v in sorted(lv.items())))
 print(f'Total: {len(students)} alumnos, {len(staff)} personal, {len(schedule)} clases, {len(members)} en Inglés, '
       f'{len(guards)} guardias')
+tl = collections.Counter(m[1] for m in taller_members)
+print('Talleres:', ', '.join(f'{k}: {v}' for k, v in sorted(tl.items())))
 print('\nAvisos:' if errors else '\nSin avisos.')
 for e in errors:
     print('  ', ' · '.join(map(str, e)))
