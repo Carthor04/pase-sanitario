@@ -1,4 +1,4 @@
-import { withListNumbers, type Board } from './board';
+import { listLabel, withListNumbers, type Board } from './board';
 import { nextAlertAt, overdueAlerts, type LiveBoard, type LivePass } from './monitor';
 
 vi.mock('./supabase', () => ({ supabase: {} }));
@@ -95,5 +95,18 @@ describe('lista por nivel', () => {
       { id: 's9', list_number: 2, full_name: 'B', sex: 'M', group_name: '1°B' },
     ]);
     expect(out.passes.map((p) => p.list_number)).toEqual([2, 4]);
+  });
+
+  it('quien no está en la lista de esta hora va con su grupo para no repetir números', () => {
+    const b = {
+      passes: [
+        { student_id: 's9', list_number: 17, group_name: '1°A' },
+        { student_id: 'otro', list_number: 2, group_name: '1°C' },
+      ],
+    };
+    const out = withListNumbers(b as unknown as Board, [
+      { id: 's9', list_number: 2, full_name: 'B', sex: 'M', group_name: '1°A' },
+    ]);
+    expect(out.passes.map(listLabel)).toEqual(['#2', '1°C #2']);
   });
 });

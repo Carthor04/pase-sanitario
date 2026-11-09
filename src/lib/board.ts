@@ -9,6 +9,8 @@ export type BoardPass = {
   id: string;
   student_id: string;
   list_number: number;
+  /** Lo pone withListNumbers si el alumno no está en la lista de esta hora: "1°B #12". */
+  list_label?: string;
   full_name: string;
   sex: Sex;
   /** Grupo del alumno (en una clase por nivel el salón mezcla grupos). */
@@ -107,12 +109,22 @@ export function withListNumbers<B extends Board>(board: B, students: StudentRef[
   const num = new Map(students.map((s) => [s.id, s.list_number]));
   return {
     ...board,
-    passes: board.passes.map((p) => ({
-      ...p,
-      list_number: num.get(p.student_id) ?? p.list_number,
-    })),
+    passes: board.passes.map((p) => {
+      const n = num.get(p.student_id);
+      // No está en la lista de esta hora (salió en la clase anterior y ahora está en otro
+      // salón, o al revés): su número es el de su grupo y se repetiría con el de otro alumno
+      // de la lista, así que va con su grupo.
+      if (n === undefined) {
+        return { ...p, list_label: p.group_name ? `${p.group_name} #${p.list_number}` : undefined };
+      }
+      return { ...p, list_number: n, list_label: undefined };
+    }),
   };
 }
+
+/** Cómo se nombra el número de un pase: "#12", o "1°B #12" si no está en la lista de esta hora. */
+export const listLabel = (p: Pick<BoardPass, 'list_number' | 'list_label'>) =>
+  p.list_label ?? `#${p.list_number}`;
 
 // ---------------------------------------------------------------------------
 // Tiempo

@@ -850,6 +850,7 @@ export type Database = {
           daily_exits_flag: number
           escalate_minutes: number
           id: number
+          max_missed_turns: number
           pairing_code_minutes: number
           pin_lockout_seconds: number
           pin_max_attempts: number
@@ -871,6 +872,7 @@ export type Database = {
           daily_exits_flag?: number
           escalate_minutes?: number
           id?: number
+          max_missed_turns?: number
           pairing_code_minutes?: number
           pin_lockout_seconds?: number
           pin_max_attempts?: number
@@ -892,6 +894,7 @@ export type Database = {
           daily_exits_flag?: number
           escalate_minutes?: number
           id?: number
+          max_missed_turns?: number
           pairing_code_minutes?: number
           pin_lockout_seconds?: number
           pin_max_attempts?: number
@@ -1091,6 +1094,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      expire_turns: { Args: never; Returns: undefined }
       force_out: { Args: { p_pass_id: string }; Returns: Json }
       frequent_exits: { Args: { p_from: string; p_to: string }; Returns: Json }
       group_board: { Args: { p_group_id: string }; Returns: Json }

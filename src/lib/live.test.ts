@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { canPauseBathroom, canRemoveFromQueue, debounce, isWaiting } from './live';
+import {
+  canPauseBathroom,
+  canRemoveFromQueue,
+  debounce,
+  isWaiting,
+  MINUTE_MARGIN_MS,
+  msToNextMinute,
+  nextTurnDeadline,
+} from './live';
 
 describe('isWaiting', () => {
   it('solo los pases que todavía no salen', () => {
@@ -72,5 +80,32 @@ describe('debounce', () => {
     call.cancel();
     vi.advanceTimersByTime(1000);
     expect(fn).not.toHaveBeenCalled();
+  });
+});
+
+describe('msToNextMinute', () => {
+  it('espera hasta poco después del siguiente minuto exacto', () => {
+    const at = new Date('2026-11-09T14:59:45Z').getTime();
+    expect(msToNextMinute(at)).toBe(15_000 + MINUTE_MARGIN_MS);
+    expect(msToNextMinute(new Date('2026-11-09T15:00:00Z').getTime())).toBe(
+      60_000 + MINUTE_MARGIN_MS,
+    );
+  });
+});
+
+describe('nextTurnDeadline', () => {
+  const settings = { confirm_turn_minutes: 2 } as Parameters<
+    typeof nextTurnDeadline
+  >[0]['settings'];
+  it('el turno que vence primero', () => {
+    const passes = [
+      { status: 'called', called_at: '2026-11-09T15:01:00Z' },
+      { status: 'called', called_at: '2026-11-09T15:00:00Z' },
+      { status: 'queued', called_at: null },
+    ] as Parameters<typeof nextTurnDeadline>[0]['passes'];
+    expect(nextTurnDeadline({ passes, settings })).toBe(new Date('2026-11-09T15:02:00Z').getTime());
+  });
+  it('sin turnos no hay nada que revisar', () => {
+    expect(nextTurnDeadline({ passes: [], settings })).toBeNull();
   });
 });

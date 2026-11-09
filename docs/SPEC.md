@@ -48,6 +48,8 @@ group_wait ──► queued ──► called ──► out ──► returned
   - Si el maestro **confirma** → `out`.
   - Si **cede** o **no confirma a tiempo** → vuelve a `queued` en **segundo lugar** (detrás del siguiente) y se llama al siguiente.
   - **Ceder con un solo alumno en fila** (decisión 2026-10-15): no se puede. El botón aparece deshabilitado con el texto "Nadie más en fila"; el maestro confirma o cancela. (Si no confirma a tiempo y no hay nadie más, sigue siendo su turno.)
+  - **Turnos perdidos** (decisión 2026-11-09): un pase solo vuelve al segundo lugar hasta `max_missed_turns` (2) turnos vencidos. En la vez que llega al límite se **cancela solo** (lo hace el sistema, queda en la bitácora) y se avisa al maestro para que lo pida de nuevo. Así un pase que nadie atiende no aparta el baño una y otra vez. Ceder no cuenta como turno perdido.
+  - El turno vence en cuanto se acaba la cuenta regresiva: la pantalla le pide a la BD que lo revise (`expire_turns`), sin esperar a `tick()`. La BD decide con su propia hora.
 - `out`: fuera del salón, corre el cronómetro desde `started_at`.
 - `returned`: el maestro marcó regreso. Cierra el pase.
 - `released`: prefectura liberó el lugar (requiere motivo). Cierra el pase y genera incidencia.
@@ -55,7 +57,9 @@ group_wait ──► queued ──► called ──► out ──► returned
 
 **Lugar del grupo:** por grupo y por sexo, a lo más un pase en `queued | called | out`. Los demás quedan en `group_wait`. Es la regla `uses_group_slot` de cada baño: el de hombres no la usa (decisión 2026-10-23), es una sola lista general para todos los salones y sale uno a la vez por su cupo de 1.
 
-**El pase sigue al alumno:** el grupo del lugar es el salón donde está el alumno (en Inglés, el salón del nivel). Si termina la clase y su pase todavía no sale, `tick()` lo pasa al salón donde está ahora; si ahí el lugar ya está ocupado, queda en `group_wait` con la hora en que se pidió (decisión 2026-10-23).
+**El pase sigue al alumno:** el grupo del lugar es el salón donde está el alumno (en Inglés, el salón del nivel). Si termina la clase y su pase todavía no sale, `tick()` lo pasa al salón donde está ahora; si ahí el lugar ya está ocupado, queda en `group_wait` con la hora en que se pidió (decisión 2026-10-23). En un baño sin lugar por grupo (hombres) sigue en la fila con su lugar, o conserva su turno (2026-11-09).
+
+**Lista del salón al cambiar de clase:** la lista y el tablero se recargan juntos al cambiar de minuto, porque las clases empiezan y terminan en minutos exactos. Si en el tablero aparece un alumno que no está en la lista de esta hora (salió en la clase anterior y ahora está en otro salón), se muestra con su grupo, por ejemplo "1°B #12", porque en Inglés los números se repiten.
 
 **Ocupación del baño:** `count(called) + count(out)` ≤ `capacity`. `called` reserva lugar.
 

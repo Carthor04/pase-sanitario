@@ -2,7 +2,7 @@
 // acciones sobre pases. El cliente nunca decide; solo llama RPC y muestra el resultado.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { parseBoard, type ActiveStatus, type BathroomPause } from './board';
+import { parseBoard, type ActiveStatus, type BathroomPause, type Board } from './board';
 import type { Role } from './nav';
 import { supabase } from './supabase';
 
@@ -67,18 +67,69 @@ export function useLivePasses(): boolean {
   return online;
 }
 
+/** Diferencia entre el reloj del servidor y el de este equipo (la actualiza cada tablero). */
+let serverOffsetMs = 0;
+
+/** Margen después del minuto exacto, para que el servidor ya esté en la clase nueva. */
+export const MINUTE_MARGIN_MS = 1_500;
+
+/**
+ * Milisegundos hasta poco después del siguiente minuto exacto (hora del servidor). Las
+ * clases empiezan y terminan en minutos exactos: así la lista y el tablero cambian juntos
+ * al empezar la clase por nivel, en lugar de hasta un minuto después.
+ */
+export function msToNextMinute(now = Date.now() + serverOffsetMs): number {
+  return 60_000 - (now % 60_000) + MINUTE_MARGIN_MS;
+}
+
 export function useBoard(groupId: string | undefined) {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['board', groupId],
     enabled: Boolean(groupId),
-    refetchInterval: 30_000, // respaldo por si se pierde un evento de Realtime
+    // Al cambiar de minuto, y cada 30 s como respaldo por si se pierde un evento de Realtime.
+    refetchInterval: () => Math.min(30_000, msToNextMinute()),
     queryFn: async () => {
       const { data, error } = await supabase.rpc('group_board', { p_group_id: groupId! });
       if (error) throw error;
       const board = parseBoard(data);
-      return { ...board, offsetMs: new Date(board.now).getTime() - Date.now() };
+      const offsetMs = new Date(board.now).getTime() - Date.now();
+      serverOffsetMs = offsetMs;
+      return { ...board, offsetMs };
     },
   });
+  useExpireDueTurns(query.data);
+  return query;
+}
+
+/**
+ * Hora (del servidor, en ms) en que vence el turno más próximo del tablero, o null si no hay
+ * turnos. Solo sirve para saber cuándo pedirle a la BD que revise; la regla vive en Postgres.
+ */
+export function nextTurnDeadline(board: Pick<Board, 'passes' | 'settings'>): number | null {
+  const deadlines = board.passes
+    .filter((p) => p.status === 'called' && p.called_at)
+    .map((p) => new Date(p.called_at!).getTime() + board.settings.confirm_turn_minutes * 60_000);
+  return deadlines.length ? Math.min(...deadlines) : null;
+}
+
+/**
+ * Cuando la cuenta regresiva de un turno llega a cero, le pide a la BD que lo revise
+ * (expire_turns) en lugar de esperar a tick(), que corre cada 30 s.
+ */
+function useExpireDueTurns(board: (Board & { offsetMs: number }) | undefined) {
+  const queryClient = useQueryClient();
+  const deadline = board ? nextTurnDeadline(board) : null;
+  const offsetMs = board?.offsetMs ?? 0;
+  useEffect(() => {
+    if (deadline === null) return;
+    const wait = Math.max(0, deadline - (Date.now() + offsetMs)) + 500;
+    const id = window.setTimeout(() => {
+      void supabase.rpc('expire_turns').then(({ error }) => {
+        if (!error) void invalidateLive(queryClient);
+      });
+    }, wait);
+    return () => window.clearTimeout(id);
+  }, [deadline, offsetMs, queryClient]);
 }
 
 /**

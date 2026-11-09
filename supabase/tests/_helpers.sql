@@ -74,7 +74,7 @@ begin
      set capacity = null, per_group_limit = null, uses_group_slot = false, queue_enabled = false
    where id = 'nurse';
   update public.settings
-     set confirm_turn_minutes = 2, undo_seconds = 10, pin_max_attempts = 5,
+     set confirm_turn_minutes = 2, max_missed_turns = 2, undo_seconds = 10, pin_max_attempts = 5,
          pin_lockout_seconds = 60, auto_lock_after_class_minutes = 5,
          unlock_without_class_minutes = 15
    where id = 1;

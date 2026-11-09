@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { msToNextMinute } from './live';
 import { byName } from './students';
 import { supabase } from './supabase';
 
@@ -28,7 +29,9 @@ export function useRoster(groupId: string | undefined) {
   return useQuery({
     queryKey: ['roster', groupId],
     enabled: Boolean(groupId),
-    refetchInterval: 60_000, // la lista cambia al empezar y terminar la clase por nivel
+    // La lista cambia al empezar y terminar la clase por nivel: se recarga al cambiar de
+    // minuto, igual que el tablero, para que los dos cambien juntos.
+    refetchInterval: () => msToNextMinute(),
     queryFn: async (): Promise<Roster> => {
       const { data, error } = await supabase.rpc('room_roster', { p_group_id: groupId! });
       if (error) throw error;

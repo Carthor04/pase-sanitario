@@ -7,6 +7,7 @@ import {
   formatCountdown,
   formatElapsed,
   isOverdue,
+  listLabel,
   nursePasses,
   occupancy,
   passForStudent,
@@ -577,7 +578,7 @@ function SexSlot({
           <div className="flex min-w-0 flex-col">
             <span className="truncate text-[20px] font-bold sm:text-[22px]">{pass.full_name}</span>
             <span className={`text-[15px] ${overdue ? 'text-alert-fg' : 'text-muted'}`}>
-              #{pass.list_number} · salió {hm(pass.started_at)}
+              {listLabel(pass)} · salió {hm(pass.started_at)}
               {pass.period_subject ? ` en ${pass.period_subject}` : ''}
             </span>
           </div>
@@ -616,7 +617,7 @@ function SexSlot({
     >
       <span className="truncate text-[20px] font-bold sm:text-[22px]">{pass.full_name}</span>
       <span className="text-[15px] text-muted">
-        #{pass.list_number} ·{' '}
+        {listLabel(pass)} ·{' '}
         {pass.status === 'called'
           ? 'confirma su salida arriba'
           : `lugar ${pass.queue_position ?? '—'} en la fila`}
@@ -690,7 +691,7 @@ function NurseSlot({
               <span
                 className={`text-[15px] ${p.status === 'returning' ? 'font-bold text-wait-fg' : 'text-muted'}`}
               >
-                #{p.list_number} ·{' '}
+                {listLabel(p)} ·{' '}
                 {p.status === 'returning'
                   ? `salió de enfermería ${hm(p.left_nurse_at ?? null)}: viene de regreso`
                   : p.status === 'arrived'
@@ -738,7 +739,7 @@ function TurnBanner({
         <div className="flex min-w-0 flex-col">
           <span className="font-display text-[22px] font-bold leading-tight sm:text-[26px]">
             Turno de {pass.full_name}{' '}
-            <span className="font-mono text-[18px]">#{pass.list_number}</span>
+            <span className="font-mono text-[18px]">{listLabel(pass)}</span>
           </span>
           <span className="text-[15px]">
             {left > 0

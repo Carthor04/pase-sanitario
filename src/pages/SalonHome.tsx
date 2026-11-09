@@ -10,6 +10,7 @@ import { LockIcon } from '@/components/ui/icons';
 import {
   elapsedMs,
   formatElapsed,
+  listLabel,
   nursePasses,
   slotPass,
   withListNumbers,
@@ -154,7 +155,7 @@ export function SalonHome() {
           </section>
           {board.data ? (
             <LockedStatus
-              board={board.data}
+              board={roster.data ? withListNumbers(board.data, roster.data.students) : board.data}
               session={session.data}
               groupName={device.group_name}
               groupId={device.group_id}
@@ -286,7 +287,7 @@ function LockedStatus({
             {r.pass ? (
               <>
                 <span className="truncate text-[18px] font-bold">
-                  {r.pass.full_name} #{r.pass.list_number}
+                  {r.pass.full_name} {listLabel(r.pass)}
                 </span>
                 <span className="text-[13px] text-white/80">
                   {r.pass.status === 'returning'
