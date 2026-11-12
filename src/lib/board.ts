@@ -300,3 +300,19 @@ export function requestMessage(
       return name;
   }
 }
+
+/**
+ * Nombre que muestra la computadora del salón. En una clase por nivel (Inglés básico, etc.)
+ * el salón toma el nombre de la clase y el grupo dueño del salón pasa al subtítulo.
+ */
+export function roomTitle(
+  groupName: string,
+  room: string | null | undefined,
+  sectionSubject: string | null | undefined,
+): { title: string; subtitle: string } {
+  if (!sectionSubject) return { title: groupName, subtitle: room ?? 'Secundaria' };
+  return {
+    title: sectionSubject,
+    subtitle: room ? `${room} · grupo ${groupName}` : `Salón de ${groupName}`,
+  };
+}

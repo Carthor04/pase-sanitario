@@ -283,3 +283,19 @@ describe('todayLabel', () => {
     expect(todayLabel({ bathroom: 3, nurse: 1 })).toBe('3 baño · 1 enfermería');
   });
 });
+
+describe('roomTitle', () => {
+  it('usa el grupo fuera de las clases por nivel', async () => {
+    const { roomTitle } = await import('./board');
+    expect(roomTitle('2°C', 'Salón 5', null)).toEqual({ title: '2°C', subtitle: 'Salón 5' });
+    expect(roomTitle('2°C', null, undefined)).toEqual({ title: '2°C', subtitle: 'Secundaria' });
+  });
+  it('en la clase por nivel el salón toma el nombre de la clase', async () => {
+    const { roomTitle } = await import('./board');
+    expect(roomTitle('2°C', 'Salón 5', 'Inglés básico')).toEqual({
+      title: 'Inglés básico',
+      subtitle: 'Salón 5 · grupo 2°C',
+    });
+    expect(roomTitle('2°C', null, 'Inglés básico').subtitle).toBe('Salón de 2°C');
+  });
+});

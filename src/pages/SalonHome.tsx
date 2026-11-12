@@ -12,6 +12,7 @@ import {
   formatElapsed,
   listLabel,
   nursePasses,
+  roomTitle,
   slotPass,
   withListNumbers,
   type Board,
@@ -73,6 +74,8 @@ export function SalonHome() {
   useWakeLock();
 
   const room = groups.data?.find((g) => g.id === device.group_id)?.room;
+  // En Inglés por niveles el salón se llama como la clase ("Inglés básico"), no como el grupo.
+  const name = roomTitle(device.group_name, room, roster.data?.section?.subject);
   const unlocked = session.data?.unlocked ?? false;
 
   // Autobloqueo: al vencer el desbloqueo se vuelve a preguntar a la BD.
@@ -125,8 +128,8 @@ export function SalonHome() {
         <header className="mx-auto flex w-full max-w-container items-center gap-4 px-6 py-5 sm:px-16">
           <BrandMark />
           <span className="font-display text-[26px] font-bold">
-            {device.group_name}
-            {room ? ` · ${room}` : ''}
+            {name.title}
+            {roster.data?.section ? ` · ${name.subtitle}` : room ? ` · ${room}` : ''}
           </span>
           <span className="ml-auto font-mono text-[24px] font-semibold tabular-nums">{clock}</span>
           <DeviceMenu dark />
@@ -173,10 +176,8 @@ export function SalonHome() {
           <div className="flex items-center gap-3">
             <BrandMark />
             <div className="flex flex-col">
-              <span className="font-display text-[24px] font-bold leading-none">
-                {device.group_name}
-              </span>
-              <span className="text-[13px] text-muted">{room ?? 'Secundaria'}</span>
+              <span className="font-display text-[24px] font-bold leading-none">{name.title}</span>
+              <span className="text-[13px] text-muted">{name.subtitle}</span>
             </div>
           </div>
           <div className="flex min-w-0 flex-1 flex-col">
