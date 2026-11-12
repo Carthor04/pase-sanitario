@@ -472,7 +472,7 @@ function Column({
                   <span className="truncate font-bold">{p.full_name}</span>
                   <span className="text-[13px] text-muted">
                     {p.group_name}
-                    {p.period_subject ? ` · salió en ${p.period_subject}` : ''}
+                    {p.period_subject ? ` · pidió en ${p.period_subject}` : ''}
                     {p.current_teacher_name ? ` · ahora con ${p.current_teacher_name}` : ''}
                   </span>
                 </span>

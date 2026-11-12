@@ -139,7 +139,7 @@ function Row({
             : 'border border-line';
   const detail = item.full_name
     ? [
-        item.subject ? `salió en ${item.subject}` : null,
+        item.subject ? `${isWaiting(item.status) ? 'pidió' : 'salió'} en ${item.subject}` : null,
         item.opened_by ? `autorizó ${item.opened_by}` : null,
       ]
         .filter(Boolean)

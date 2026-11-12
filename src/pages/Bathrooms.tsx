@@ -64,7 +64,7 @@ export function Bathrooms() {
           groupName={picked.group_name}
           detail={[
             STATUS_TEXT[picked.status],
-            picked.subject ? `salió en ${picked.subject}` : null,
+            picked.subject ? `pidió en ${picked.subject}` : null,
             picked.opened_by ? `autorizó ${picked.opened_by}` : null,
             picked.current_teacher ? `ahora con ${picked.current_teacher}` : null,
           ]
