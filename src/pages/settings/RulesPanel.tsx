@@ -20,7 +20,6 @@ type Times = {
   alert_minutes: number;
   escalate_minutes: number;
   confirm_turn_minutes: number;
-  max_missed_turns: number;
   auto_lock_after_class_minutes: number;
   undo_seconds: number;
   review_alerts_threshold: number;
@@ -56,17 +55,9 @@ const TIME_FIELDS: {
     key: 'confirm_turn_minutes',
     label: 'Tiempo para confirmar turno',
     unit: 'min',
-    help: 'Después pasa al siguiente en la fila',
+    help: 'Después pasa al siguiente; sigue en la fila con preferencia',
     min: 1,
     max: 15,
-  },
-  {
-    key: 'max_missed_turns',
-    label: 'Turnos perdidos antes de cancelar',
-    unit: 'veces',
-    help: 'Si nadie confirma, a esa vez el pase se cancela solo',
-    min: 1,
-    max: 10,
   },
   {
     key: 'auto_lock_after_class_minutes',
@@ -125,7 +116,7 @@ export function RulesPanel() {
         supabase
           .from('settings')
           .select(
-            'alert_minutes, escalate_minutes, confirm_turn_minutes, max_missed_turns, auto_lock_after_class_minutes, undo_seconds, review_alerts_threshold, review_exits_threshold, daily_exits_flag',
+            'alert_minutes, escalate_minutes, confirm_turn_minutes, auto_lock_after_class_minutes, undo_seconds, review_alerts_threshold, review_exits_threshold, daily_exits_flag',
           )
           .eq('id', 1)
           .single(),

@@ -1,5 +1,5 @@
--- Turnos perdidos (decisión 2026-11-09): al llegar a settings.max_missed_turns el pase se
--- cancela solo; public.expire_turns() vence turnos sin esperar a tick(); y al cambiar de
+-- Turnos perdidos (decisión 2026-11-09, cambiada el 2026-11-25): el pase sigue en la fila
+-- con preferencia; public.expire_turns() vence turnos sin esperar a tick(); y al cambiar de
 -- salón el baño sin lugar por grupo no manda a nadie a "espera de su grupo".
 do $$
 declare
@@ -23,7 +23,8 @@ begin
   b4 := pg_temp.make_student(g4, 1, 'H');
   b5 := pg_temp.make_student(g5, 1, 'H');
 
-  -- 1. Primer turno perdido: segundo lugar. Segundo turno perdido: se cancela solo.
+  -- 1. Turno perdido: segundo lugar con preferencia. Si lo vuelve a perder, igual: nunca se
+  --    cancela solo (decisión 2026-11-25).
   perform pg_temp.reset_engine();
   perform pg_temp.login(t);
   p1 := pg_temp.req(b1);
@@ -37,6 +38,7 @@ begin
   update public.passes set called_at = called_at - interval '3 minutes' where id = p2;
   perform private.tick();
   assert pg_temp.st(p2) = 'queued' and pg_temp.st(p3) = 'called', '1: P2 al segundo lugar, turno de P3';
+  assert (select priority_ts is not null from public.passes where id = p2), '1: con preferencia';
   assert (select payload ->> 'missed' from public.pass_events
            where pass_id = p2 and type = 'turn_expired') = '1', '1: primer turno perdido';
 
@@ -48,15 +50,12 @@ begin
 
   update public.passes set called_at = called_at - interval '3 minutes' where id = p2;
   perform private.tick();
-  assert pg_temp.st(p2) = 'cancelled', '1: al segundo turno perdido se cancela';
+  assert pg_temp.st(p2) = 'queued', '1: al segundo turno perdido sigue en la fila';
   assert pg_temp.st(p4) = 'called', '1: se llama al siguiente';
-  assert (select ended_at is not null from public.passes where id = p2), '1: queda cerrado';
-  assert exists (select 1 from public.pass_events
-                  where pass_id = p2 and type = 'cancelled' and actor_id is null
-                    and payload ->> 'auto' = 'sin_confirmar' and payload ->> 'from' = 'called'),
-    '1: evento cancelled del sistema';
+  assert not exists (select 1 from public.pass_events
+                      where pass_id = p2 and type = 'cancelled'), '1: nunca se cancela solo';
 
-  -- 2. Con max_missed_turns = 1 se cancela al primero.
+  -- 2. Aunque max_missed_turns sea 1, ya no se cancela.
   perform pg_temp.reset_engine();
   update public.settings set max_missed_turns = 1 where id = 1;
   perform pg_temp.login(t);
@@ -67,7 +66,7 @@ begin
   perform pg_temp.logout();
   update public.passes set called_at = called_at - interval '3 minutes' where id = p2;
   perform private.tick();
-  assert pg_temp.st(p2) = 'cancelled' and pg_temp.st(p3) = 'called', '2: cancelado al primer turno perdido';
+  assert pg_temp.st(p2) = 'queued' and pg_temp.st(p3) = 'called', '2: sigue en la fila';
 
   -- 3. Si no hay nadie más formado sigue siendo su turno, aunque ya haya perdido uno.
   perform pg_temp.reset_engine();
