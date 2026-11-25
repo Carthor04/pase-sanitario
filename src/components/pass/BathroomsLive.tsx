@@ -120,23 +120,29 @@ function Row({
 }) {
   const dark = ctx.variant === 'dark';
   const mine = ctx.ownGroup !== undefined && item.group_name === ctx.ownGroup;
+  // Perdió su turno y recuperó su lugar: morado y con texto.
+  const prio = Boolean(item.priority) && isWaiting(item.status);
   const frame = late
     ? 'border-2 border-alert-bd bg-alert-bg text-alert-fg'
-    : mine
+    : prio
       ? dark
-        ? 'border-2 border-white/60'
-        : 'border-2 border-ink'
-      : tone === 'wait'
+        ? 'border-2 border-[#CDB4F5]/70'
+        : 'border-2 border-prio-bd bg-prio-bg'
+      : mine
         ? dark
-          ? 'border border-[#FFD08A]/40'
-          : 'border border-wait-bd/50 bg-wait-bg/40'
-        : tone === 'nurse'
+          ? 'border-2 border-white/60'
+          : 'border-2 border-ink'
+        : tone === 'wait'
           ? dark
-            ? 'border border-[#A9C4F0]/40'
-            : 'border border-nurse-bd/50'
-          : dark
-            ? 'border border-white/15'
-            : 'border border-line';
+            ? 'border border-[#FFD08A]/40'
+            : 'border border-wait-bd/50 bg-wait-bg/40'
+          : tone === 'nurse'
+            ? dark
+              ? 'border border-[#A9C4F0]/40'
+              : 'border border-nurse-bd/50'
+            : dark
+              ? 'border border-white/15'
+              : 'border border-line';
   const detail = item.full_name
     ? [
         item.subject ? `${isWaiting(item.status) ? 'pidió' : 'salió'} en ${item.subject}` : null,
@@ -159,6 +165,11 @@ function Row({
           )}
           {mine ? ' · tu grupo' : ''}
         </span>
+        {prio ? (
+          <span className={`text-[12px] font-bold ${dark ? 'text-[#CDB4F5]' : 'text-prio-fg'}`}>
+            Perdió su turno · tiene preferencia
+          </span>
+        ) : null}
         {detail ? (
           <span
             className={`truncate text-[12px] ${late ? '' : dark ? 'text-white/70' : 'text-muted'}`}

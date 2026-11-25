@@ -30,6 +30,8 @@ export type BoardPass = {
   left_nurse_at?: string | null;
   period_subject: string | null;
   opened_by_name: string | null;
+  /** Perdió su turno (nadie lo confirmó) y al pedirlo de nuevo recuperó su lugar. */
+  priority?: boolean;
   queue_position: number | null;
   waiting_for: { list_number: number; full_name: string } | null;
   alert?: {
@@ -73,8 +75,11 @@ export type Bathroom = {
   uses_group_slot?: boolean;
   paused?: BathroomPause | null;
   occupants: { group_name: string; own: boolean; status: 'called' | 'out'; since: string }[];
-  queue: { group_name: string; own: boolean }[];
+  queue: { group_name: string; own: boolean; priority?: boolean }[];
 };
+
+/** Alumno del salón que perdió su turno hoy y todavía no lo vuelven a pedir. */
+export type LostTurn = { student_id: string; pass_id: string; at: string };
 
 export type BoardSettings = {
   alert_minutes: number;
@@ -88,6 +93,8 @@ export type Board = {
   settings: BoardSettings;
   passes: BoardPass[];
   bathrooms: Bathroom[];
+  /** Si lo vuelven a pedir hoy, recupera su lugar en la fila (lo decide request_pass). */
+  lost_turns?: LostTurn[];
 };
 
 export const parseBoard = (raw: Json) => raw as unknown as Board;
@@ -201,7 +208,20 @@ export function occupancy(b: Bathroom) {
 // Etiquetas (siempre con texto: el color nunca es la única señal)
 // ---------------------------------------------------------------------------
 
-export type Tone = 'out' | 'wait' | 'alert' | 'nurse' | 'free';
+export type Tone = 'out' | 'wait' | 'alert' | 'nurse' | 'free' | 'prio';
+
+export const lostTurnFor = (board: Pick<Board, 'lost_turns'>, studentId: string) =>
+  board.lost_turns?.find((l) => l.student_id === studentId);
+
+/** Etiqueta de quien perdió su turno: el color va con texto. */
+export const LOST_TURN_TAG = {
+  label: 'Perdió su turno · tiene preferencia',
+  tone: 'prio',
+} as const;
+
+/** "1°B (preferencia)" en las listas cortas de la fila. */
+export const queueGroupLabel = (q: { group_name: string; priority?: boolean }) =>
+  q.priority ? `${q.group_name} (preferencia)` : q.group_name;
 
 export function passTag(
   p: BoardPass,
@@ -222,11 +242,17 @@ export function passTag(
     case 'called':
       return { label: `Su turno · ${formatCountdown(turnLeftMs(p, now, s))}`, tone: 'wait' };
     case 'queued':
-      return { label: `En fila · lugar ${p.queue_position ?? '—'}`, tone: 'wait' };
+      return p.priority
+        ? { label: `Preferencia · lugar ${p.queue_position ?? '—'}`, tone: 'prio' }
+        : { label: `En fila · lugar ${p.queue_position ?? '—'}`, tone: 'wait' };
     case 'group_wait':
       return {
-        label: p.waiting_for ? `Espera · sale al regresar #${p.waiting_for.list_number}` : 'Espera',
-        tone: 'wait',
+        label: p.waiting_for
+          ? `${p.priority ? 'Preferencia' : 'Espera'} · sale al regresar #${p.waiting_for.list_number}`
+          : p.priority
+            ? 'Preferencia · espera a su grupo'
+            : 'Espera',
+        tone: p.priority ? 'prio' : 'wait',
       };
     default:
       return { label: '', tone: 'free' };
@@ -259,11 +285,16 @@ export function bathroomHint(
   // por grupo (lista general) nadie espera a su grupo.
   const holder =
     bath.uses_group_slot === false ? undefined : slotPass(board.passes, student.sex, roomId);
+  const lost = lostTurnFor(board, student.id);
   if (holder) {
     const who = `${holder.full_name} (#${holder.list_number})`;
+    const prio = lost ? ' Perdió su turno: al pasar a la fila recupera su lugar.' : '';
     return holder.status === 'out'
-      ? { text: `Queda en espera: ${who} sigue fuera. Recibe turno cuando regrese.`, tone: 'wait' }
-      : { text: `Queda en espera: ${who} está en la fila del baño.`, tone: 'wait' };
+      ? {
+          text: `Queda en espera: ${who} sigue fuera. Recibe turno cuando regrese.${prio}`,
+          tone: 'wait',
+        }
+      : { text: `Queda en espera: ${who} está en la fila del baño.${prio}`, tone: 'wait' };
   }
   const occ = occupancy(bath);
   if (bath.capacity === null || (occ < bath.capacity && bath.queue.length === 0)) {
@@ -271,6 +302,15 @@ export function bathroomHint(
     return { text: `${bath.label} · entra directo${cap}`, tone: 'free' };
   }
   const ahead = bath.queue.length;
+  if (lost) {
+    const before = bath.queue.filter((q) => q.priority).length;
+    return {
+      text: `Perdió su turno: tiene preferencia y recupera su lugar en la fila${
+        before ? ` (${before} con preferencia antes)` : ''
+      }`,
+      tone: 'wait',
+    };
+  }
   return {
     text: `${bath.label} lleno · queda en fila${ahead ? ` (${ahead} antes)` : ''}`,
     tone: 'wait',
@@ -282,7 +322,7 @@ export function requestMessage(
   student: StudentRef,
   status: ActiveStatus,
   groupName: string,
-  extra: { label?: string; queuePosition?: number | null } = {},
+  extra: { label?: string; queuePosition?: number | null; priority?: boolean } = {},
 ): string {
   const name = student.full_name;
   switch (status) {
@@ -291,7 +331,9 @@ export function requestMessage(
         ? `${name} va a enfermería`
         : `${name} salió al ${(extra.label ?? 'baño').toLowerCase()}`;
     case 'queued':
-      return `${name} quedó en fila${extra.queuePosition ? ` (lugar ${extra.queuePosition})` : ''}`;
+      return `${name} quedó en fila${extra.priority ? ' con preferencia' : ''}${
+        extra.queuePosition ? ` (lugar ${extra.queuePosition})` : ''
+      }`;
     case 'group_wait':
       return `Ya hay ${SEX_WORD[student.sex].one} de ${groupName} fuera; ${name} quedó en espera`;
     case 'called':

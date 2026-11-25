@@ -32,6 +32,8 @@ export type LivePass = {
   period_subject: string | null;
   opened_by_name: string | null;
   current_teacher_name: string | null;
+  /** Perdió su turno y recuperó su lugar en la fila. */
+  priority?: boolean;
   alert: PassAlert;
 };
 

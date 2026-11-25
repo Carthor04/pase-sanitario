@@ -2,8 +2,11 @@ import {
   bathroomHint,
   formatCountdown,
   formatElapsed,
+  LOST_TURN_TAG,
+  lostTurnFor,
   passTag,
   pausedText,
+  queueGroupLabel,
   requestMessage,
   slotPass,
   waitElapsed,
@@ -297,5 +300,50 @@ describe('roomTitle', () => {
       subtitle: 'Salón 5 · grupo 2°C',
     });
     expect(roomTitle('2°C', null, 'Inglés básico').subtitle).toBe('Salón de 2°C');
+  });
+});
+
+describe('turno perdido con preferencia', () => {
+  const full = (over: Partial<Board> = {}) =>
+    board([], {
+      bathrooms: [
+        {
+          id: 'bath_h',
+          label: 'Baño hombres',
+          sex: 'H',
+          capacity: 1,
+          occupants: [{ group_name: '1°A', own: false, status: 'out', since: iso(0) }],
+          queue: [{ group_name: '2°A', own: false }],
+        },
+      ],
+      ...over,
+    });
+
+  it('marca con su propio color y texto a quien recuperó su lugar', () => {
+    const p = pass({ status: 'queued', queue_ts: iso(0), queue_position: 1, priority: true });
+    expect(passTag(p, T0, settings)).toEqual({ label: 'Preferencia · lugar 1', tone: 'prio' });
+    expect(passTag(pass({ status: 'group_wait', priority: true }), T0, settings)).toEqual({
+      label: 'Preferencia · espera a su grupo',
+      tone: 'prio',
+    });
+  });
+
+  it('avisa al pedirlo de nuevo que recupera su lugar', () => {
+    const b = full({ lost_turns: [{ student_id: 's22', pass_id: 'x', at: iso(0) }] });
+    expect(lostTurnFor(b, 's22')).toBeDefined();
+    expect(lostTurnFor(b, 's1')).toBeUndefined();
+    expect(bathroomHint(jorge, b).text).toBe(
+      'Perdió su turno: tiene preferencia y recupera su lugar en la fila',
+    );
+    expect(bathroomHint(jorge, full()).text).toBe('Baño hombres lleno · queda en fila (1 antes)');
+    expect(LOST_TURN_TAG.tone).toBe('prio');
+  });
+
+  it('lo dice en el aviso y en la fila corta', () => {
+    expect(requestMessage(jorge, 'queued', '2°B', { queuePosition: 1, priority: true })).toBe(
+      'Jorge Valdez quedó en fila con preferencia (lugar 1)',
+    );
+    expect(queueGroupLabel({ group_name: '2°B', priority: true })).toBe('2°B (preferencia)');
+    expect(queueGroupLabel({ group_name: '2°B' })).toBe('2°B');
   });
 });

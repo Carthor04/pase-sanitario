@@ -8,11 +8,14 @@ import {
   formatElapsed,
   isOverdue,
   listLabel,
+  LOST_TURN_TAG,
+  lostTurnFor,
   nursePasses,
   occupancy,
   passForStudent,
   passTag,
   pausedText,
+  queueGroupLabel,
   requestMessage,
   returningMs,
   slotPass,
@@ -52,6 +55,7 @@ const TAG_CLASS: Record<Tone, string> = {
   alert: 'bg-alert-fg text-white',
   nurse: 'bg-nurse-bg text-nurse-fg',
   free: 'bg-free-bg text-free-fg',
+  prio: 'bg-prio-fg text-white',
 };
 const TILE_CLASS: Record<Tone, string> = {
   out: 'border-2 border-ink',
@@ -59,6 +63,7 @@ const TILE_CLASS: Record<Tone, string> = {
   alert: 'border-2 border-alert-bd bg-alert-bg',
   nurse: 'border-2 border-nurse-bd',
   free: 'border border-line',
+  prio: 'border-2 border-prio-bd bg-prio-bg',
 };
 
 type Undo = { passId: string; message: string; until: number };
@@ -152,6 +157,7 @@ export function GroupLive({
         message: requestMessage(student, res.status as BoardPass['status'], groupName, {
           label: kind === 'nurse' ? 'Enfermería' : bathroomFor(board, student.sex)?.label,
           queuePosition: res.queue_position,
+          priority: Boolean(res.priority_from),
         }),
         until: Date.now() + s.undo_seconds * 1000,
       });
@@ -314,7 +320,12 @@ export function GroupLive({
         <ul className="m-0 grid list-none grid-cols-1 gap-2 p-0 xl:grid-cols-2 xl:gap-x-4">
           {students.map((st) => {
             const pass = passForStudent(board.passes, st.id);
-            const tag = pass ? passTag(pass, now, s) : null;
+            // Sin pase pero perdió su turno hoy: se marca para que lo vuelvan a pedir.
+            const tag = pass
+              ? passTag(pass, now, s)
+              : lostTurnFor(board, st.id)
+                ? LOST_TURN_TAG
+                : null;
             const today = counts.data?.counts[st.id];
             // Marca para quien ya salió al baño muchas veces hoy (límite en settings).
             const flagged = Boolean(counts.data && today && today.bathroom >= counts.data.flag);
@@ -609,11 +620,16 @@ function SexSlot({
   }
 
   // called o queued: el alumno todavía no sale.
+  const prio = pass.priority && pass.status === 'queued';
   return (
     <SlotFrame
-      tone="wait"
+      tone={prio ? 'prio' : 'wait'}
       title={title}
-      chip={<Chip tone="wait">{pass.status === 'called' ? 'Su turno' : 'En fila'}</Chip>}
+      chip={
+        <Chip tone={prio ? 'prio' : 'wait'}>
+          {pass.status === 'called' ? 'Su turno' : prio ? 'Preferencia' : 'En fila'}
+        </Chip>
+      }
     >
       <span className="truncate text-[20px] font-bold sm:text-[22px]">{pass.full_name}</span>
       <span className="text-[15px] text-muted">
@@ -622,9 +638,14 @@ function SexSlot({
           ? 'confirma su salida arriba'
           : `lugar ${pass.queue_position ?? '—'} en la fila`}
       </span>
+      {prio ? (
+        <span className="text-[14px] font-bold text-prio-fg">
+          Perdió su turno: recuperó su lugar en la fila
+        </span>
+      ) : null}
       {bath && bath.queue.length > 0 ? (
         <span className="text-[13px] text-muted">
-          Fila: {bath.queue.map((q) => q.group_name).join(', ')}
+          Fila: {bath.queue.map(queueGroupLabel).join(', ')}
         </span>
       ) : null}
       <button
@@ -813,9 +834,7 @@ function BathroomBar({ bathrooms, now }: { bathrooms: Bathroom[]; now: number })
             <span
               className={`ml-auto text-[14px] font-bold ${b.queue.length ? 'text-wait-fg' : 'text-free-fg'}`}
             >
-              {b.queue.length
-                ? `En fila: ${b.queue.map((q) => q.group_name).join(', ')}`
-                : 'Sin fila'}
+              {b.queue.length ? `En fila: ${b.queue.map(queueGroupLabel).join(', ')}` : 'Sin fila'}
             </span>
           </div>
         );

@@ -31,6 +31,10 @@
   --nurse-fg: 31 79 156; /* #1F4F9C */
   --nurse-bg: 230 238 251; /* #E6EEFB */
   --nurse-bd: 91 134 201; /* #5B86C9 */
+  /* Perdió su turno y tiene preferencia en la fila. */
+  --prio-fg: 92 45 145; /* #5C2D91 */
+  --prio-bg: 241 233 252; /* #F1E9FC */
+  --prio-bd: 142 91 214; /* #8E5BD6 */
 }
 
 @layer base {

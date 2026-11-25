@@ -568,6 +568,8 @@ export type Database = {
           left_nurse_at: string | null
           opened_by: string | null
           period_subject: string | null
+          priority_from: string | null
+          priority_ts: string | null
           queue_ts: string | null
           release_reason: string | null
           requested_at: string
@@ -590,6 +592,8 @@ export type Database = {
           left_nurse_at?: string | null
           opened_by?: string | null
           period_subject?: string | null
+          priority_from?: string | null
+          priority_ts?: string | null
           queue_ts?: string | null
           release_reason?: string | null
           requested_at?: string
@@ -612,6 +616,8 @@ export type Database = {
           left_nurse_at?: string | null
           opened_by?: string | null
           period_subject?: string | null
+          priority_from?: string | null
+          priority_ts?: string | null
           queue_ts?: string | null
           release_reason?: string | null
           requested_at?: string

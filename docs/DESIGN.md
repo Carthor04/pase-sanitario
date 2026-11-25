@@ -50,6 +50,7 @@ Una sola app responsive: por debajo de 640 px usa las versiones "Movil*"; arriba
   --wait-fg: #8A4B00;   --wait-bg: #FFF0D6; --wait-bd: #E79B2E; /* fila / turno / espera */
   --alert-fg: #A3221A;  --alert-bg: #FDE9E7; --alert-bd: #C8372D; /* alerta 10 min */
   --nurse-fg: #1F4F9C;  --nurse-bg: #E6EEFB; --nurse-bd: #5B86C9; /* enfermería */
+  --prio-fg: #5C2D91;   --prio-bg: #F1E9FC;  --prio-bd: #8E5BD6;  /* perdió su turno: tiene preferencia */
   --dark: #15212C;      /* encabezado de prefectura y pantalla bloqueada */
 }
 ```

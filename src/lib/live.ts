@@ -151,6 +151,8 @@ type PassResult = {
   id: string;
   status: ActiveStatus | 'returned' | 'cancelled' | 'released';
   queue_position: number | null;
+  /** Pase que perdió su turno y le dio preferencia a este. */
+  priority_from?: string | null;
   destination_id: string;
 };
 
@@ -271,6 +273,8 @@ export type WaitItem = {
   subject?: string | null;
   opened_by?: string | null;
   current_teacher?: string | null;
+  /** Perdió su turno y recuperó su lugar en la fila. */
+  priority?: boolean;
 };
 
 export type BathroomsStatus = {

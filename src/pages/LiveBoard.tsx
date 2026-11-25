@@ -463,13 +463,26 @@ function Column({
                 key={p.id}
                 type="button"
                 onClick={() => onSelect(p)}
-                className="flex items-center gap-3 rounded-btn-lg border border-wait-bd/50 bg-wait-bg/40 px-3 py-2.5 text-left"
+                className={`flex items-center gap-3 rounded-btn-lg px-3 py-2.5 text-left ${
+                  p.priority
+                    ? 'border-2 border-prio-bd bg-prio-bg'
+                    : 'border border-wait-bd/50 bg-wait-bg/40'
+                }`}
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-wait-bg font-bold text-wait-fg">
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-bold ${
+                    p.priority ? 'bg-prio-fg text-white' : 'bg-wait-bg text-wait-fg'
+                  }`}
+                >
                   {i + 1}
                 </span>
                 <span className="flex min-w-0 flex-1 flex-col">
                   <span className="truncate font-bold">{p.full_name}</span>
+                  {p.priority ? (
+                    <span className="text-[13px] font-bold text-prio-fg">
+                      Preferencia: perdió su turno
+                    </span>
+                  ) : null}
                   <span className="text-[13px] text-muted">
                     {p.group_name}
                     {p.period_subject ? ` · pidió en ${p.period_subject}` : ''}
@@ -478,7 +491,15 @@ function Column({
                 </span>
                 <span className="font-mono text-[15px] tabular-nums text-wait-fg">
                   {pausedMark}espera{' '}
-                  {formatElapsed(p.queue_ts ? waitElapsed(p.queue_ts, now, pause) : 0)}
+                  {formatElapsed(
+                    // Con preferencia su queue_ts es el lugar que recuperó: la espera
+                    // cuenta desde que lo volvieron a pedir.
+                    waitElapsed(
+                      (p.priority ? p.requested_at : p.queue_ts) ?? p.requested_at,
+                      now,
+                      pause,
+                    ),
+                  )}
                 </span>
               </button>
             ))}

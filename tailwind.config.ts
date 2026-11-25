@@ -27,6 +27,7 @@ export default {
         wait: { fg: token('wait-fg'), bg: token('wait-bg'), bd: token('wait-bd') },
         alert: { fg: token('alert-fg'), bg: token('alert-bg'), bd: token('alert-bd') },
         nurse: { fg: token('nurse-fg'), bg: token('nurse-bg'), bd: token('nurse-bd') },
+        prio: { fg: token('prio-fg'), bg: token('prio-bg'), bd: token('prio-bd') },
       },
       fontFamily: {
         display: ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],

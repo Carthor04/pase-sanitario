@@ -116,6 +116,16 @@ export function UiPreview() {
                 destination_label: 'Baño hombres',
                 started_at: iso(6.2),
               },
+              // Perdió su turno y lo volvieron a pedir: recuperó su lugar.
+              {
+                ...base(5),
+                sex: 'M',
+                status: 'queued',
+                started_at: null,
+                queue_ts: iso(9),
+                queue_position: 1,
+                priority: true,
+              },
             ]
           : [];
     const b: Board & { offsetMs: number } = {
@@ -128,6 +138,8 @@ export function UiPreview() {
         auto_lock_after_class_minutes: 5,
       },
       passes,
+      // Perdió su turno y todavía no lo vuelven a pedir.
+      lost_turns: view === 'libre' ? [{ student_id: 's10', pass_id: 'x', at: iso(1) }] : [],
       bathrooms: [
         {
           id: 'bath_h',
@@ -143,7 +155,7 @@ export function UiPreview() {
             },
           ],
           queue: [
-            { group_name: '3°A', own: false },
+            { group_name: '3°A', own: false, priority: true },
             { group_name: '1°C', own: false },
           ],
         },
@@ -300,6 +312,8 @@ function livePreview(): LiveData {
         destination_id: 'bath_h',
         status: 'queued',
         queue_ts: iso(6.2),
+        requested_at: iso(1.5),
+        priority: true,
       }),
       p({
         id: 'c',

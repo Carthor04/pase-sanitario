@@ -49,13 +49,14 @@ group_wait ──► queued ──► called ──► out ──► returned
   - Si **cede** o **no confirma a tiempo** → vuelve a `queued` en **segundo lugar** (detrás del siguiente) y se llama al siguiente.
   - **Ceder con un solo alumno en fila** (decisión 2026-10-15): no se puede. El botón aparece deshabilitado con el texto "Nadie más en fila"; el maestro confirma o cancela. (Si no confirma a tiempo y no hay nadie más, sigue siendo su turno.)
   - **Turnos perdidos** (decisión 2026-11-09): un pase solo vuelve al segundo lugar hasta `max_missed_turns` (2) turnos vencidos. En la vez que llega al límite se **cancela solo** (lo hace el sistema, queda en la bitácora) y se avisa al maestro para que lo pida de nuevo. Así un pase que nadie atiende no aparta el baño una y otra vez. Ceder no cuenta como turno perdido.
+  - **Turno perdido con preferencia** (decisión 2026-11-24): si un pase se canceló solo por no confirmar su turno, al pedirlo de nuevo ese mismo día **recupera su lugar** en la fila (su `queue_ts` es el del pase perdido; si antes espera a su grupo, entra a la fila en ese lugar). Se da **una sola vez**: si el pase con preferencia también pierde su turno, el siguiente va al final. Mientras no lo vuelvan a pedir, la lista del salón lo marca en morado con "Perdió su turno · tiene preferencia"; con el pase ya pedido dice "Preferencia · lugar N". Prefectura y Baños en vivo también lo marcan. Como perder el turno ya no le quita su lugar, `max_missed_turns` baja a **1**: el pase se cancela al primer turno vencido y la fila avanza más rápido.
   - El turno vence en cuanto se acaba la cuenta regresiva: la pantalla le pide a la BD que lo revise (`expire_turns`), sin esperar a `tick()`. La BD decide con su propia hora.
 - `out`: fuera del salón, corre el cronómetro desde `started_at`.
 - `returned`: el maestro marcó regreso. Cierra el pase.
 - `released`: prefectura liberó el lugar (requiere motivo). Cierra el pase y genera incidencia.
 - `cancelled`: el maestro canceló antes de salir.
 
-**Lugar del grupo:** por grupo y por sexo, a lo más un pase en `queued | called | out`. Los demás quedan en `group_wait`. Es la regla `uses_group_slot` de cada baño: el de hombres no la usa (decisión 2026-10-23), es una sola lista general para todos los salones y sale uno a la vez por su cupo de 1.
+**Lugar del grupo:** por grupo y por sexo, a lo más un pase en `queued | called | out`. Los demás quedan en `group_wait`. Es la regla `uses_group_slot` de cada baño: ningún baño la usa: el de hombres desde el 2026-10-23 y el de mujeres desde el 2026-11-25. Cada uno es una sola fila general para todos los salones y salen según su cupo (hombres 1, mujeres el que tenga en Configuración).
 
 **El pase sigue al alumno:** el grupo del lugar es el salón donde está el alumno (en Inglés, el salón del nivel). Si termina la clase y su pase todavía no sale, `tick()` lo pasa al salón donde está ahora; si ahí el lugar ya está ocupado, queda en `group_wait` con la hora en que se pidió (decisión 2026-10-23). En un baño sin lugar por grupo (hombres) sigue en la fila con su lugar, o conserva su turno (2026-11-09).
 
